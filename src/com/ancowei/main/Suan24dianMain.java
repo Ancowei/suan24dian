@@ -1,5 +1,8 @@
 package com.ancowei.main;
 
+import java.util.ArrayList;
+
+import com.ancowei.calculate.Calculate;
 import com.example.suan24dian.R;
 
 import android.app.Activity;
@@ -194,6 +197,15 @@ public class Suan24dianMain extends Activity {
 	//判断输入表达式是否正确，结果是否为24的函数
 	public String ifResult(String str_calculate){
 		String res="结果有待处理。。。";
+		ArrayList postfix;
+		Calculate cal = new Calculate();
+		postfix=cal.transform(str_calculate);
+		boolean resB=cal.calculate(postfix);
+		if(resB){
+			res="结果正确";
+		}else{
+			res="结果错误，请重新计算";
+		}
 		
 		return res;
 	}
