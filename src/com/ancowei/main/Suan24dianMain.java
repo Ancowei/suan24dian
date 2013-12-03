@@ -27,7 +27,7 @@ public class Suan24dianMain extends Activity {
 	Button btn_devide; // 除
 	Button btn_left; // 左括号
 	Button btn_right;// 右括号
-	
+
 	Button btn_back; // 后退
 	Button btn_clear; // 清屏
 	Button btn_commit; // 提交
@@ -37,18 +37,21 @@ public class Suan24dianMain extends Activity {
 	Button btn_exit;
 
 	TextView text_result;
-	
+
 	EditText edit_calculate;
-	
+
 	public String num1;
 	public String num2;
 	public String num3;
 	public String num4;
-	
+
 	public String calculate = "";
-	
+	public boolean preIfnum = false;
+	public String preNum = "";
+	public int count = 0;
+	public int[] numOrder = new int[4];
+	int i = 0;
 	private Handler myH;
-	
 
 	private btnOnClickListener btnOnclick;
 
@@ -60,48 +63,47 @@ public class Suan24dianMain extends Activity {
 		btn_2 = (Button) findViewById(R.id.btn_2);
 		btn_3 = (Button) findViewById(R.id.btn_3);
 		btn_4 = (Button) findViewById(R.id.btn_4);
-		
-		btn_plus=(Button)findViewById(R.id.btn_plus);
-		btn_minus=(Button)findViewById(R.id.btn_minus);
-		btn_cal=(Button)findViewById(R.id.btn_cal);
-		btn_devide=(Button)findViewById(R.id.btn_devide);
-		btn_left=(Button)findViewById(R.id.btn_left);
-		btn_right=(Button)findViewById(R.id.btn_right);
-		
-		btn_back=(Button)findViewById(R.id.btn_back);
-		btn_clear=(Button)findViewById(R.id.btn_clear);
-		btn_commit=(Button)findViewById(R.id.btn_commit);
-		
+
+		btn_plus = (Button) findViewById(R.id.btn_plus);
+		btn_minus = (Button) findViewById(R.id.btn_minus);
+		btn_cal = (Button) findViewById(R.id.btn_cal);
+		btn_devide = (Button) findViewById(R.id.btn_devide);
+		btn_left = (Button) findViewById(R.id.btn_left);
+		btn_right = (Button) findViewById(R.id.btn_right);
+
+		btn_back = (Button) findViewById(R.id.btn_back);
+		btn_clear = (Button) findViewById(R.id.btn_clear);
+		btn_commit = (Button) findViewById(R.id.btn_commit);
+
 		btn_last = (Button) findViewById(R.id.btn_last);
 		btn_next = (Button) findViewById(R.id.btn_next);
 		btn_exit = (Button) findViewById(R.id.btn_exit);
-		
+
 		edit_calculate = (EditText) findViewById(R.id.edit_calculate);
-		
-		text_result=(TextView)findViewById(R.id.text_result);
-		
+
+		text_result = (TextView) findViewById(R.id.text_result);
+
 		btnOnclick = new btnOnClickListener();
-		
+
 		btn_last.setOnClickListener(btnOnclick);
 		btn_next.setOnClickListener(btnOnclick);
 		btn_exit.setOnClickListener(btnOnclick);
-		
+
 		btn_1.setOnClickListener(btnOnclick);
 		btn_2.setOnClickListener(btnOnclick);
 		btn_3.setOnClickListener(btnOnclick);
 		btn_4.setOnClickListener(btnOnclick);
-		
+
 		btn_plus.setOnClickListener(btnOnclick);
 		btn_minus.setOnClickListener(btnOnclick);
 		btn_cal.setOnClickListener(btnOnclick);
 		btn_devide.setOnClickListener(btnOnclick);
 		btn_left.setOnClickListener(btnOnclick);
 		btn_right.setOnClickListener(btnOnclick);
-		
+
 		btn_back.setOnClickListener(btnOnclick);
 		btn_clear.setOnClickListener(btnOnclick);
 		btn_commit.setOnClickListener(btnOnclick);
-		
 		// getRandom();
 		myH = new myHandler();
 		new NumThread().start();
@@ -112,77 +114,195 @@ public class Suan24dianMain extends Activity {
 		@Override
 		public void onClick(View v) {
 			switch (v.getId()) {
+			// 点击数字时候，需要判断前面一个是否为数字
 			case R.id.btn_1:
-				calculate = calculate + btn_1.getText();
-				btn_1.setText("");
-				edit_calculate.setText(calculate);
+				if (!preIfnum) {
+					numOrder[i++] = R.id.btn_1;
+					preNum = "" + btn_1.getText();
+					calculate = calculate + btn_1.getText();
+					btn_1.setText("");
+					edit_calculate.setText(calculate);
+					preIfnum = true;
+					count++;
+				}
 				break;
 			case R.id.btn_2:
-				calculate = calculate + btn_2.getText();
-				btn_2.setText("");
-				edit_calculate.setText(calculate);
+				if (!preIfnum) {
+					numOrder[i++] = R.id.btn_2;
+					preNum = "" + btn_2.getText();
+					calculate = calculate + btn_2.getText();
+					btn_2.setText("");
+					edit_calculate.setText(calculate);
+					preIfnum = true;
+					count++;
+				}
+
 				break;
 			case R.id.btn_3:
-				calculate = calculate + btn_3.getText();
-				btn_3.setText("");
-				edit_calculate.setText(calculate);
+				if (!preIfnum) {
+					numOrder[i++] = R.id.btn_3;
+					preNum = "" + btn_3.getText();
+					calculate = calculate + btn_3.getText();
+					btn_3.setText("");
+					edit_calculate.setText(calculate);
+					preIfnum = true;
+					count++;
+				}
 				break;
 			case R.id.btn_4:
-				calculate = calculate + btn_4.getText();
-				btn_4.setText("");
-				edit_calculate.setText(calculate);
+				if (!preIfnum) {
+					numOrder[i++] = R.id.btn_4;
+					preNum = "" + btn_4.getText();
+					calculate = calculate + btn_4.getText();
+					btn_4.setText("");
+					edit_calculate.setText(calculate);
+					preIfnum = true;
+					count++;
+				}
 				break;
-
+			// 只有数字还没全部输入完毕才可以输入+号
 			case R.id.btn_plus:
-				calculate = calculate+btn_plus.getText();
-				edit_calculate.setText(calculate);
+				if (count != 4) {
+					preNum = "" + btn_plus.getText();
+					calculate = calculate + btn_plus.getText();
+					edit_calculate.setText(calculate);
+					preIfnum = false;
+				}
 				break;
 			case R.id.btn_minus:
-				calculate = calculate+btn_minus.getText();
-				edit_calculate.setText(calculate);
+				if (count != 4) {
+					preNum = "" + btn_minus.getText();
+					calculate = calculate + btn_minus.getText();
+					edit_calculate.setText(calculate);
+					preIfnum = false;
+				}
+
 				break;
 			case R.id.btn_cal:
-				calculate = calculate+btn_cal.getText();
-				edit_calculate.setText(calculate);
+				if (count != 4) {
+					preNum = "" + btn_cal.getText();
+					calculate = calculate + btn_cal.getText();
+					edit_calculate.setText(calculate);
+					preIfnum = false;
+				}
 				break;
 			case R.id.btn_devide:
-				calculate = calculate+ btn_devide.getText();
-				edit_calculate.setText(calculate);
+				if (count != 4) {
+					preNum = "" + btn_devide.getText();
+					calculate = calculate + btn_devide.getText();
+					edit_calculate.setText(calculate);
+					preIfnum = false;
+				}
 				break;
 			case R.id.btn_left:
-				calculate = calculate+ btn_left.getText();
-				edit_calculate.setText(calculate);
+				if (count != 4) {
+					preNum = "" + btn_left.getText();
+					calculate = calculate + btn_left.getText();
+					edit_calculate.setText(calculate);
+					preIfnum = false;
+				}
 				break;
 			case R.id.btn_right:
-				calculate = calculate+ btn_right.getText();
+				preNum = "" + btn_right.getText();
+				calculate = calculate + btn_right.getText();
 				edit_calculate.setText(calculate);
+				preIfnum = false;
 				break;
 			case R.id.btn_back:
-				
+				int len = calculate.length();
+				if (len != 0) {
+					if (len == 1) {
+						preNum = "";
+						if (Character.isDigit(calculate.charAt(len - 1))) {
+							// 调用函数恢复数字
+							preIfnum = false;
+							i = 0;
+							recoverNum(numOrder[0]);
+							--count;
+						}
+						calculate = calculate.substring(0, len - 1);
+						edit_calculate.setText(calculate);
+					} else { // len>1
+						if (Character.isDigit(calculate.charAt(len - 1))) {
+							if (Character.isDigit(calculate.charAt(len - 2))) {
+								if (len == 2) {
+									preNum = "";
+								} else {
+									preNum = "" + calculate.charAt(len - 3);
+								}
+								recoverNum(numOrder[--i]);
+								--count;
+								preIfnum = false;
+								calculate = calculate.substring(0, len - 2);
+								edit_calculate.setText(calculate);
+							} else {
+								recoverNum(numOrder[--i]);
+								--count;
+								preIfnum = false;
+								preNum = "" + calculate.charAt(len - 2);
+								calculate = calculate.substring(0, len - 1);
+								edit_calculate.setText(calculate);
+							}
+						} else {
+							if (Character.isDigit(calculate.charAt(len - 2))
+									&& len > 2
+									&& Character.isDigit(calculate
+											.charAt(len - 3))) {
+								preNum = "" + calculate.charAt(len - 3)
+										+ calculate.charAt(len - 2);
+
+							} else {
+								preNum = "" + calculate.charAt(len - 2);
+							}
+							calculate = calculate.substring(0, len - 1);
+							edit_calculate.setText(calculate);
+						}
+					}
+					System.out.println(preNum);
+				}
 				break;
 			case R.id.btn_clear:
+				count = 0;
+				i = 0;
+				preNum = "";
+				preIfnum = false;
 				edit_calculate.setText("");
-				calculate="";
+				calculate = "";
 				btn_1.setText(num1);
 				btn_2.setText(num2);
 				btn_3.setText(num3);
 				btn_4.setText(num4);
 				break;
 			case R.id.btn_commit:
-				//调用处理表达式是否正确，运算结果是否为24的函数
-				String res=ifResult(calculate);;
-				text_result.setText(res);
-				
+				if (count == 4) {
+					// 调用处理表达式是否正确，运算结果是否为24的函数
+					if (calculate.length() != 0) {
+						String res = ifResult(calculate);
+						text_result.setText(res);
+					} else {
+						text_result.setText("请输入正确的表达式");
+					}
+				} else {
+					text_result.setText("必须用完四个数！");
+				}
+
 				break;
 			case R.id.btn_last:
-				calculate="";
+				i = 0;
+				preNum = "";
+				preIfnum = false;
+				calculate = "";
 				edit_calculate.setText(calculate);
 				new NumThread().start();
 				// getRandom();
 				break;
 			case R.id.btn_next:
+				i = 0;
+				count = 0;
+				preNum = "";
+				preIfnum = false;
 				// getRandom();
-				calculate="";
+				calculate = "";
 				edit_calculate.setText(calculate);
 				new NumThread().start();
 				break;
@@ -193,20 +313,41 @@ public class Suan24dianMain extends Activity {
 		}
 
 	}
-	
-	//判断输入表达式是否正确，结果是否为24的函数
-	public String ifResult(String str_calculate){
-		String res="结果有待处理。。。";
+
+	// 回退时候，如果是数字，恢复按钮数字
+	public void recoverNum(int id) {
+		switch (id) {
+		case R.id.btn_1:
+			btn_1.setText(num1);
+			break;
+		case R.id.btn_2:
+			btn_2.setText(num2);
+			break;
+		case R.id.btn_3:
+			btn_3.setText(num3);
+			break;
+		case R.id.btn_4:
+			btn_4.setText(num4);
+			break;
+		default:
+			break;
+		}
+
+	}
+
+	// 判断输入表达式是否正确，结果是否为24的函数
+	public String ifResult(String str_calculate) {
+		String res = "结果有待处理。。。";
 		ArrayList postfix;
 		Calculate cal = new Calculate();
-		postfix=cal.transform(str_calculate);
-		boolean resB=cal.calculate(postfix);
-		if(resB){
-			res="结果正确";
-		}else{
-			res="结果错误，请重新计算";
+		postfix = cal.transform(str_calculate);
+		boolean resB = cal.calculate(postfix);
+		if (resB) {
+			res = "结果正确";
+		} else {
+			res = "结果错误，请重新计算";
 		}
-		
+
 		return res;
 	}
 

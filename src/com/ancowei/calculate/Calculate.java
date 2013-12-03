@@ -16,9 +16,6 @@ public class Calculate {
 			// 保存后缀表达式的列表,可能是数字，也可能是操作符，之前使用的是ArrayList
 			
 			for (i = 0; i < len + 1; i++) {
-				System.out.print(i + " " + prefix.charAt(i));
-				System.out.println();
-				
 				if (Character.isDigit(prefix.charAt(i))) {// 当前字符是一个数字
 					if (Character.isDigit(prefix.charAt(i + 1))) {// 当前字符的下一个字符也是数字(两位数)
 						postfix.add(10 * (prefix.charAt(i) - '0')//转化为数字
@@ -73,37 +70,29 @@ public class Calculate {
 
 		// 计算后缀表达式
 		public static boolean calculate(ArrayList postfix) {// 后缀表达式的运算顺序就是操作符出现的先后顺序
-			System.out.println("calculate");
 			int i, res = 0, size = postfix.size();
 			Stack<Integer> stack_num = new Stack<Integer>();
 			for (i = 0; i < size; i++) {
 				if (postfix.get(i).getClass() == Integer.class) {// 说明是操作数，这个很有用啊！
 					stack_num.push((Integer) postfix.get(i));
-					System.out.println("push" + " " + (Integer) postfix.get(i));
 				} else {// 如果是操作符
-					System.out.println((Character) postfix.get(i));
 					int a = stack_num.pop();
 					int b = stack_num.pop();// 注意运算时的前者和后者
 					switch ((Character) postfix.get(i)) {
 					case '+':
 						res = b + a;
-						System.out.println("+ " + a + " " + b);
 						break;
 					case '-':
 						res = b - a;
-						System.out.println("- " + a + " " + b);
 						break;
 					case '*':
 						res = b * a;
-						System.out.println("* " + a + " " + b);
 						break;
 					case '/':
 						res = b / a;
-						System.out.println("/ " + a + " " + b);
 						break;
 					}
 					stack_num.push(res);
-					System.out.println("push" + " " + res);
 				}
 			}
 			res = stack_num.pop();
