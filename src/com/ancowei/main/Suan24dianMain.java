@@ -4,8 +4,11 @@ import java.util.ArrayList;
 
 import com.ancowei.calculate.Calculate;
 import com.example.suan24dian.R;
+import com.example.suan24dian.Suan24dian_welcome;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -353,9 +356,7 @@ public class Suan24dianMain extends Activity {
 			public void run() {
 				time = 5;
 				try {
-					while (time > 0) {
-						Thread.sleep(1000);
-						time = time - 1;
+					while (time >= 0) {
 						Message msg = myH.obtainMessage();
 						Bundle timeBundle = new Bundle();
 						timeBundle.putString("time", "" + time);
@@ -363,11 +364,12 @@ public class Suan24dianMain extends Activity {
 						msg.setData(timeBundle);
 						if(time==0){
 							msg.arg1=0;
-							//Toast.makeText(Suan24dianMain.this, "timeup", Toast.LENGTH_LONG).show();
 						}else{
 							msg.arg1=1;
 						}
 						myH.sendMessage(msg);
+						Thread.sleep(1000);
+						time = time - 1;
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -397,7 +399,6 @@ public class Suan24dianMain extends Activity {
 			break;
 		}
 	}
-
 	// 判断输入表达式是否正确，结果是否为24的函数
 	public String ifResult(String str_calculate) throws Exception {
 		String res = "结果有待处理。。。";
@@ -412,10 +413,8 @@ public class Suan24dianMain extends Activity {
 		} else {
 			res = "结果错误，请重新计算";
 		}
-
 		return res;
 	}
-
 	public class myHandler extends Handler {
 		@Override
 		public void handleMessage(Message msg) {
@@ -432,6 +431,18 @@ public class Suan24dianMain extends Activity {
 				Bundle timeBundle = msg.getData();
 				if(msg.arg1==0){
 					text_time.setText(timeBundle.getString("time"));
+					new AlertDialog.Builder(Suan24dianMain.this)  
+					
+	                .setTitle("时间到，看看你做对了多少？")
+	
+	                .setMessage("做对数："+correctNum)
+	
+	                .setPositiveButton("确定", new DialogInterface.OnClickListener(){
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							Suan24dianMain.this.finish(); //时间到，退出计算界面
+						}
+	                }).show();
 					//Suan24dianMain.this.finish(); //时间到，退出计算界面
 				}else{
 					text_time.setText(timeBundle.getString("time"));

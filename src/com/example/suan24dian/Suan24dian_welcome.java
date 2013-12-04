@@ -5,6 +5,7 @@ import com.ancowei.main.Suan24dianMain;
 import ExitApp.ExitApp;
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.View;
@@ -43,17 +44,30 @@ public class Suan24dian_welcome extends Activity {
 				Intent start_intent=new Intent(Suan24dian_welcome.this,Suan24dianMain.class);
 				Suan24dian_welcome.this.startActivity(start_intent);
 				
-				//Toast.makeText(Suan24dian_welcome.this, "start", Toast.LENGTH_LONG).show();
 				break;
 			case R.id.btn_check_ranking:
-				Toast.makeText(Suan24dian_welcome.this, "check_ranking", Toast.LENGTH_LONG).show();
+				new AlertDialog.Builder(Suan24dian_welcome.this)  
+				
+                .setTitle("本次游戏排名")
+
+                .setMessage("A做对：\nB做对：\nC做对：")
+
+                .setPositiveButton("确定", null)
+                .show();
 				break;
 			case R.id.btn_about:
-				Toast.makeText(Suan24dian_welcome.this, "这是Ancowei独立开发的算24点手机游戏，希望你喜欢", Toast.LENGTH_LONG).show();
+				
+				new AlertDialog.Builder(Suan24dian_welcome.this)  
+				
+				                .setTitle("算24点")
+				
+				                .setMessage("开发者：Ancowei\n版本：1.0")
+				
+				                .setPositiveButton("确定", null)
+				                .show();
 				break;
 			case R.id.btn_exit:
 				ExitApp.getInstance().exit();
-				//Toast.makeText(Suan24dian_welcome.this, "exit", Toast.LENGTH_LONG).show();
 				break;
 			}
 		}
