@@ -14,6 +14,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class Suan24dianMain extends Activity {
 	Button btn_1;
@@ -37,7 +38,7 @@ public class Suan24dianMain extends Activity {
 	Button btn_exit;
 
 	TextView text_result;
-
+	TextView text_time;
 	EditText edit_calculate;
 
 	public String num1;
@@ -46,12 +47,26 @@ public class Suan24dianMain extends Activity {
 	public String num4;
 
 	public String calculate = "";
+	//两个数字不可以连在一起
 	public boolean preIfnum = false;
+	//只有当前符号是数字、（、），才可以继续输入+、-、*、/等符号
+	public boolean preIfnumorleftorright = false;
+	//当前数字/符号
 	public String preNum = "";
+	//数字使用个数，本次计算必须使用完四个数字
 	public int count = 0;
+	//数字点击顺序
 	public int[] numOrder = new int[4];
 	int i = 0;
-	private Handler myH;
+	// message 的what字段
+	public static final int RANDOM = 0;
+	public static final int TIME = 1;
+	public static int time = 60;
+	
+	//玩家计算正确的题数
+	public int correctNum=0;
+	
+	private static Handler myH;
 
 	private btnOnClickListener btnOnclick;
 
@@ -82,6 +97,7 @@ public class Suan24dianMain extends Activity {
 		edit_calculate = (EditText) findViewById(R.id.edit_calculate);
 
 		text_result = (TextView) findViewById(R.id.text_result);
+		text_time = (TextView) findViewById(R.id.text_time);
 
 		btnOnclick = new btnOnClickListener();
 
@@ -107,10 +123,11 @@ public class Suan24dianMain extends Activity {
 		// getRandom();
 		myH = new myHandler();
 		new NumThread().start();
+		// new TimeThread().start();
+		setTime();
 	}
 
 	public class btnOnClickListener implements OnClickListener {
-
 		@Override
 		public void onClick(View v) {
 			switch (v.getId()) {
@@ -123,6 +140,7 @@ public class Suan24dianMain extends Activity {
 					btn_1.setText("");
 					edit_calculate.setText(calculate);
 					preIfnum = true;
+					preIfnumorleftorright = true;
 					count++;
 				}
 				break;
@@ -134,6 +152,7 @@ public class Suan24dianMain extends Activity {
 					btn_2.setText("");
 					edit_calculate.setText(calculate);
 					preIfnum = true;
+					preIfnumorleftorright = true;
 					count++;
 				}
 
@@ -146,6 +165,7 @@ public class Suan24dianMain extends Activity {
 					btn_3.setText("");
 					edit_calculate.setText(calculate);
 					preIfnum = true;
+					preIfnumorleftorright = true;
 					count++;
 				}
 				break;
@@ -157,41 +177,55 @@ public class Suan24dianMain extends Activity {
 					btn_4.setText("");
 					edit_calculate.setText(calculate);
 					preIfnum = true;
+					preIfnumorleftorright = true;
 					count++;
 				}
 				break;
 			// 只有数字还没全部输入完毕才可以输入+号
 			case R.id.btn_plus:
-				if (count != 4) {
-					preNum = "" + btn_plus.getText();
-					calculate = calculate + btn_plus.getText();
-					edit_calculate.setText(calculate);
-					preIfnum = false;
+				if (count != 4 && count != 0) {
+					if (preIfnumorleftorright) {
+						preNum = "" + btn_plus.getText();
+						calculate = calculate + btn_plus.getText();
+						edit_calculate.setText(calculate);
+						preIfnum = false;
+						preIfnumorleftorright = false;
+					}
 				}
 				break;
 			case R.id.btn_minus:
-				if (count != 4) {
-					preNum = "" + btn_minus.getText();
-					calculate = calculate + btn_minus.getText();
-					edit_calculate.setText(calculate);
-					preIfnum = false;
+				if (count != 4 && count != 0) {
+					if (preIfnumorleftorright) {
+						preNum = "" + btn_minus.getText();
+						calculate = calculate + btn_minus.getText();
+						edit_calculate.setText(calculate);
+						preIfnum = false;
+						preIfnumorleftorright = false;
+					}
+
 				}
 
 				break;
 			case R.id.btn_cal:
-				if (count != 4) {
-					preNum = "" + btn_cal.getText();
-					calculate = calculate + btn_cal.getText();
-					edit_calculate.setText(calculate);
-					preIfnum = false;
+				if (count != 4 && count != 0) {
+					if (preIfnumorleftorright) {
+						preNum = "" + btn_cal.getText();
+						calculate = calculate + btn_cal.getText();
+						edit_calculate.setText(calculate);
+						preIfnum = false;
+						preIfnumorleftorright = false;
+					}
 				}
 				break;
 			case R.id.btn_devide:
-				if (count != 4) {
-					preNum = "" + btn_devide.getText();
-					calculate = calculate + btn_devide.getText();
-					edit_calculate.setText(calculate);
-					preIfnum = false;
+				if (count != 4 && count != 0) {
+					if (preIfnumorleftorright) {
+						preNum = "" + btn_devide.getText();
+						calculate = calculate + btn_devide.getText();
+						edit_calculate.setText(calculate);
+						preIfnum = false;
+						preIfnumorleftorright = false;
+					}
 				}
 				break;
 			case R.id.btn_left:
@@ -200,6 +234,7 @@ public class Suan24dianMain extends Activity {
 					calculate = calculate + btn_left.getText();
 					edit_calculate.setText(calculate);
 					preIfnum = false;
+					preIfnumorleftorright = true;
 				}
 				break;
 			case R.id.btn_right:
@@ -207,6 +242,7 @@ public class Suan24dianMain extends Activity {
 				calculate = calculate + btn_right.getText();
 				edit_calculate.setText(calculate);
 				preIfnum = false;
+				preIfnumorleftorright = true;
 				break;
 			case R.id.btn_back:
 				int len = calculate.length();
@@ -276,16 +312,16 @@ public class Suan24dianMain extends Activity {
 			case R.id.btn_commit:
 				if (count == 4) {
 					// 调用处理表达式是否正确，运算结果是否为24的函数
-					if (calculate.length() != 0) {
+					try {
 						String res = ifResult(calculate);
 						text_result.setText(res);
-					} else {
-						text_result.setText("请输入正确的表达式");
+					} catch (Exception e) {
+						e.printStackTrace();
+						text_result.setText("请输入正确的表达式！");
 					}
 				} else {
 					text_result.setText("必须用完四个数！");
 				}
-
 				break;
 			case R.id.btn_last:
 				i = 0;
@@ -294,14 +330,13 @@ public class Suan24dianMain extends Activity {
 				calculate = "";
 				edit_calculate.setText(calculate);
 				new NumThread().start();
-				// getRandom();
+			  //btn_last.setText("正确："+correctNum);
 				break;
 			case R.id.btn_next:
 				i = 0;
 				count = 0;
 				preNum = "";
 				preIfnum = false;
-				// getRandom();
 				calculate = "";
 				edit_calculate.setText(calculate);
 				new NumThread().start();
@@ -311,6 +346,35 @@ public class Suan24dianMain extends Activity {
 				break;
 			}
 		}
+	}
+	// 实现倒计时功能
+	public void setTime() {
+		new Thread() {
+			public void run() {
+				time = 5;
+				try {
+					while (time > 0) {
+						Thread.sleep(1000);
+						time = time - 1;
+						Message msg = myH.obtainMessage();
+						Bundle timeBundle = new Bundle();
+						timeBundle.putString("time", "" + time);
+						msg.what = TIME;
+						msg.setData(timeBundle);
+						if(time==0){
+							msg.arg1=0;
+							//Toast.makeText(Suan24dianMain.this, "timeup", Toast.LENGTH_LONG).show();
+						}else{
+							msg.arg1=1;
+						}
+						myH.sendMessage(msg);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+
+		}.start();
 
 	}
 
@@ -332,11 +396,10 @@ public class Suan24dianMain extends Activity {
 		default:
 			break;
 		}
-
 	}
 
 	// 判断输入表达式是否正确，结果是否为24的函数
-	public String ifResult(String str_calculate) {
+	public String ifResult(String str_calculate) throws Exception {
 		String res = "结果有待处理。。。";
 		ArrayList postfix;
 		Calculate cal = new Calculate();
@@ -344,6 +407,8 @@ public class Suan24dianMain extends Activity {
 		boolean resB = cal.calculate(postfix);
 		if (resB) {
 			res = "结果正确";
+			//正确题数加1
+			correctNum++;
 		} else {
 			res = "结果错误，请重新计算";
 		}
@@ -355,28 +420,26 @@ public class Suan24dianMain extends Activity {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
-			Bundle numBundle = msg.getData();
-			btn_1.setText(numBundle.getString("num1"));
-			btn_2.setText(numBundle.getString("num2"));
-			btn_3.setText(numBundle.getString("num3"));
-			btn_4.setText(numBundle.getString("num4"));
+			switch (msg.what) {
+			case RANDOM:
+				Bundle numBundle = msg.getData();
+				btn_1.setText(numBundle.getString("num1"));
+				btn_2.setText(numBundle.getString("num2"));
+				btn_3.setText(numBundle.getString("num3"));
+				btn_4.setText(numBundle.getString("num4"));
+				break;
+			case TIME:
+				Bundle timeBundle = msg.getData();
+				if(msg.arg1==0){
+					text_time.setText(timeBundle.getString("time"));
+					//Suan24dianMain.this.finish(); //时间到，退出计算界面
+				}else{
+					text_time.setText(timeBundle.getString("time"));
+				}
+				break;
+			}
 		}
 	}
-
-	public void getRandom() {
-		// 产生1-13之间的四个随机数
-		String num1 = "" + (int) (Math.random() * 13 + 1);
-		String num2 = "" + (int) (Math.random() * 13 + 1);
-		String num3 = "" + (int) (Math.random() * 13 + 1);
-		String num4 = "" + (int) (Math.random() * 13 + 1);
-		System.out.println(num1);
-		System.out.println(num4);
-		btn_1.setText(num1);
-		btn_2.setText(num2);
-		btn_3.setText(num3);
-		btn_4.setText(num4);
-	}
-
 	// 开启一个新的线程，产生1-13之间的随机数
 	public class NumThread extends Thread {
 		public void run() {
@@ -392,6 +455,7 @@ public class Suan24dianMain extends Activity {
 			numBundle.putString("num3", num3);
 			numBundle.putString("num4", num4);
 			Message msg = myH.obtainMessage();
+			msg.what = RANDOM;
 			msg.setData(numBundle);
 			myH.sendMessage(msg);
 		}
