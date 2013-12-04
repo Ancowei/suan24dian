@@ -33,7 +33,7 @@ public final class R {
         public static final int xingqiao=0x7f020005;
     }
     public static final class id {
-        public static final int action_settings=0x7f080016;
+        public static final int action_settings=0x7f08001d;
         public static final int btn_1=0x7f080001;
         public static final int btn_2=0x7f080002;
         public static final int btn_3=0x7f080003;
@@ -41,6 +41,7 @@ public final class R {
         public static final int btn_about=0x7f080015;
         public static final int btn_back=0x7f08000a;
         public static final int btn_cal=0x7f080008;
+        public static final int btn_cancle=0x7f08001b;
         public static final int btn_check_ranking=0x7f080014;
         public static final int btn_clear=0x7f08000d;
         public static final int btn_commit=0x7f08000e;
@@ -48,18 +49,25 @@ public final class R {
         public static final int btn_exit=0x7f080012;
         public static final int btn_last=0x7f080010;
         public static final int btn_left=0x7f08000b;
+        public static final int btn_login=0x7f080016;
         public static final int btn_minus=0x7f080007;
         public static final int btn_next=0x7f080011;
+        public static final int btn_ok=0x7f08001c;
         public static final int btn_plus=0x7f080006;
         public static final int btn_right=0x7f08000c;
         public static final int btn_start=0x7f080013;
         public static final int edit_calculate=0x7f080005;
+        public static final int edit_name=0x7f080018;
+        public static final int edit_password=0x7f08001a;
+        public static final int text_name=0x7f080017;
+        public static final int text_password=0x7f080019;
         public static final int text_result=0x7f08000f;
         public static final int text_time=0x7f080000;
     }
     public static final class layout {
         public static final int activity_suan24dian_main=0x7f030000;
         public static final int activity_suan24dian_welcome=0x7f030001;
+        public static final int suan24dian_login=0x7f030002;
     }
     public static final class menu {
         public static final int suan24dian_welcome=0x7f070000;

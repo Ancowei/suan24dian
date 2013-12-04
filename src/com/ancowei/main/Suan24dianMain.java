@@ -354,7 +354,7 @@ public class Suan24dianMain extends Activity {
 	public void setTime() {
 		new Thread() {
 			public void run() {
-				time = 5;
+				time = 60;
 				try {
 					while (time >= 0) {
 						Message msg = myH.obtainMessage();

@@ -23,6 +23,7 @@
             </intent-filter>
         </activity>
         <activity android:name="com.ancowei.main.Suan24dianMain"></activity>
+        <activity android:name="com.ancowei.login.suan24dian_Login"></activity>
     </application>
 
 </manifest>

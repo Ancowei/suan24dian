@@ -16,6 +16,8 @@ public class Calculate {
 			// 保存后缀表达式的列表,可能是数字，也可能是操作符，之前使用的是ArrayList
 			
 			for (i = 0; i < len + 1; i++) {
+				System.out.print(prefix.charAt(i));
+				
 				if (Character.isDigit(prefix.charAt(i))) {// 当前字符是一个数字
 					if (Character.isDigit(prefix.charAt(i + 1))) {// 当前字符的下一个字符也是数字(两位数)
 						postfix.add(10 * (prefix.charAt(i) - '0')//转化为数字
