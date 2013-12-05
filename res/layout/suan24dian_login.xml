@@ -53,7 +53,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
                 android:gravity="center"
-                android:text="密码："
+                android:text="密码:"
                 android:textColor="@drawable/xingqiao"
                 android:textSize="20dp" />
 
@@ -61,6 +61,7 @@
                 android:id="@+id/edit_password"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:password="true"
                 android:layout_weight="1" />
         </LinearLayout>
 

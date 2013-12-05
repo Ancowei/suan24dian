@@ -3,6 +3,8 @@ package com.ancowei.main;
 import java.util.ArrayList;
 
 import com.ancowei.calculate.Calculate;
+import com.ancowei.db.SqlHandler;
+import com.ancowei.login.suan24dian_Login;
 import com.example.suan24dian.R;
 import com.example.suan24dian.Suan24dian_welcome;
 
@@ -48,7 +50,8 @@ public class Suan24dianMain extends Activity {
 	public String num2;
 	public String num3;
 	public String num4;
-
+	
+	
 	public String calculate = "";
 	//两个数字不可以连在一起
 	public boolean preIfnum = false;
@@ -66,8 +69,10 @@ public class Suan24dianMain extends Activity {
 	public static final int TIME = 1;
 	public static int time = 60;
 	
+	
 	//玩家计算正确的题数
 	public int correctNum=0;
+	public static int highestNum=0;
 	
 	private static Handler myH;
 
@@ -123,10 +128,15 @@ public class Suan24dianMain extends Activity {
 		btn_back.setOnClickListener(btnOnclick);
 		btn_clear.setOnClickListener(btnOnclick);
 		btn_commit.setOnClickListener(btnOnclick);
-		// getRandom();
+		
 		myH = new myHandler();
 		new NumThread().start();
-		// new TimeThread().start();
+		
+		if(correctNum>highestNum){
+			highestNum=correctNum;
+			//更新数据库
+			suan24dian_Login.sqlHelper.update(suan24dian_Login.user_Name, highestNum);
+		}
 		setTime();
 	}
 
@@ -410,6 +420,10 @@ public class Suan24dianMain extends Activity {
 			res = "结果正确";
 			//正确题数加1
 			correctNum++;
+			if(correctNum>highestNum){
+				highestNum=correctNum;
+				suan24dian_Login.sqlHelper.update(suan24dian_Login.user_Name, highestNum);
+			}
 		} else {
 			res = "结果错误，请重新计算";
 		}
