@@ -26,7 +26,7 @@ public class SqlHandler extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		String sql = "CREATE TABLE " + TABLE_NAME + " (" + USER_ID
 				+ " INTEGER primary key autoincrement, " + USER_NAME
-				+ " varchar(15), " + USER_PASSWORD + " varchar(15), "+USER_HIGHEST+" INTEGER)";
+				+ " varchar(15) UNIQUE, " + USER_PASSWORD + " varchar(15), "+USER_HIGHEST+" INTEGER)";
 		db.execSQL(sql);
 	}
 	@Override
@@ -34,6 +34,10 @@ public class SqlHandler extends SQLiteOpenHelper {
 		String sql = "DROP TABLE IF EXISTS " + TABLE_NAME;
 		db.execSQL(sql);
 		onCreate(db);
+	}
+	public void upgradeByUser(){
+		SQLiteDatabase db = this.getWritableDatabase();
+		onUpgrade(db,DATABASE_VERSION,DATABASE_VERSION);
 	}
 	//检索数据库
 	public Cursor select() {

@@ -50,30 +50,28 @@ public class Suan24dianMain extends Activity {
 	public String num2;
 	public String num3;
 	public String num4;
-	
-	
+
 	public String calculate = "";
-	//两个数字不可以连在一起
+	// 两个数字不可以连在一起
 	public boolean preIfnum = false;
-	//只有当前符号是数字、（、），才可以继续输入+、-、*、/等符号
+	// 只有当前符号是数字、（、），才可以继续输入+、-、*、/等符号
 	public boolean preIfnumorleftorright = false;
-	//当前数字/符号
+	// 当前数字/符号
 	public String preNum = "";
-	//数字使用个数，本次计算必须使用完四个数字
+	// 数字使用个数，本次计算必须使用完四个数字
 	public int count = 0;
-	//数字点击顺序
+	// 数字点击顺序
 	public int[] numOrder = new int[4];
 	int i = 0;
 	// message 的what字段
 	public static final int RANDOM = 0;
 	public static final int TIME = 1;
 	public static int time = 60;
-	
-	
-	//玩家计算正确的题数
-	public int correctNum=0;
-	public static int highestNum=0;
-	
+
+	// 玩家计算正确的题数
+	public int correctNum = 0;
+	public static int highestNum = 0;
+
 	private static Handler myH;
 
 	private btnOnClickListener btnOnclick;
@@ -128,14 +126,15 @@ public class Suan24dianMain extends Activity {
 		btn_back.setOnClickListener(btnOnclick);
 		btn_clear.setOnClickListener(btnOnclick);
 		btn_commit.setOnClickListener(btnOnclick);
-		
+
 		myH = new myHandler();
 		new NumThread().start();
-		
-		if(correctNum>highestNum){
-			highestNum=correctNum;
-			//更新数据库
-			suan24dian_Login.sqlHelper.update(suan24dian_Login.user_Name, highestNum);
+
+		if (correctNum > highestNum) {
+			highestNum = correctNum;
+			// 更新数据库
+			Suan24dian_welcome.sqlHelper.update(Suan24dian_welcome.USER_NAME,
+					highestNum);
 		}
 		setTime();
 	}
@@ -343,7 +342,7 @@ public class Suan24dianMain extends Activity {
 				calculate = "";
 				edit_calculate.setText(calculate);
 				new NumThread().start();
-			  //btn_last.setText("正确："+correctNum);
+				// btn_last.setText("正确："+correctNum);
 				break;
 			case R.id.btn_next:
 				i = 0;
@@ -360,6 +359,7 @@ public class Suan24dianMain extends Activity {
 			}
 		}
 	}
+
 	// 实现倒计时功能
 	public void setTime() {
 		new Thread() {
@@ -372,10 +372,10 @@ public class Suan24dianMain extends Activity {
 						timeBundle.putString("time", "" + time);
 						msg.what = TIME;
 						msg.setData(timeBundle);
-						if(time==0){
-							msg.arg1=0;
-						}else{
-							msg.arg1=1;
+						if (time == 0) {
+							msg.arg1 = 0;
+						} else {
+							msg.arg1 = 1;
 						}
 						myH.sendMessage(msg);
 						Thread.sleep(1000);
@@ -409,6 +409,7 @@ public class Suan24dianMain extends Activity {
 			break;
 		}
 	}
+
 	// 判断输入表达式是否正确，结果是否为24的函数
 	public String ifResult(String str_calculate) throws Exception {
 		String res = "结果有待处理。。。";
@@ -418,17 +419,19 @@ public class Suan24dianMain extends Activity {
 		boolean resB = cal.calculate(postfix);
 		if (resB) {
 			res = "结果正确";
-			//正确题数加1
+			// 正确题数加1
 			correctNum++;
-			if(correctNum>highestNum){
-				highestNum=correctNum;
-				suan24dian_Login.sqlHelper.update(suan24dian_Login.user_Name, highestNum);
+			if (correctNum > highestNum) {
+				highestNum = correctNum;
+				Suan24dian_welcome.sqlHelper.update(
+						Suan24dian_welcome.USER_NAME, highestNum);
 			}
 		} else {
 			res = "结果错误，请重新计算";
 		}
 		return res;
 	}
+
 	public class myHandler extends Handler {
 		@Override
 		public void handleMessage(Message msg) {
@@ -443,28 +446,32 @@ public class Suan24dianMain extends Activity {
 				break;
 			case TIME:
 				Bundle timeBundle = msg.getData();
-				if(msg.arg1==0){
+				if (msg.arg1 == 0) {
 					text_time.setText(timeBundle.getString("time"));
-					new AlertDialog.Builder(Suan24dianMain.this)  
-					
-	                .setTitle("时间到，看看你做对了多少？")
-	
-	                .setMessage("做对数："+correctNum)
-	
-	                .setPositiveButton("确定", new DialogInterface.OnClickListener(){
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							Suan24dianMain.this.finish(); //时间到，退出计算界面
-						}
-	                }).show();
-					//Suan24dianMain.this.finish(); //时间到，退出计算界面
-				}else{
+					new AlertDialog.Builder(Suan24dianMain.this)
+
+							.setTitle("时间到，看看你做对了多少？")
+
+							.setMessage("做对数：" + correctNum)
+
+							.setPositiveButton("确定",
+									new DialogInterface.OnClickListener() {
+										@Override
+										public void onClick(
+												DialogInterface dialog,
+												int which) {
+											Suan24dianMain.this.finish(); // 时间到，退出计算界面
+										}
+									}).show();
+					// Suan24dianMain.this.finish(); //时间到，退出计算界面
+				} else {
 					text_time.setText(timeBundle.getString("time"));
 				}
 				break;
 			}
 		}
 	}
+
 	// 开启一个新的线程，产生1-13之间的随机数
 	public class NumThread extends Thread {
 		public void run() {
