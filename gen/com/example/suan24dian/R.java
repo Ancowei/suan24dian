@@ -44,9 +44,9 @@ public final class R {
         public static final int btn_cancle=0x7f08001c;
         public static final int btn_clear=0x7f08000d;
         public static final int btn_commit=0x7f08000e;
-        public static final int btn_create_game=0x7f080014;
         public static final int btn_devide=0x7f080009;
         public static final int btn_exit=0x7f080012;
+        public static final int btn_initiate_game=0x7f080014;
         public static final int btn_join_game=0x7f080015;
         public static final int btn_last=0x7f080010;
         public static final int btn_left=0x7f08000b;
@@ -68,7 +68,7 @@ public final class R {
     public static final class layout {
         public static final int activity_suan24dian_main=0x7f030000;
         public static final int activity_suan24dian_welcome=0x7f030001;
-        public static final int suan24dian_create_game=0x7f030002;
+        public static final int suan24dian_initiate_game=0x7f030002;
         public static final int suan24dian_login=0x7f030003;
     }
     public static final class menu {

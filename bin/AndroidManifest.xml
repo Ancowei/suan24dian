@@ -24,7 +24,7 @@
         </activity>
         <activity android:name="com.ancowei.main.Suan24dianMain"></activity>
         <activity android:name="com.ancowei.login.suan24dian_Login"></activity>
-        <activity android:name="com.ancowei.create_game.Create_game"></activity>
+        <activity android:name="com.ancowei.initiate_game.Initiate_game"></activity>
     </application>
 
 </manifest>

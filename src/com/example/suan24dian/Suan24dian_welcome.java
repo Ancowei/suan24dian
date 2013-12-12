@@ -1,10 +1,11 @@
 package com.example.suan24dian;
 
 import java.util.ArrayList;
+
 import java.util.List;
 
-import com.ancowei.create_game.Create_game;
 import com.ancowei.db.SqlHandler;
+import com.ancowei.initiate_game.Initiate_game;
 import com.ancowei.login.suan24dian_Login;
 import com.ancowei.main.Suan24dianMain;
 
@@ -25,7 +26,7 @@ import android.widget.TextView;
 
 public class Suan24dian_welcome extends Activity {
 	private Button btn_start;
-	private Button btn_create_game;
+	private Button btn_initiate_game;
 	private Button btn_about;
 	private Button btn_exit;
 	private Button btn_login;
@@ -52,7 +53,7 @@ public class Suan24dian_welcome extends Activity {
 		ExitApp.getInstance().addActivity(Suan24dian_welcome.this);
 
 		btn_start = (Button) findViewById(R.id.btn_start);
-		btn_create_game = (Button) findViewById(R.id.btn_create_game);
+		btn_initiate_game = (Button) findViewById(R.id.btn_initiate_game);
 		btn_join_game = (Button) findViewById(R.id.btn_join_game);
 		btn_about = (Button) findViewById(R.id.btn_about);
 		btn_exit = (Button) findViewById(R.id.btn_exit);
@@ -64,7 +65,7 @@ public class Suan24dian_welcome extends Activity {
 		btn_about.setOnClickListener(btn_OnClick);
 		btn_exit.setOnClickListener(btn_OnClick);
 		btn_login.setOnClickListener(btn_OnClick);
-		btn_create_game.setOnClickListener(btn_OnClick);
+		btn_initiate_game.setOnClickListener(btn_OnClick);
 		btn_join_game.setOnClickListener(btn_OnClick);
 		sqlHelper = new SqlHandler(Suan24dian_welcome.this,
 				SqlHandler.DATABASE_NAME, null, SqlHandler.DATABASE_VERSION);
@@ -93,18 +94,24 @@ public class Suan24dian_welcome extends Activity {
 						Suan24dianMain.class);
 				Suan24dian_welcome.this.startActivity(start_intent);
 				break;
-			case R.id.btn_create_game:
-				Intent create_game=new Intent(Suan24dian_welcome.this,Create_game.class);
-				Suan24dian_welcome.this.startActivity(create_game);
+			case R.id.btn_initiate_game:
+				//点击发起游戏按钮时候，发送UDP广播，告知其他用户我发起了游戏，你们可以加进来
 				
-				new AlertDialog.Builder(Suan24dian_welcome.this)
+				Intent create_game = new Intent(Suan24dian_welcome.this,
+						Initiate_game.class);
+				Suan24dian_welcome.this.startActivity(create_game);
 
-				.setTitle("创建游戏")
-
-				.setPositiveButton("确定", null).show();
+				/*
+				 * new AlertDialog.Builder(Suan24dian_welcome.this)
+				 * 
+				 * .setTitle("创建游戏")
+				 * 
+				 * .setPositiveButton("确定", null).show();
+				 */
 
 				break;
 			case R.id.btn_join_game:
+				// 点击加入游戏按钮时候，搜索UDP数据包，把当前所有发起游戏人用列表列举出来，用户可以点击其中的一个游戏发起人，加入游戏组
 
 				rankListView = new ListView(Suan24dian_welcome.this);
 				rankListView.setAdapter(new ArrayAdapter(
