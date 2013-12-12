@@ -14,47 +14,63 @@
         android:layout_height="fill_parent"
         android:layout_centerInParent="true"
         android:orientation="vertical"
-        android:weightSum="4" >
+        android:weightSum="5" >
 
         <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical"
-            android:weightSum="3" >
+            android:weightSum="4" >
 
             <Button
                 android:id="@+id/btn_start"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="44dp"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
                 android:layout_weight="1"
-                android:text="开始游戏" />
+                android:text="单机游戏"
+                android:textSize="30dp" />
 
             <Button
-                android:id="@+id/btn_check_ranking"
+                android:id="@+id/btn_create_game"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="39dp"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
                 android:layout_weight="1"
-                android:text="查看排名" />
+                android:text="发起游戏"
+                android:textColor="#afb4db"
+                android:textSize="30dp" />
+
+            <Button
+                android:id="@+id/btn_join_game"
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:text="加入游戏"
+                android:textColor="#afb4db"
+                android:textSize="30dp" />
 
             <Button
                 android:id="@+id/btn_about"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
                 android:layout_weight="1"
-                android:text="关于" />
+                android:text="关于"
+                android:textColor="#afb4db"
+                android:textSize="30dp" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="3"
+            android:layout_height="match_parent"
+            android:layout_weight="4"
             android:gravity="center"
             android:orientation="horizontal"
+            android:layout_margin="10dp"
             android:weightSum="2" >
 
             <Button

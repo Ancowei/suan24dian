@@ -75,6 +75,9 @@ public class Suan24dianMain extends Activity {
 	private static Handler myH;
 
 	private btnOnClickListener btnOnclick;
+	
+	public TimeThread timeThread;
+	public NumThread numThread;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -126,9 +129,13 @@ public class Suan24dianMain extends Activity {
 		btn_back.setOnClickListener(btnOnclick);
 		btn_clear.setOnClickListener(btnOnclick);
 		btn_commit.setOnClickListener(btnOnclick);
-
+		
 		myH = new myHandler();
-		new NumThread().start();
+		//new NumThread().start();
+		timeThread=new TimeThread();
+		numThread=new NumThread();
+		
+		setTimeAndNum();
 
 		if (correctNum > highestNum) {
 			highestNum = correctNum;
@@ -136,7 +143,7 @@ public class Suan24dianMain extends Activity {
 			Suan24dian_welcome.sqlHelper.update(Suan24dian_welcome.USER_NAME,
 					highestNum);
 		}
-		setTime();
+		
 	}
 
 	public class btnOnClickListener implements OnClickListener {
@@ -342,7 +349,6 @@ public class Suan24dianMain extends Activity {
 				calculate = "";
 				edit_calculate.setText(calculate);
 				new NumThread().start();
-				// btn_last.setText("正确："+correctNum);
 				break;
 			case R.id.btn_next:
 				i = 0;
@@ -354,6 +360,7 @@ public class Suan24dianMain extends Activity {
 				new NumThread().start();
 				break;
 			case R.id.btn_exit:
+				timeThread.interrupt();
 				Suan24dianMain.this.finish();
 				break;
 			}
@@ -361,35 +368,36 @@ public class Suan24dianMain extends Activity {
 	}
 
 	// 实现倒计时功能
-	public void setTime() {
-		new Thread() {
-			public void run() {
-				time = 60;
-				try {
-					while (time >= 0) {
-						Message msg = myH.obtainMessage();
-						Bundle timeBundle = new Bundle();
-						timeBundle.putString("time", "" + time);
-						msg.what = TIME;
-						msg.setData(timeBundle);
-						if (time == 0) {
-							msg.arg1 = 0;
-						} else {
-							msg.arg1 = 1;
-						}
-						myH.sendMessage(msg);
-						Thread.sleep(1000);
-						time = time - 1;
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-
-		}.start();
-
+	public void setTimeAndNum() {
+		time=60;
+		timeThread.start();
+		numThread.start();
 	}
-
+//时间线程
+	public class TimeThread extends Thread{
+		public void run(){
+			time = 60;
+			try {
+				while (time >= 0) {
+					Message msg = myH.obtainMessage();
+					Bundle timeBundle = new Bundle();
+					timeBundle.putString("time", "" + time);
+					msg.what = TIME;
+					msg.setData(timeBundle);
+					if (time == 0) {
+						msg.arg1 = 0;
+					} else {
+						msg.arg1 = 1;
+					}
+					myH.sendMessage(msg);
+					Thread.sleep(1000);
+					time = time - 1;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
 	// 回退时候，如果是数字，恢复按钮数字
 	public void recoverNum(int id) {
 		switch (id) {

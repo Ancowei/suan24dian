@@ -3,6 +3,7 @@ package com.example.suan24dian;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ancowei.create_game.Create_game;
 import com.ancowei.db.SqlHandler;
 import com.ancowei.login.suan24dian_Login;
 import com.ancowei.main.Suan24dianMain;
@@ -24,16 +25,17 @@ import android.widget.TextView;
 
 public class Suan24dian_welcome extends Activity {
 	private Button btn_start;
-	private Button btn_check_ranking;
+	private Button btn_create_game;
 	private Button btn_about;
 	private Button btn_exit;
 	private Button btn_login;
+	private Button btn_join_game;
 
 	private btnOnClickListener btn_OnClick;
-	
+
 	public static String USER_NAME;
 	public static String USER_PASSWORD;
-	
+
 	public String user_Name = "";
 	public int user_highest = 0;
 	public boolean ifFirst = true;
@@ -50,22 +52,24 @@ public class Suan24dian_welcome extends Activity {
 		ExitApp.getInstance().addActivity(Suan24dian_welcome.this);
 
 		btn_start = (Button) findViewById(R.id.btn_start);
-		btn_check_ranking = (Button) findViewById(R.id.btn_check_ranking);
+		btn_create_game = (Button) findViewById(R.id.btn_create_game);
+		btn_join_game = (Button) findViewById(R.id.btn_join_game);
 		btn_about = (Button) findViewById(R.id.btn_about);
 		btn_exit = (Button) findViewById(R.id.btn_exit);
 		btn_login = (Button) findViewById(R.id.btn_login);
 
 		btn_OnClick = new btnOnClickListener();
 		btn_start.setOnClickListener(btn_OnClick);
-		btn_check_ranking.setOnClickListener(btn_OnClick);
+		// btn_check_ranking.setOnClickListener(btn_OnClick);
 		btn_about.setOnClickListener(btn_OnClick);
 		btn_exit.setOnClickListener(btn_OnClick);
 		btn_login.setOnClickListener(btn_OnClick);
-
+		btn_create_game.setOnClickListener(btn_OnClick);
+		btn_join_game.setOnClickListener(btn_OnClick);
 		sqlHelper = new SqlHandler(Suan24dian_welcome.this,
 				SqlHandler.DATABASE_NAME, null, SqlHandler.DATABASE_VERSION);
 		// sqlHelper.delete("哈哈");
-		//sqlHelper.upgradeByUser();
+		// sqlHelper.upgradeByUser();
 	}
 
 	private List<String> getData() {
@@ -89,7 +93,18 @@ public class Suan24dian_welcome extends Activity {
 						Suan24dianMain.class);
 				Suan24dian_welcome.this.startActivity(start_intent);
 				break;
-			case R.id.btn_check_ranking:
+			case R.id.btn_create_game:
+				Intent create_game=new Intent(Suan24dian_welcome.this,Create_game.class);
+				Suan24dian_welcome.this.startActivity(create_game);
+				
+				new AlertDialog.Builder(Suan24dian_welcome.this)
+
+				.setTitle("创建游戏")
+
+				.setPositiveButton("确定", null).show();
+
+				break;
+			case R.id.btn_join_game:
 
 				rankListView = new ListView(Suan24dian_welcome.this);
 				rankListView.setAdapter(new ArrayAdapter(
@@ -98,7 +113,7 @@ public class Suan24dian_welcome extends Activity {
 
 				new AlertDialog.Builder(Suan24dian_welcome.this)
 
-				.setTitle("本次游戏排名").setView(rankListView)
+				.setTitle("可以加入的游戏组").setView(rankListView)
 
 				.setPositiveButton("确定", null).show();
 				break;
@@ -119,15 +134,16 @@ public class Suan24dian_welcome extends Activity {
 				break;
 			case R.id.btn_exit:
 				new AlertDialog.Builder(Suan24dian_welcome.this)
-						.setTitle("确定要退出算24点游戏吗?").setNegativeButton("取消", null)
-						.setPositiveButton("确定",new DialogInterface.OnClickListener(){
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								ExitApp.getInstance().exit();
-							}
-						}).show();
-				//ExitApp.getInstance().exit();
+						.setTitle("确定要退出算24点游戏吗?")
+						.setNegativeButton("取消", null)
+						.setPositiveButton("确定",
+								new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog,
+											int which) {
+										ExitApp.getInstance().exit();
+									}
+								}).show();
 				break;
 			}
 		}
