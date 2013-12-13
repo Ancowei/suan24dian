@@ -1,8 +1,9 @@
 package com.ancowei.login;
 
 import com.ancowei.db.SqlHandler;
+import com.ancowei.welcome.Suan24dian_welcome;
+
 import com.example.suan24dian.R;
-import com.example.suan24dian.Suan24dian_welcome;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -51,7 +52,7 @@ public class suan24dian_Login extends Activity {
 		set_Default_User();
 	}
 	public void set_Default_User(){
-		Cursor c= Suan24dian_welcome.sqlHelper.select();
+		Cursor c= com.ancowei.welcome.Suan24dian_welcome.sqlHelper.select();
 		try{
 			c.moveToFirst();
 			user_Name = c.getString(c.getColumnIndex(SqlHandler.USER_NAME));

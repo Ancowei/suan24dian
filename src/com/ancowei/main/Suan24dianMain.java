@@ -2,11 +2,12 @@ package com.ancowei.main;
 
 import java.util.ArrayList;
 
+
 import com.ancowei.calculate.Calculate;
 import com.ancowei.db.SqlHandler;
 import com.ancowei.login.suan24dian_Login;
+import com.ancowei.welcome.Suan24dian_welcome;
 import com.example.suan24dian.R;
-import com.example.suan24dian.Suan24dian_welcome;
 
 import android.app.Activity;
 import android.app.AlertDialog;

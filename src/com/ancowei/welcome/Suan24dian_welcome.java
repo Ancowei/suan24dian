@@ -1,4 +1,4 @@
-package com.example.suan24dian;
+package com.ancowei.welcome;
 
 import java.util.ArrayList;
 
@@ -8,6 +8,7 @@ import com.ancowei.db.SqlHandler;
 import com.ancowei.initiate_game.Initiate_game;
 import com.ancowei.login.suan24dian_Login;
 import com.ancowei.main.Suan24dianMain;
+import com.example.suan24dian.R;
 
 import ExitApp.ExitApp;
 import android.os.Bundle;
