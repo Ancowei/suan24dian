@@ -1,17 +1,21 @@
-package com.ancowei.main;
+package com.ancowei.initiate_game;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.ArrayList;
 
-
 import com.ancowei.calculate.Calculate;
-import com.ancowei.db.SqlHandler;
-import com.ancowei.login.suan24dian_Login;
 import com.ancowei.welcome.Suan24dian_welcome;
 import com.example.suan24dian.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -22,7 +26,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class Suan24dianMain extends Activity {
+public class Game_begin extends Activity {
+
 	Button btn_1;
 	Button btn_2;
 	Button btn_3;
@@ -44,6 +49,7 @@ public class Suan24dianMain extends Activity {
 	Button btn_exit;
 
 	TextView text_countdown;
+	TextView text_countdown_show;
 	TextView text_result;
 	TextView text_time;
 	EditText edit_calculate;
@@ -68,7 +74,8 @@ public class Suan24dianMain extends Activity {
 	// message 的what字段
 	public static final int RANDOM = 0;
 	public static final int TIME = 1;
-	public static int time = 60;
+	public static int questionNum = 10;
+	public static int time = 10;
 
 	// 玩家计算正确的题数
 	public int correctNum = 0;
@@ -77,9 +84,10 @@ public class Suan24dianMain extends Activity {
 	private static Handler myH;
 
 	private btnOnClickListener btnOnclick;
-	
-	public TimeThread timeThread;
-	public NumThread numThread;
+
+	public static  TimeThread timeThread;
+	public static NumThread numThread;
+	public static boolean STOP = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -101,19 +109,22 @@ public class Suan24dianMain extends Activity {
 		btn_clear = (Button) findViewById(R.id.btn_clear);
 		btn_commit = (Button) findViewById(R.id.btn_commit);
 
-		//btn_last = (Button) findViewById(R.id.btn_last);
+		// btn_last = (Button) findViewById(R.id.btn_last);
 		btn_next = (Button) findViewById(R.id.btn_next);
 		btn_exit = (Button) findViewById(R.id.btn_exit);
 
 		edit_calculate = (EditText) findViewById(R.id.edit_calculate);
 
-		text_countdown=(TextView)findViewById(R.id.text_countdown);
+		text_countdown = (TextView) findViewById(R.id.text_countdown);
+		text_countdown_show = (TextView) findViewById(R.id.text_countdown_show);
 		text_result = (TextView) findViewById(R.id.text_result);
-		text_time = (TextView) findViewById(R.id.text_countdown_show);
+		text_time = (TextView) findViewById(R.id.text_time);
+		text_time.setTextSize(20);
+		text_time.setTextColor(Color.RED);
 
 		btnOnclick = new btnOnClickListener();
 
-		//btn_last.setOnClickListener(btnOnclick);
+		// btn_last.setOnClickListener((OnClickListener) btnOnclick);
 		btn_next.setOnClickListener(btnOnclick);
 		btn_exit.setOnClickListener(btnOnclick);
 
@@ -132,15 +143,15 @@ public class Suan24dianMain extends Activity {
 		btn_back.setOnClickListener(btnOnclick);
 		btn_clear.setOnClickListener(btnOnclick);
 		btn_commit.setOnClickListener(btnOnclick);
-		
-		text_countdown.setText("倒计时：");
-		
+
+		text_countdown.setText("剩余题数：");
+
 		myH = new myHandler();
-		//new NumThread().start();
-		timeThread=new TimeThread();
-		numThread=new NumThread();
-		
-		setTimeAndNum();
+		// new NumThread().start();
+		timeThread = new TimeThread();
+		numThread = new NumThread();
+
+		setQuestionNum();
 
 		if (correctNum > highestNum) {
 			highestNum = correctNum;
@@ -148,7 +159,6 @@ public class Suan24dianMain extends Activity {
 			Suan24dian_welcome.sqlHelper.update(Suan24dian_welcome.USER_NAME,
 					highestNum);
 		}
-		
 	}
 
 	public class btnOnClickListener implements OnClickListener {
@@ -226,9 +236,7 @@ public class Suan24dianMain extends Activity {
 						preIfnum = false;
 						preIfnumorleftorright = false;
 					}
-
 				}
-
 				break;
 			case R.id.btn_cal:
 				if (count != 4 && count != 0) {
@@ -348,53 +356,95 @@ public class Suan24dianMain extends Activity {
 				}
 				break;
 			case R.id.btn_next:
-				i = 0;
-				count = 0;
-				preNum = "";
-				preIfnum = false;
-				calculate = "";
-				edit_calculate.setText(calculate);
-				new NumThread().start();
+				questionNum = questionNum - 1;
+				if (questionNum < 0) {
+					STOP=true;
+					new AlertDialog.Builder(Game_begin.this)
+							.setTitle("游戏结束")
+							.setMessage(
+									"A:" + num1 + "\nB:" + num2 + "\nC:" + num3
+											+ "\nD:" + num4)
+							.setPositiveButton("确定",
+									new DialogInterface.OnClickListener() {
+										@Override
+										public void onClick(
+												DialogInterface dialog,
+												int which) {
+											//Intent intent = new Intent(
+													//Game_begin.this,
+													//Suan24dian_welcome.class);
+											Game_begin.this.finish();
+										//	Game_begin.this
+													//.startActivity(intent);
+										}
+									}).show();
+				} else {
+					text_countdown_show.setText("" + questionNum);
+					i = 0;
+					count = 0;
+					preNum = "";
+					preIfnum = false;
+					calculate = "";
+					edit_calculate.setText(calculate);
+					new NumThread().start();
+					time = 11;
+					STOP = true;
+					STOP = false;
+
+				}
 				break;
 			case R.id.btn_exit:
 				timeThread.interrupt();
-				Suan24dianMain.this.finish();
+				Intent intent = new Intent(Game_begin.this,
+						Suan24dian_welcome.class);
+				Game_begin.this.finish();
+				Game_begin.this.startActivity(intent);
 				break;
 			}
 		}
 	}
 
-	// 实现倒计时功能
-	public void setTimeAndNum() {
-		time=60;
+	// 显示初始化
+	public void setQuestionNum() {
+		STOP=false;
+		time = 10;
 		timeThread.start();
+		questionNum = 10;
+		text_countdown_show.setText("" + questionNum);
 		numThread.start();
 	}
-//时间线程
-	public class TimeThread extends Thread{
-		public void run(){
-			time = 60;
-			try {
-				while (time >= 0) {
-					Message msg = myH.obtainMessage();
-					Bundle timeBundle = new Bundle();
-					timeBundle.putString("time", "" + time);
-					msg.what = TIME;
-					msg.setData(timeBundle);
-					if (time == 0) {
-						msg.arg1 = 0;
-					} else {
-						msg.arg1 = 1;
+
+	// 时间线程
+	public class TimeThread extends Thread {
+		
+		public void run() {
+			STOP=false;
+			while (!STOP) {
+				time = 10;
+				try {
+					while (!STOP && time >= 0) {
+						Message msg = myH.obtainMessage();
+						Bundle timeBundle = new Bundle();
+						timeBundle.putString("time", "" + time);
+						msg.what = TIME;
+						msg.setData(timeBundle);
+						if (time == 0) {
+							msg.arg1 = 0;
+						} else {
+							msg.arg1 = 1;
+						}
+						myH.sendMessage(msg);
+						Thread.sleep(1000);
+						time = time - 1;
 					}
-					myH.sendMessage(msg);
-					Thread.sleep(1000);
-					time = time - 1;
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
 		}
+
 	}
+
 	// 回退时候，如果是数字，恢复按钮数字
 	public void recoverNum(int id) {
 		switch (id) {
@@ -437,12 +487,43 @@ public class Suan24dianMain extends Activity {
 		return res;
 	}
 
+	// 发牌线程
+	public class send_card_Thread extends Thread {
+		public void run() {
+			try {
+				ByteArrayOutputStream bout = new ByteArrayOutputStream();
+				PrintStream pout = new PrintStream(bout);
+				pout.println(num1);
+				pout.println(num2);
+				pout.println(num3);
+				pout.println(num4);
+				InetAddress addr = InetAddress
+						.getByName(Suan24dian_welcome.ADDR);
+				byte buf[] = bout.toByteArray();
+
+				DatagramSocket socket = new DatagramSocket();
+				DatagramPacket packet = new DatagramPacket(buf, buf.length,
+						addr, Suan24dian_welcome.PORT);
+				socket.send(packet);
+				bout.close();
+				pout.close();
+
+			} catch (Exception e) {
+				System.out.println("\n广播发送失败：" + e.toString());
+			}
+		}
+	}
+
 	public class myHandler extends Handler {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			switch (msg.what) {
 			case RANDOM:
+				// 产生的四个随机数先广播发给其他客户，再在自己处显示（发牌的公平性考虑）
+				new send_card_Thread().start();
+				Toast.makeText(Game_begin.this, "" + num1, Toast.LENGTH_LONG)
+						.show();
 				Bundle numBundle = msg.getData();
 				btn_1.setText(numBundle.getString("num1"));
 				btn_2.setText(numBundle.getString("num2"));
@@ -453,19 +534,54 @@ public class Suan24dianMain extends Activity {
 				Bundle timeBundle = msg.getData();
 				if (msg.arg1 == 0) {
 					text_time.setText(timeBundle.getString("time"));
-					new AlertDialog.Builder(Suan24dianMain.this)
-
-							.setTitle("时间到，看看你做对了多少？")
-
-							.setMessage("做对数：" + correctNum)
-
+					STOP = true;
+					new AlertDialog.Builder(Game_begin.this)
+							.setTitle("时间到,请做下一题")
 							.setPositiveButton("确定",
 									new DialogInterface.OnClickListener() {
 										@Override
 										public void onClick(
 												DialogInterface dialog,
 												int which) {
-											Suan24dianMain.this.finish(); // 时间到，退出计算界面
+											// 每个题目有时间限制，当时间用完时候，会重新发牌，进入下一题
+											// 这里要实现重新发牌功能
+											questionNum = questionNum - 1;
+											if (questionNum < 0) {
+												STOP=true;
+												new AlertDialog.Builder(
+														Game_begin.this)
+														.setTitle("游戏结束")
+														.setPositiveButton(
+																"确定",
+																new DialogInterface.OnClickListener() {
+																	@Override
+																	public void onClick(
+																			DialogInterface dialog,
+																			int which) {
+																		
+																		Game_begin.this
+																				.finish();
+																		
+																	}
+																}).show();
+											} else {
+												text_countdown_show.setText(""
+														+ questionNum);
+												i = 0;
+												count = 0;
+												preNum = "";
+												preIfnum = false;
+												calculate = "";
+												edit_calculate
+														.setText(calculate);
+												new NumThread().start();
+												
+												STOP = true;
+												//STOP = false;
+												timeThread = new TimeThread();
+												timeThread.start();
+												
+											}
 										}
 									}).show();
 					// Suan24dianMain.this.finish(); //时间到，退出计算界面

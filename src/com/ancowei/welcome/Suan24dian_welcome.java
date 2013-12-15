@@ -1,11 +1,18 @@
 package com.ancowei.welcome;
 
+import java.io.ByteArrayOutputStream;
+
+import java.io.PrintStream;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.ArrayList;
 
 import java.util.List;
 
 import com.ancowei.db.SqlHandler;
 import com.ancowei.initiate_game.Initiate_game;
+import com.ancowei.join_game.Join_game;
 import com.ancowei.login.suan24dian_Login;
 import com.ancowei.main.Suan24dianMain;
 import com.example.suan24dian.R;
@@ -23,7 +30,6 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 
 public class Suan24dian_welcome extends Activity {
 	private Button btn_start;
@@ -43,6 +49,10 @@ public class Suan24dian_welcome extends Activity {
 	public boolean ifFirst = true;
 
 	public static SqlHandler sqlHelper;
+	
+	//广播地址和端口号
+	public static final String ADDR="172.18.13.128";
+	public static final int PORT=3000;
 
 	ListView rankListView;
 
@@ -85,7 +95,39 @@ public class Suan24dian_welcome extends Activity {
 		}
 		return data;
 	}
-
+	//send broadcast Thread
+	public class Send_Broadcast_Thread extends Thread{
+		InetAddress broadcast_addr;
+		int port;
+		DatagramPacket send_Packet;
+		DatagramSocket send_Socket;
+		String s;
+		ByteArrayOutputStream Bout;
+		PrintStream Pout;
+		byte buf[];
+		
+		public void run(){
+			s="suan24dian_initiate_game";
+			try{
+				//broadcast_addr=InetAddress.getByName("255.255.255.255");
+				broadcast_addr=InetAddress.getByName(ADDR);
+				Bout=new ByteArrayOutputStream();
+				Pout=new PrintStream(Bout);
+				Pout.println(s);
+				buf=Bout.toByteArray();
+				send_Packet=new DatagramPacket(buf,buf.length,broadcast_addr,PORT);
+				send_Socket=new DatagramSocket();
+				send_Socket.send(send_Packet);
+				
+				Pout.close();
+				Bout.close();
+				buf=null;
+			
+			}catch(Exception e){
+				System.out.println("广播异常： "+e.toString());
+			}
+		}
+	}
 	public class btnOnClickListener implements OnClickListener {
 		@Override
 		public void onClick(View v) {
@@ -97,6 +139,7 @@ public class Suan24dian_welcome extends Activity {
 				break;
 			case R.id.btn_initiate_game:
 				//点击发起游戏按钮时候，发送UDP广播，告知其他用户我发起了游戏，你们可以加进来
+				new Send_Broadcast_Thread().start();
 				
 				Intent create_game = new Intent(Suan24dian_welcome.this,
 						Initiate_game.class);
@@ -113,7 +156,10 @@ public class Suan24dian_welcome extends Activity {
 				break;
 			case R.id.btn_join_game:
 				// 点击加入游戏按钮时候，搜索UDP数据包，把当前所有发起游戏人用列表列举出来，用户可以点击其中的一个游戏发起人，加入游戏组
-
+				Intent join_game = new Intent(Suan24dian_welcome.this,
+						Join_game.class);
+				Suan24dian_welcome.this.startActivity(join_game);
+				
 				rankListView = new ListView(Suan24dian_welcome.this);
 				rankListView.setAdapter(new ArrayAdapter(
 						Suan24dian_welcome.this,
@@ -156,7 +202,7 @@ public class Suan24dian_welcome extends Activity {
 			}
 		}
 	}
-
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.suan24dian_welcome, menu);
