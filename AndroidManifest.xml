@@ -27,6 +27,8 @@
         <activity android:name="com.ancowei.initiate_game.Initiate_game"></activity>
         <activity android:name="com.ancowei.join_game.Join_game"></activity>
         <activity android:name="com.ancowei.initiate_game.Game_begin"></activity>
+        <activity android:name="com.ancowei.initiate_game.Join_game_begin"></activity>
+        <activity android:name="com.ancowei.join_game.Join_game_begin"></activity>
     </application>
 
 </manifest>

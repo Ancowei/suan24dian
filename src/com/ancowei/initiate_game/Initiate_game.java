@@ -2,32 +2,26 @@ package com.ancowei.initiate_game;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.ancowei.welcome.Suan24dian_welcome;
 import com.example.suan24dian.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Adapter;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.Toast;
 
 public class Initiate_game extends Activity {
 	Button btn_start_game;
@@ -48,7 +42,7 @@ public class Initiate_game extends Activity {
 
 	myOnClickListener myOnclick;
 
-	static int playerNum = 0;
+	static int playerNum = 1;
 	static int i = 0;
 
 	Handler TcpHandler = new Handler() {
@@ -58,14 +52,11 @@ public class Initiate_game extends Activity {
 			Bundle bundle = msg.getData();
 			switch (msg.what) {
 			case 1:
-				for (int j = 0; j < i; j++) {
-					System.out.println(data[j]);
-				}
 				playerNum = bundle.getInt("playerNum");
 				listItemAdapter.notifyDataSetChanged();
 				list_player.setAdapter(listItemAdapter);
-				Toast.makeText(Initiate_game.this, "" + playerNum,
-						Toast.LENGTH_LONG).show();
+			//	Toast.makeText(Initiate_game.this, "" + playerNum,
+				//		Toast.LENGTH_LONG).show();
 				break;
 			default:
 				break;
@@ -91,19 +82,21 @@ public class Initiate_game extends Activity {
 				// 动态数组与ImageItem对应的子项
 				new String[] { "ItemImage", "ItemTitle" },
 				// ImageItem的XML文件里面的一个ImageView,两个TextView ID
-				new int[] { R.id.ItemImage, R.id.ItemTitle });
+				new int[] { R.id.ItemImage, R.id.ItemAddress });
 		list_player.setAdapter(listItemAdapter);
 
 		tcp_link = new TCP_Link_Thread();
 		tcp_link.start();
 	}
 
+	// getData();
 	public ArrayList<HashMap<String, Object>> getData() {
+
 		ArrayList<HashMap<String, Object>> listItem = new ArrayList<HashMap<String, Object>>();
-		for (int i = 0; i < 3; i++) {
+		for (int i = 0; i <3; i++) {
 			HashMap<String, Object> map = new HashMap<String, Object>();
 			map.put("ItemImage", R.drawable.ic_launcher);// 图像资源的ID
-			map.put("ItemTitle", "InetAddress " + i);
+			map.put("ItemTitle", "" + Suan24dian_welcome.ADDR);
 
 			listItem.add(map);
 		}

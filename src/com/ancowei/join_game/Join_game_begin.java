@@ -1,4 +1,4 @@
-package com.ancowei.initiate_game;
+package com.ancowei.join_game;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -26,7 +26,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class Game_begin extends Activity {
+public class Join_game_begin extends Activity {
 
 	Button btn_1;
 	Button btn_2;
@@ -44,7 +44,6 @@ public class Game_begin extends Activity {
 	Button btn_clear; // 清屏
 	Button btn_commit; // 提交
 
-	Button btn_last;
 	Button btn_next;
 	Button btn_exit;
 
@@ -85,8 +84,8 @@ public class Game_begin extends Activity {
 
 	private btnOnClickListener btnOnclick;
 
-	public static TimeThread timeThread;
-	public static NumThread numThread;
+	//public static TimeThread timeThread;
+	//public static NumThread numThread;
 	public static boolean STOP = false;
 
 	@Override
@@ -125,7 +124,7 @@ public class Game_begin extends Activity {
 		btnOnclick = new btnOnClickListener();
 
 		// btn_last.setOnClickListener((OnClickListener) btnOnclick);
-		btn_next.setOnClickListener(btnOnclick);
+		//btn_next.setOnClickListener(btnOnclick);
 		btn_exit.setOnClickListener(btnOnclick);
 
 		btn_1.setOnClickListener(btnOnclick);
@@ -148,8 +147,8 @@ public class Game_begin extends Activity {
 
 		myH = new myHandler();
 		// new NumThread().start();
-		timeThread = new TimeThread();
-		numThread = new NumThread();
+		//timeThread = new TimeThread();
+		//numThread = new NumThread();
 
 		setQuestionNum();
 
@@ -355,50 +354,12 @@ public class Game_begin extends Activity {
 					text_result.setText("必须用完四个数！");
 				}
 				break;
-			case R.id.btn_next:
-				questionNum = questionNum - 1;
-				if (questionNum < 0) {
-					STOP = true;
-					new AlertDialog.Builder(Game_begin.this)
-							.setTitle("游戏结束")
-							.setMessage(
-									"A:" + num1 + "\nB:" + num2 + "\nC:" + num3
-											+ "\nD:" + num4)
-							.setPositiveButton("确定",
-									new DialogInterface.OnClickListener() {
-										@Override
-										public void onClick(
-												DialogInterface dialog,
-												int which) {
-											// Intent intent = new Intent(
-											// Game_begin.this,
-											// Suan24dian_welcome.class);
-											Game_begin.this.finish();
-											// Game_begin.this
-											// .startActivity(intent);
-										}
-									}).show();
-				} else {
-					text_countdown_show.setText("" + questionNum);
-					i = 0;
-					count = 0;
-					preNum = "";
-					preIfnum = false;
-					calculate = "";
-					edit_calculate.setText(calculate);
-					new NumThread().start();
-					time = 11;
-					STOP = true;
-					STOP = false;
-
-				}
-				break;
 			case R.id.btn_exit:
-				timeThread.interrupt();
-				Intent intent = new Intent(Game_begin.this,
+				//timeThread.interrupt();
+				Intent intent = new Intent(Join_game_begin.this,
 						Suan24dian_welcome.class);
-				Game_begin.this.finish();
-				Game_begin.this.startActivity(intent);
+				Join_game_begin.this.finish();
+				Join_game_begin.this.startActivity(intent);
 				break;
 			}
 		}
@@ -408,10 +369,10 @@ public class Game_begin extends Activity {
 	public void setQuestionNum() {
 		STOP = false;
 		time = 10;
-		timeThread.start();
+		//timeThread.start();
 		questionNum = 10;
 		text_countdown_show.setText("" + questionNum);
-		numThread.start();
+		//numThread.start();
 	}
 
 	// 时间线程
@@ -487,131 +448,21 @@ public class Game_begin extends Activity {
 		return res;
 	}
 
-	// 发牌线程
-	public class send_card_Thread extends Thread {
-		public void run() {
-			try {
-				ByteArrayOutputStream bout = new ByteArrayOutputStream();
-				PrintStream pout = new PrintStream(bout);
-				pout.println(num1);
-				pout.println(num2);
-				pout.println(num3);
-				pout.println(num4);
-				InetAddress addr = InetAddress
-						.getByName(Suan24dian_welcome.ADDR);
-				byte buf[] = bout.toByteArray();
-
-				DatagramSocket socket = new DatagramSocket();
-				DatagramPacket packet = new DatagramPacket(buf, buf.length,
-						addr, Suan24dian_welcome.PORT);
-				socket.send(packet);
-				bout.close();
-				pout.close();
-
-			} catch (Exception e) {
-				System.out.println("\n广播发送失败：" + e.toString());
-			}
-		}
-	}
-
 	public class myHandler extends Handler {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			switch (msg.what) {
 			case RANDOM:
-				// 产生的四个随机数先广播发给其他客户，再在自己处显示（发牌的公平性考虑）
-				new send_card_Thread().start();
-				Toast.makeText(Game_begin.this, "" + num1, Toast.LENGTH_LONG)
-						.show();
+				Toast.makeText(Join_game_begin.this, "" + num1,
+						Toast.LENGTH_LONG).show();
 				Bundle numBundle = msg.getData();
 				btn_1.setText(numBundle.getString("num1"));
 				btn_2.setText(numBundle.getString("num2"));
 				btn_3.setText(numBundle.getString("num3"));
 				btn_4.setText(numBundle.getString("num4"));
 				break;
-			case TIME:
-				Bundle timeBundle = msg.getData();
-				if (msg.arg1 == 0) {
-					text_time.setText(timeBundle.getString("time"));
-					STOP = true;
-					new AlertDialog.Builder(Game_begin.this)
-							.setTitle("时间到,请做下一题")
-							.setPositiveButton("确定",
-									new DialogInterface.OnClickListener() {
-										@Override
-										public void onClick(
-												DialogInterface dialog,
-												int which) {
-											// 每个题目有时间限制，当时间用完时候，会重新发牌，进入下一题
-											// 这里要实现重新发牌功能
-											questionNum = questionNum - 1;
-											if (questionNum < 0) {
-												STOP = true;
-												new AlertDialog.Builder(
-														Game_begin.this)
-														.setTitle("游戏结束")
-														.setPositiveButton(
-																"确定",
-																new DialogInterface.OnClickListener() {
-																	@Override
-																	public void onClick(
-																			DialogInterface dialog,
-																			int which) {
-
-																		Game_begin.this
-																				.finish();
-
-																	}
-																}).show();
-											} else {
-												text_countdown_show.setText(""
-														+ questionNum);
-												i = 0;
-												count = 0;
-												preNum = "";
-												preIfnum = false;
-												calculate = "";
-												edit_calculate
-														.setText(calculate);
-												new NumThread().start();
-
-												STOP = true;
-												// STOP = false;
-												timeThread = new TimeThread();
-												timeThread.start();
-
-											}
-										}
-									}).show();
-					// Suan24dianMain.this.finish(); //时间到，退出计算界面
-				} else {
-					text_time.setText(timeBundle.getString("time"));
-				}
-				break;
 			}
 		}
 	}
-
-	// 开启一个新的线程，产生1-13之间的随机数
-	public class NumThread extends Thread {
-		public void run() {
-			// 产生1-13之间的四个随机数
-			num1 = "" + (int) (Math.random() * 13 + 1);
-			num2 = "" + (int) (Math.random() * 13 + 1);
-			num3 = "" + (int) (Math.random() * 13 + 1);
-			num4 = "" + (int) (Math.random() * 13 + 1);
-
-			Bundle numBundle = new Bundle();
-			numBundle.putString("num1", num1);
-			numBundle.putString("num2", num2);
-			numBundle.putString("num3", num3);
-			numBundle.putString("num4", num4);
-			Message msg = myH.obtainMessage();
-			msg.what = RANDOM;
-			msg.setData(numBundle);
-			myH.sendMessage(msg);
-		}
-	}
-
 }

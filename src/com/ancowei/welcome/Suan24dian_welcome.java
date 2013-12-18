@@ -118,7 +118,6 @@ public class Suan24dian_welcome extends Activity {
 				send_Packet=new DatagramPacket(buf,buf.length,broadcast_addr,PORT);
 				send_Socket=new DatagramSocket();
 				send_Socket.send(send_Packet);
-				
 				Pout.close();
 				Bout.close();
 				buf=null;
@@ -160,7 +159,7 @@ public class Suan24dian_welcome extends Activity {
 						Join_game.class);
 				Suan24dian_welcome.this.startActivity(join_game);
 				
-				rankListView = new ListView(Suan24dian_welcome.this);
+				/*rankListView = new ListView(Suan24dian_welcome.this);
 				rankListView.setAdapter(new ArrayAdapter(
 						Suan24dian_welcome.this,
 						android.R.layout.simple_list_item_1, getData()));
@@ -169,7 +168,8 @@ public class Suan24dian_welcome extends Activity {
 
 				.setTitle("可以加入的游戏组").setView(rankListView)
 
-				.setPositiveButton("确定", null).show();
+				.setPositiveButton("确定", null).show();*/
+				
 				break;
 			case R.id.btn_about:
 
