@@ -1,7 +1,6 @@
 package com.ancowei.welcome;
 
 import java.io.ByteArrayOutputStream;
-
 import java.io.PrintStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;

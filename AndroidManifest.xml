@@ -29,6 +29,7 @@
         <activity android:name="com.ancowei.initiate_game.Game_begin"></activity>
         <activity android:name="com.ancowei.initiate_game.Join_game_begin"></activity>
         <activity android:name="com.ancowei.join_game.Join_game_begin"></activity>
+        <service android:name="com.ancowei.music.Background_music"></service>
     </application>
 
 </manifest>

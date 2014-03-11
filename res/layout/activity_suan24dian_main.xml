@@ -28,8 +28,7 @@
                 <TextView
                     android:id="@+id/text_time"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    />
+                    android:layout_height="wrap_content" />
             </LinearLayout>
 
             <LinearLayout
@@ -63,25 +62,33 @@
                 android:id="@+id/btn_1"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_marginRight="5dp"
+                android:background="@drawable/card_cattle_2"
+                android:layout_weight="1"
+                />
 
             <Button
                 android:id="@+id/btn_2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_marginRight="5dp"
+                android:layout_weight="1"
+                android:background="@drawable/card_cattle_2" />
 
             <Button
                 android:id="@+id/btn_3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_marginRight="5dp"
+                android:layout_weight="1"
+                android:background="@drawable/card_tiger_3" />
 
             <Button
                 android:id="@+id/btn_4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:background="@drawable/card_rabbit_4" />
         </LinearLayout>
 
         <LinearLayout

@@ -11,6 +11,7 @@ import com.ancowei.calculate.Calculate;
 import com.ancowei.welcome.Suan24dian_welcome;
 import com.example.suan24dian.R;
 
+import android.R.color;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -44,7 +45,6 @@ public class Game_begin extends Activity {
 	Button btn_clear; // 清屏
 	Button btn_commit; // 提交
 
-	Button btn_last;
 	Button btn_next;
 	Button btn_exit;
 
@@ -58,6 +58,10 @@ public class Game_begin extends Activity {
 	public String num2;
 	public String num3;
 	public String num4;
+	public int btn_1_background;
+	public int btn_2_background;
+	public int btn_3_background;
+	public int btn_4_background;
 
 	public String calculate = "";
 	// 两个数字不可以连在一起
@@ -172,6 +176,7 @@ public class Game_begin extends Activity {
 					preNum = "" + btn_1.getText();
 					calculate = calculate + btn_1.getText();
 					btn_1.setText("");
+					btn_1.setBackgroundResource(R.drawable.bailv);
 					edit_calculate.setText(calculate);
 					preIfnum = true;
 					preIfnumorleftorright = true;
@@ -184,6 +189,7 @@ public class Game_begin extends Activity {
 					preNum = "" + btn_2.getText();
 					calculate = calculate + btn_2.getText();
 					btn_2.setText("");
+					btn_2.setBackgroundResource(R.drawable.bailv);
 					edit_calculate.setText(calculate);
 					preIfnum = true;
 					preIfnumorleftorright = true;
@@ -197,6 +203,7 @@ public class Game_begin extends Activity {
 					preNum = "" + btn_3.getText();
 					calculate = calculate + btn_3.getText();
 					btn_3.setText("");
+					btn_3.setBackgroundResource(R.drawable.bailv);
 					edit_calculate.setText(calculate);
 					preIfnum = true;
 					preIfnumorleftorright = true;
@@ -209,6 +216,7 @@ public class Game_begin extends Activity {
 					preNum = "" + btn_4.getText();
 					calculate = calculate + btn_4.getText();
 					btn_4.setText("");
+					btn_4.setBackgroundResource(R.drawable.bailv);
 					edit_calculate.setText(calculate);
 					preIfnum = true;
 					preIfnumorleftorright = true;
@@ -370,12 +378,7 @@ public class Game_begin extends Activity {
 										public void onClick(
 												DialogInterface dialog,
 												int which) {
-											// Intent intent = new Intent(
-											// Game_begin.this,
-											// Suan24dian_welcome.class);
 											Game_begin.this.finish();
-											// Game_begin.this
-											// .startActivity(intent);
 										}
 									}).show();
 				} else {
@@ -407,7 +410,7 @@ public class Game_begin extends Activity {
 	// 显示初始化
 	public void setQuestionNum() {
 		STOP = false;
-		time = 10;
+		time = 100;
 		timeThread.start();
 		questionNum = 10;
 		text_countdown_show.setText("" + questionNum);
@@ -450,15 +453,19 @@ public class Game_begin extends Activity {
 		switch (id) {
 		case R.id.btn_1:
 			btn_1.setText(num1);
+			btn_1.setBackgroundResource(btn_1_background);
 			break;
 		case R.id.btn_2:
 			btn_2.setText(num2);
+			btn_2.setBackgroundResource(btn_2_background);
 			break;
 		case R.id.btn_3:
 			btn_3.setText(num3);
+			btn_3.setBackgroundResource(btn_3_background);
 			break;
 		case R.id.btn_4:
 			btn_4.setText(num4);
+			btn_4.setBackgroundResource(btn_4_background);
 			break;
 		default:
 			break;
@@ -522,13 +529,168 @@ public class Game_begin extends Activity {
 			case RANDOM:
 				// 产生的四个随机数先广播发给其他客户，再在自己处显示（发牌的公平性考虑）
 				new send_card_Thread().start();
-				Toast.makeText(Game_begin.this, "" + num1, Toast.LENGTH_LONG)
-						.show();
 				Bundle numBundle = msg.getData();
-				btn_1.setText(numBundle.getString("num1"));
-				btn_2.setText(numBundle.getString("num2"));
-				btn_3.setText(numBundle.getString("num3"));
-				btn_4.setText(numBundle.getString("num4"));
+				
+				if(num1.equals(""+1))
+				{
+					btn_1_background=R.drawable.card_mouse_1;
+					btn_1.setBackgroundResource(R.drawable.card_mouse_1);
+					
+				}else if(num1.equals(""+2)){
+					btn_1_background=R.drawable.card_cattle_2;
+					btn_1.setBackgroundResource(R.drawable.card_cattle_2);
+				}else if(num1.equals(""+3)){
+					btn_1_background=R.drawable.card_tiger_3;
+					btn_1.setBackgroundResource(R.drawable.card_tiger_3);
+				}else if(num1.equals(""+4)){
+					btn_1_background=R.drawable.card_rabbit_4;
+					btn_1.setBackgroundResource(R.drawable.card_rabbit_4);
+				}else if(num1.equals(""+5)){
+					btn_1_background=R.drawable.card_dragon_5;
+					btn_1.setBackgroundResource(R.drawable.card_dragon_5);
+				}else if(num1.equals(""+6)){
+					btn_1_background=R.drawable.card_snake_6;
+					btn_1.setBackgroundResource(R.drawable.card_snake_6);
+				}else if(num1.equals(""+7)){
+					btn_1_background=R.drawable.card_horse_7;
+					btn_1.setBackgroundResource(R.drawable.card_horse_7);
+				}else if(num1.equals(""+8)){
+					btn_1_background=R.drawable.card_sheep_8;
+					btn_1.setBackgroundResource(R.drawable.card_sheep_8);
+				}else if(num1.equals(""+9)){
+					btn_1_background=R.drawable.card_monkey_9;
+					btn_1.setBackgroundResource(R.drawable.card_monkey_9);
+				}else if(num1.equals(""+10)){
+					btn_1_background=R.drawable.card_chiken_10;
+					btn_1.setBackgroundResource(R.drawable.card_chiken_10);
+				}else if(num1.equals(""+11)){
+					btn_1_background=R.drawable.card_dog_11;
+					btn_1.setBackgroundResource(R.drawable.card_dog_11);
+				}else{
+					btn_1_background=R.drawable.card_pig_12;
+					btn_1.setBackgroundResource(R.drawable.card_pig_12);
+				}
+				if(num2.equals(""+1))
+				{	btn_2_background=R.drawable.card_mouse_1;
+					btn_2.setBackgroundResource(R.drawable.card_mouse_1);
+				}else if(num2.equals(""+2)){
+					btn_2_background=R.drawable.card_cattle_2;
+					btn_2.setBackgroundResource(R.drawable.card_cattle_2);
+				}else if(num2.equals(""+3)){
+					btn_2_background=R.drawable.card_tiger_3;
+					btn_2.setBackgroundResource(R.drawable.card_tiger_3);
+				}else if(num2.equals(""+4)){
+					btn_2_background=R.drawable.card_rabbit_4;
+					btn_2.setBackgroundResource(R.drawable.card_rabbit_4);
+				}else if(num2.equals(""+5)){
+					btn_2_background=R.drawable.card_dragon_5;
+					btn_2.setBackgroundResource(R.drawable.card_dragon_5);
+				}else if(num2.equals(""+6)){
+					btn_2_background=R.drawable.card_snake_6;
+					btn_2.setBackgroundResource(R.drawable.card_snake_6);
+				}else if(num2.equals(""+7)){
+					btn_2_background=R.drawable.card_horse_7;
+					btn_2.setBackgroundResource(R.drawable.card_horse_7);
+				}else if(num2.equals(""+8)){
+					btn_2_background=R.drawable.card_sheep_8;
+					btn_2.setBackgroundResource(R.drawable.card_sheep_8);
+				}else if(num2.equals(""+9)){
+					btn_2_background=R.drawable.card_monkey_9;
+					btn_2.setBackgroundResource(R.drawable.card_monkey_9);
+				}else if(num2.equals(""+10)){
+					btn_2_background=R.drawable.card_chiken_10;
+					btn_2.setBackgroundResource(R.drawable.card_chiken_10);
+				}else if(num2.equals(""+11)){
+					btn_2_background=R.drawable.card_dog_11;
+					btn_2.setBackgroundResource(R.drawable.card_dog_11);
+				}else{
+					btn_2_background=R.drawable.card_pig_12;
+					btn_2.setBackgroundResource(R.drawable.card_pig_12);
+				}
+				if(num3.equals(""+1))
+				{
+					btn_3_background=R.drawable.card_mouse_1;
+					btn_3.setBackgroundResource(R.drawable.card_mouse_1);
+				}else if(num3.equals(""+2)){
+					btn_3_background=R.drawable.card_cattle_2;
+					btn_3.setBackgroundResource(R.drawable.card_cattle_2);
+				}else if(num3.equals(""+3)){
+					btn_3_background=R.drawable.card_tiger_3;
+					btn_3.setBackgroundResource(R.drawable.card_tiger_3);
+				}else if(num3.equals(""+4)){
+					btn_3_background=R.drawable.card_rabbit_4;
+					btn_3.setBackgroundResource(R.drawable.card_rabbit_4);
+				}else if(num3.equals(""+5)){
+					btn_3_background=R.drawable.card_dragon_5;
+					btn_3.setBackgroundResource(R.drawable.card_dragon_5);
+				}else if(num3.equals(""+6)){
+					btn_3_background=R.drawable.card_snake_6;
+					btn_3.setBackgroundResource(R.drawable.card_snake_6);
+				}else if(num3.equals(""+7)){
+					btn_3_background=R.drawable.card_horse_7;
+					btn_3.setBackgroundResource(R.drawable.card_horse_7);
+				}else if(num3.equals(""+8)){
+					btn_3_background=R.drawable.card_sheep_8;
+					btn_3.setBackgroundResource(R.drawable.card_sheep_8);
+				}else if(num3.equals(""+9)){
+					btn_3_background=R.drawable.card_monkey_9;
+					btn_3.setBackgroundResource(R.drawable.card_monkey_9);
+				}else if(num3.equals(""+10)){
+					btn_3_background=R.drawable.card_chiken_10;
+					btn_3.setBackgroundResource(R.drawable.card_chiken_10);
+				}else if(num3.equals(""+11)){
+					btn_3_background=R.drawable.card_dog_11;
+					btn_3.setBackgroundResource(R.drawable.card_dog_11);
+				}else{
+					btn_3_background=R.drawable.card_pig_12;
+					btn_3.setBackgroundResource(R.drawable.card_pig_12);
+				}
+				if(num4.equals(""+1))
+				{
+					btn_4_background=R.drawable.card_mouse_1;
+					btn_4.setBackgroundResource(R.drawable.card_mouse_1);
+				}else if(num4.equals(""+2)){
+					btn_4_background=R.drawable.card_cattle_2;
+					btn_4.setBackgroundResource(R.drawable.card_cattle_2);
+				}else if(num4.equals(""+3)){
+					btn_4_background=R.drawable.card_tiger_3;
+					btn_4.setBackgroundResource(R.drawable.card_tiger_3);
+				}else if(num4.equals(""+4)){
+					btn_4_background=R.drawable.card_rabbit_4;
+					btn_4.setBackgroundResource(R.drawable.card_rabbit_4);
+				}else if(num4.equals(""+5)){
+					btn_4_background=R.drawable.card_dragon_5;
+					btn_4.setBackgroundResource(R.drawable.card_dragon_5);
+				}else if(num4.equals(""+6)){
+					btn_4_background=R.drawable.card_snake_6;
+					btn_4.setBackgroundResource(R.drawable.card_snake_6);
+				}else if(num4.equals(""+7)){
+					btn_4_background=R.drawable.card_horse_7;
+					btn_4.setBackgroundResource(R.drawable.card_horse_7);
+				}else if(num4.equals(""+8)){
+					btn_4_background=R.drawable.card_sheep_8;
+					btn_4.setBackgroundResource(R.drawable.card_sheep_8);
+				}else if(num4.equals(""+9)){
+					btn_4_background=R.drawable.card_monkey_9;
+					btn_4.setBackgroundResource(R.drawable.card_monkey_9);
+				}else if(num4.equals(""+10)){
+					btn_4_background=R.drawable.card_chiken_10;
+					btn_4.setBackgroundResource(R.drawable.card_chiken_10);
+				}else if(num4.equals(""+11)){
+					btn_4_background=R.drawable.card_dog_11;
+					btn_4.setBackgroundResource(R.drawable.card_dog_11);
+				}else{
+					btn_4_background=R.drawable.card_pig_12;
+					btn_4.setBackgroundResource(R.drawable.card_pig_12);
+				}
+				btn_1.setText(num1);
+				btn_2.setText(num2);
+				btn_3.setText(num3);
+				btn_4.setText(num4);
+				btn_1.setTextColor(color.white);
+				btn_2.setTextColor(color.white);
+				btn_3.setTextColor(color.white);
+				btn_4.setTextColor(color.white);
 				break;
 			case TIME:
 				Bundle timeBundle = msg.getData();

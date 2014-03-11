@@ -62,6 +62,7 @@ public class Join_game extends Activity {
 				//链接成功之后,跳转到游戏页面,等待游戏开始
 			case TCP_LINK_SUCCEED:
 				Intent intent=new Intent(Join_game.this,Join_game_begin.class);
+				Join_game.this.finish();
 				Join_game.this.startActivity(intent);
 				
 				break;
@@ -152,7 +153,6 @@ public class Join_game extends Activity {
 		public void run() {
 			while (true) {
 				try {
-
 					InetAddress addr;
 					byte buf[] = new byte[256];
 					DatagramSocket UDPSocket = new DatagramSocket(3000);
@@ -194,39 +194,7 @@ public class Join_game extends Activity {
 			}
 		}
 	}
-
-	// TCP链接之后,进行UDP侦听,接收发牌信息和命令
-	public class UDPLink_after_TCPLINK extends Thread {
-		public void run() {
-			while (true) {
-				try {
-					InetAddress addr;
-					byte buf[] = new byte[256];
-					DatagramSocket UDPSocket = new DatagramSocket(3000);
-					DatagramPacket UDPPacket = new DatagramPacket(buf,
-							buf.length);
-					UDPSocket.receive(UDPPacket);
-					ByteArrayInputStream bin = new ByteArrayInputStream(
-							UDPPacket.getData());
-					BufferedReader reader = new BufferedReader(
-							new InputStreamReader(bin));
-					s = reader.readLine();
-					if (s.equals("suan24dian_initiate")) {
-						// 加入发起玩家队列
-						addr = UDPPacket.getAddress();
-						ADDR[i++] = addr;
-					}
-					Message msg = join_Handler.obtainMessage();
-					msg.what = INITIATOR_ADD;
-					join_Handler.sendMessage(msg);
-
-				} catch (Exception e) {
-					error += "\n" + e.toString();
-				}
-			}
-		}
-	}
-
+	
 	// 当用户选择一个玩家时候，发送TCP链接请求，和该玩家进行TCP链接
 	public class join_gameThread extends Thread {
 		public void run() {

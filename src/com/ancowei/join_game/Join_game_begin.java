@@ -1,13 +1,15 @@
 package com.ancowei.join_game;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.util.ArrayList;
 
 import com.ancowei.calculate.Calculate;
+import com.ancowei.initiate_game.Game_begin;
+import com.ancowei.initiate_game.Game_begin.NumThread;
 import com.ancowei.welcome.Suan24dian_welcome;
 import com.example.suan24dian.R;
 
@@ -71,22 +73,18 @@ public class Join_game_begin extends Activity {
 	public int[] numOrder = new int[4];
 	int i = 0;
 	// message 的what字段
-	public static final int RANDOM = 0;
-	public static final int TIME = 1;
+	static final int GAME_BEGIN = 0;
+	static final int NEXT = 1;
 	public static int questionNum = 10;
-	public static int time = 10;
 
 	// 玩家计算正确的题数
 	public int correctNum = 0;
-	public static int highestNum = 0;
 
-	private static Handler myH;
+	static Handler myH;
+
+	static UDPLink_after_TCPLINK UDP_listener;
 
 	private btnOnClickListener btnOnclick;
-
-	//public static TimeThread timeThread;
-	//public static NumThread numThread;
-	public static boolean STOP = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +106,6 @@ public class Join_game_begin extends Activity {
 		btn_clear = (Button) findViewById(R.id.btn_clear);
 		btn_commit = (Button) findViewById(R.id.btn_commit);
 
-		// btn_last = (Button) findViewById(R.id.btn_last);
 		btn_next = (Button) findViewById(R.id.btn_next);
 		btn_exit = (Button) findViewById(R.id.btn_exit);
 
@@ -123,8 +120,7 @@ public class Join_game_begin extends Activity {
 
 		btnOnclick = new btnOnClickListener();
 
-		// btn_last.setOnClickListener((OnClickListener) btnOnclick);
-		//btn_next.setOnClickListener(btnOnclick);
+		btn_next.setClickable(false);
 		btn_exit.setOnClickListener(btnOnclick);
 
 		btn_1.setOnClickListener(btnOnclick);
@@ -146,18 +142,10 @@ public class Join_game_begin extends Activity {
 		text_countdown.setText("剩余题数：");
 
 		myH = new myHandler();
-		// new NumThread().start();
-		//timeThread = new TimeThread();
-		//numThread = new NumThread();
+		UDP_listener = new UDPLink_after_TCPLINK();
+		UDP_listener.start();
+		initData();
 
-		setQuestionNum();
-
-		if (correctNum > highestNum) {
-			highestNum = correctNum;
-			// 更新数据库
-			Suan24dian_welcome.sqlHelper.update(Suan24dian_welcome.USER_NAME,
-					highestNum);
-		}
 	}
 
 	public class btnOnClickListener implements OnClickListener {
@@ -355,7 +343,7 @@ public class Join_game_begin extends Activity {
 				}
 				break;
 			case R.id.btn_exit:
-				//timeThread.interrupt();
+				// timeThread.interrupt();
 				Intent intent = new Intent(Join_game_begin.this,
 						Suan24dian_welcome.class);
 				Join_game_begin.this.finish();
@@ -366,44 +354,9 @@ public class Join_game_begin extends Activity {
 	}
 
 	// 显示初始化
-	public void setQuestionNum() {
-		STOP = false;
-		time = 10;
-		//timeThread.start();
+	public void initData() {
 		questionNum = 10;
 		text_countdown_show.setText("" + questionNum);
-		//numThread.start();
-	}
-
-	// 时间线程
-	public class TimeThread extends Thread {
-
-		public void run() {
-			STOP = false;
-			while (!STOP) {
-				time = 10;
-				try {
-					while (!STOP && time >= 0) {
-						Message msg = myH.obtainMessage();
-						Bundle timeBundle = new Bundle();
-						timeBundle.putString("time", "" + time);
-						msg.what = TIME;
-						msg.setData(timeBundle);
-						if (time == 0) {
-							msg.arg1 = 0;
-						} else {
-							msg.arg1 = 1;
-						}
-						myH.sendMessage(msg);
-						Thread.sleep(1000);
-						time = time - 1;
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}
-
 	}
 
 	// 回退时候，如果是数字，恢复按钮数字
@@ -437,11 +390,7 @@ public class Join_game_begin extends Activity {
 			res = "结果正确";
 			// 正确题数加1
 			correctNum++;
-			if (correctNum > highestNum) {
-				highestNum = correctNum;
-				Suan24dian_welcome.sqlHelper.update(
-						Suan24dian_welcome.USER_NAME, highestNum);
-			}
+
 		} else {
 			res = "结果错误，请重新计算";
 		}
@@ -452,17 +401,89 @@ public class Join_game_begin extends Activity {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
+			Bundle numBundle = msg.getData();
 			switch (msg.what) {
-			case RANDOM:
+			case GAME_BEGIN:
+				num1 = numBundle.getString("num1");
+				num2 = numBundle.getString("num2");
+				num3 = numBundle.getString("num3");
+				num4 = numBundle.getString("num4");
+				btn_1.setText(num1);
+				btn_2.setText(num2);
+				btn_3.setText(num3);
+				btn_4.setText(num4);
 				Toast.makeText(Join_game_begin.this, "" + num1,
 						Toast.LENGTH_LONG).show();
-				Bundle numBundle = msg.getData();
-				btn_1.setText(numBundle.getString("num1"));
-				btn_2.setText(numBundle.getString("num2"));
-				btn_3.setText(numBundle.getString("num3"));
-				btn_4.setText(numBundle.getString("num4"));
 				break;
+			case NEXT:
+				num1 = numBundle.getString("num1");
+				num2 = numBundle.getString("num2");
+				num3 = numBundle.getString("num3");
+				num4 = numBundle.getString("num4");
+				btn_1.setText(num1);
+				btn_2.setText(num2);
+				btn_3.setText(num3);
+				btn_4.setText(num4);
+				questionNum = questionNum - 1;
+				text_countdown_show.setText("" + questionNum);
+				i = 0;
+				count = 0;
+				preNum = "";
+				preIfnum = false;
+				calculate = "";
+				edit_calculate.setText(calculate);
 			}
 		}
 	}
+
+	// UDP
+	// TCP链接之后,进行UDP侦听,接收发牌信息和命令
+	public class UDPLink_after_TCPLINK extends Thread {
+		public void run() {
+			while (true) {
+				try {
+					byte buf[] = new byte[256];
+					DatagramSocket UDPSocket = new DatagramSocket(3000);
+					DatagramPacket UDPPacket = new DatagramPacket(buf,
+							buf.length);
+					UDPSocket.receive(UDPPacket);
+					ByteArrayInputStream bin = new ByteArrayInputStream(
+							UDPPacket.getData());
+					BufferedReader reader = new BufferedReader(
+							new InputStreamReader(bin));
+					String nums[] = new String[4];
+					if (reader.readLine().equals("game_begin")) {
+						for (int j = 0; j < 3; j++) {
+							nums[j] = reader.readLine();
+						}
+						Bundle numBundle = new Bundle();
+						numBundle.putString("num1", nums[0]);
+						numBundle.putString("num2", nums[1]);
+						numBundle.putString("num3", nums[2]);
+						numBundle.putString("num4", nums[3]);
+						Message msg = myH.obtainMessage();
+						msg.what = GAME_BEGIN;
+						msg.setData(numBundle);
+						myH.sendMessage(msg);
+						// 有人作对了或者时间到了,进入下一题
+					} else if (reader.readLine().equals("next")) {
+						for (int j = 0; j < 3; j++) {
+							nums[j] = reader.readLine();
+						}
+						Bundle numBundle = new Bundle();
+						numBundle.putString("num1", nums[0]);
+						numBundle.putString("num2", nums[1]);
+						numBundle.putString("num3", nums[2]);
+						numBundle.putString("num4", nums[3]);
+						Message msg = myH.obtainMessage();
+						msg.what = NEXT;
+						msg.setData(numBundle);
+						myH.sendMessage(msg);
+					}
+				} catch (Exception e) {
+				}
+			}
+		}
+	}
+
 }
