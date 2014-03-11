@@ -18,6 +18,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ListView;
@@ -55,8 +57,8 @@ public class Initiate_game extends Activity {
 				playerNum = bundle.getInt("playerNum");
 				listItemAdapter.notifyDataSetChanged();
 				list_player.setAdapter(listItemAdapter);
-			//	Toast.makeText(Initiate_game.this, "" + playerNum,
-				//		Toast.LENGTH_LONG).show();
+				// Toast.makeText(Initiate_game.this, "" + playerNum,
+				// Toast.LENGTH_LONG).show();
 				break;
 			default:
 				break;
@@ -67,7 +69,12 @@ public class Initiate_game extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		//无标题
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.suan24dian_initiate_game);
+		// 全屏
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		btn_start_game = (Button) findViewById(R.id.btn_start_game);
 		btn_exit = (Button) findViewById(R.id.btn_exit);
 		myOnclick = new myOnClickListener();
@@ -93,7 +100,7 @@ public class Initiate_game extends Activity {
 	public ArrayList<HashMap<String, Object>> getData() {
 
 		ArrayList<HashMap<String, Object>> listItem = new ArrayList<HashMap<String, Object>>();
-		for (int i = 0; i <3; i++) {
+		for (int i = 0; i < 3; i++) {
 			HashMap<String, Object> map = new HashMap<String, Object>();
 			map.put("ItemImage", R.drawable.ic_launcher);// 图像资源的ID
 			map.put("ItemTitle", "" + Suan24dian_welcome.ADDR);

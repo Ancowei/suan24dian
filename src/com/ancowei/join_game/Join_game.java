@@ -21,6 +21,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -59,15 +61,16 @@ public class Join_game extends Activity {
 				list_inititor_adapter.notifyDataSetChanged();
 				list_inititor.setAdapter(list_inititor_adapter);
 				break;
-				//链接成功之后,跳转到游戏页面,等待游戏开始
+			// 链接成功之后,跳转到游戏页面,等待游戏开始
 			case TCP_LINK_SUCCEED:
-				Intent intent=new Intent(Join_game.this,Join_game_begin.class);
+				Intent intent = new Intent(Join_game.this,
+						Join_game_begin.class);
 				Join_game.this.finish();
 				Join_game.this.startActivity(intent);
-				
+
 				break;
 			case GAME_BEGIN:
-				Bundle numBundle=msg.getData();
+				Bundle numBundle = msg.getData();
 				break;
 			default:
 				break;
@@ -80,7 +83,13 @@ public class Join_game extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		//无标题
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.suan24dian_join_game);
+		// 全屏
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 		btn_joingame_exit = (Button) findViewById(R.id.btn_joingame_exit);
 		list_inititor = (ListView) findViewById(R.id.list_initator);
 
@@ -194,7 +203,7 @@ public class Join_game extends Activity {
 			}
 		}
 	}
-	
+
 	// 当用户选择一个玩家时候，发送TCP链接请求，和该玩家进行TCP链接
 	public class join_gameThread extends Thread {
 		public void run() {

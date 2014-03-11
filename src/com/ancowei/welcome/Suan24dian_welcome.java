@@ -1,6 +1,7 @@
 package com.ancowei.welcome;
 
 import java.io.ByteArrayOutputStream;
+
 import java.io.PrintStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -14,10 +15,12 @@ import com.ancowei.initiate_game.Initiate_game;
 import com.ancowei.join_game.Join_game;
 import com.ancowei.login.suan24dian_Login;
 import com.ancowei.main.Suan24dianMain;
+import com.ancowei.services.Background_music;
 import com.example.suan24dian.R;
 
 import ExitApp.ExitApp;
 import android.os.Bundle;
+import android.os.Handler;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -26,7 +29,8 @@ import android.database.Cursor;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ListView;
 
@@ -48,19 +52,26 @@ public class Suan24dian_welcome extends Activity {
 	public boolean ifFirst = true;
 
 	public static SqlHandler sqlHelper;
-	
-	//广播地址和端口号
-	public static final String ADDR="172.18.13.128";
-	public static final int PORT=3000;
+
+	// 广播地址和端口号
+	public static final String ADDR = "172.18.13.128";
+	public static final int PORT = 3000;
 
 	ListView rankListView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_suan24dian_welcome);
+
 		// 退出程序
 		ExitApp.getInstance().addActivity(Suan24dian_welcome.this);
+		// 全屏
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		// 无标题
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+		setContentView(R.layout.activity_suan24dian_welcome);
 
 		btn_start = (Button) findViewById(R.id.btn_start);
 		btn_initiate_game = (Button) findViewById(R.id.btn_initiate_game);
@@ -81,6 +92,13 @@ public class Suan24dian_welcome extends Activity {
 				SqlHandler.DATABASE_NAME, null, SqlHandler.DATABASE_VERSION);
 		// sqlHelper.delete("哈哈");
 		// sqlHelper.upgradeByUser();
+		// 添加背景音乐
+		play_music();
+	}
+
+	private void play_music() {
+		Intent mIntent = new Intent(this, Background_music.class);
+		startService(mIntent);
 	}
 
 	private List<String> getData() {
@@ -94,8 +112,9 @@ public class Suan24dian_welcome extends Activity {
 		}
 		return data;
 	}
-	//send broadcast Thread
-	public class Send_Broadcast_Thread extends Thread{
+
+	// send broadcast Thread
+	public class Send_Broadcast_Thread extends Thread {
 		InetAddress broadcast_addr;
 		int port;
 		DatagramPacket send_Packet;
@@ -104,28 +123,31 @@ public class Suan24dian_welcome extends Activity {
 		ByteArrayOutputStream Bout;
 		PrintStream Pout;
 		byte buf[];
-		
-		public void run(){
-			s="suan24dian_initiate_game";
-			try{
-				//broadcast_addr=InetAddress.getByName("255.255.255.255");
-				broadcast_addr=InetAddress.getByName(ADDR);
-				Bout=new ByteArrayOutputStream();
-				Pout=new PrintStream(Bout);
+
+		public void run() {
+			s = "suan24dian_initiate_game";
+			try {
+				// broadcast_addr=InetAddress.getByName("255.255.255.255");
+				broadcast_addr = InetAddress.getByName(ADDR);
+				Bout = new ByteArrayOutputStream();
+				Pout = new PrintStream(Bout);
 				Pout.println(s);
-				buf=Bout.toByteArray();
-				send_Packet=new DatagramPacket(buf,buf.length,broadcast_addr,PORT);
-				send_Socket=new DatagramSocket();
+				buf = Bout.toByteArray();
+				send_Packet = new DatagramPacket(buf, buf.length,
+						broadcast_addr, PORT);
+				send_Socket = new DatagramSocket();
 				send_Socket.send(send_Packet);
 				Pout.close();
 				Bout.close();
-				buf=null;
-			
-			}catch(Exception e){
-				System.out.println("广播异常： "+e.toString());
+				buf = null;
+
+			} catch (Exception e) {
+				System.out.println("广播异常： " + e.toString());
 			}
 		}
+
 	}
+
 	public class btnOnClickListener implements OnClickListener {
 		@Override
 		public void onClick(View v) {
@@ -136,9 +158,9 @@ public class Suan24dian_welcome extends Activity {
 				Suan24dian_welcome.this.startActivity(start_intent);
 				break;
 			case R.id.btn_initiate_game:
-				//点击发起游戏按钮时候，发送UDP广播，告知其他用户我发起了游戏，你们可以加进来
+				// 点击发起游戏按钮时候，发送UDP广播，告知其他用户我发起了游戏，你们可以加进来
 				new Send_Broadcast_Thread().start();
-				
+
 				Intent create_game = new Intent(Suan24dian_welcome.this,
 						Initiate_game.class);
 				Suan24dian_welcome.this.startActivity(create_game);
@@ -157,18 +179,20 @@ public class Suan24dian_welcome extends Activity {
 				Intent join_game = new Intent(Suan24dian_welcome.this,
 						Join_game.class);
 				Suan24dian_welcome.this.startActivity(join_game);
-				
-				/*rankListView = new ListView(Suan24dian_welcome.this);
-				rankListView.setAdapter(new ArrayAdapter(
-						Suan24dian_welcome.this,
-						android.R.layout.simple_list_item_1, getData()));
 
-				new AlertDialog.Builder(Suan24dian_welcome.this)
+				/*
+				 * rankListView = new ListView(Suan24dian_welcome.this);
+				 * rankListView.setAdapter(new ArrayAdapter(
+				 * Suan24dian_welcome.this, android.R.layout.simple_list_item_1,
+				 * getData()));
+				 * 
+				 * new AlertDialog.Builder(Suan24dian_welcome.this)
+				 * 
+				 * .setTitle("可以加入的游戏组").setView(rankListView)
+				 * 
+				 * .setPositiveButton("确定", null).show();
+				 */
 
-				.setTitle("可以加入的游戏组").setView(rankListView)
-
-				.setPositiveButton("确定", null).show();*/
-				
 				break;
 			case R.id.btn_about:
 
@@ -185,7 +209,12 @@ public class Suan24dian_welcome extends Activity {
 						suan24dian_Login.class);
 				Suan24dian_welcome.this.startActivity(loginIntent);
 				break;
-			case R.id.btn_exit:
+			case R.id.btn_exit: {
+				// stop background_music
+				Intent mIntent = new Intent(Suan24dian_welcome.this,
+						Background_music.class);
+				Suan24dian_welcome.this.stopService(mIntent);
+
 				new AlertDialog.Builder(Suan24dian_welcome.this)
 						.setTitle("确定要退出算24点游戏吗?")
 						.setNegativeButton("取消", null)
@@ -199,9 +228,10 @@ public class Suan24dian_welcome extends Activity {
 								}).show();
 				break;
 			}
+			}
 		}
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.suan24dian_welcome, menu);
