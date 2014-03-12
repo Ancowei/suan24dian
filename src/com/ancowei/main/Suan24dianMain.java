@@ -1,166 +1,151 @@
 package com.ancowei.main;
 
+import java.io.ByteArrayOutputStream;
+
+import java.io.PrintStream;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.ArrayList;
 
-import com.ancowei.calculate.Calculate;
-import com.ancowei.db.SqlHandler;
-import com.ancowei.login.suan24dian_Login;
-import com.ancowei.welcome.Suan24dian_welcome;
-import com.example.suan24dian.R;
+import java.util.List;
 
-import android.R.color;
+import com.ancowei.db.SqlHandler;
+import com.ancowei.initiate_game.Initiate_game;
+import com.ancowei.join_game.Join_game;
+import com.ancowei.local.Suan24dian_local;
+import com.ancowei.login.suan24dian_Login;
+import com.ancowei.main.Suan24dianMain;
+import com.ancowei.services.Background_music;
+import com.example.suan24dian.R;
+import ExitApp.ExitApp;
+import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.res.ColorStateList;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
+import android.content.Intent;
+import android.database.Cursor;
+import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.TextView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 public class Suan24dianMain extends Activity {
 
-	Button btn_1;
-	Button btn_2;
-	Button btn_3;
-	Button btn_4;
+	private Button btn_local;
+	private Button btn_initiate_game;
+	private Button btn_about;
+	private Button btn_exit;
+	private Button btn_login;
+	private Button btn_join_game;
 
-	Button btn_plus; // 加
-	Button btn_minus; // 减
-	Button btn_cal; // 乘
-	Button btn_devide; // 除
-	Button btn_left; // 左括号
-	Button btn_right;// 右括号
+	private btnOnClickListener btn_OnClick;
 
-	Button btn_back; // 后退
-	Button btn_clear; // 清屏
-	Button btn_commit; // 提交
+	public static String USER_NAME;
+	public static String USER_PASSWORD;
 
-	Button btn_last;
-	Button btn_next;
-	Button btn_exit;
+	public String user_Name = "";
+	public int user_highest = 0;
+	public boolean ifFirst = true;
 
-	TextView text_countdown;
-	TextView text_result;
-	TextView text_time;
-	EditText edit_calculate;
+	public static SqlHandler sqlHelper;
 
-	public String num1;
-	public String num2;
-	public String num3;
-	public String num4;
-	public int btn_1_background;
-	public int btn_2_background;
-	public int btn_3_background;
-	public int btn_4_background;
+	// 广播地址和端口号
+	public static final String ADDR = "172.18.13.128";
+	public static final int PORT = 3000;
 
-	public String calculate = "";
-	// 两个数字不可以连在一起
-	public boolean preIfnum = false;
-	// 只有当前符号是数字、（、），才可以继续输入+、-、*、/等符号
-	public boolean preIfnumorleftorright = false;
-	// 当前数字/符号
-	public String preNum = "";
-	// 数字使用个数，本次计算必须使用完四个数字
-	public int count = 0;
-	// 数字点击顺序
-	public int[] numOrder = new int[4];
-	int i = 0;
-	// message 的what字段
-	public static final int RANDOM = 0;
-	public static final int TIME = 1;
-	public static int time = 60;
-
-	// 玩家计算正确的题数
-	public int correctNum = 0;
-	public static int highestNum = 0;
-
-	private static Handler myH;
-
-	private btnOnClickListener btnOnclick;
-
-	public TimeThread timeThread;
-	public NumThread numThread;
+	ListView rankListView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		//无标题
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.activity_suan24dian_main);
+
+		// 退出程序
+		ExitApp.getInstance().addActivity(Suan24dianMain.this);
 		// 全屏
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		btn_1 = (Button) findViewById(R.id.btn_1);
-		btn_2 = (Button) findViewById(R.id.btn_2);
-		btn_3 = (Button) findViewById(R.id.btn_3);
-		btn_4 = (Button) findViewById(R.id.btn_4);
+		// 无标题
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-		btn_plus = (Button) findViewById(R.id.btn_plus);
-		btn_minus = (Button) findViewById(R.id.btn_minus);
-		btn_cal = (Button) findViewById(R.id.btn_cal);
-		btn_devide = (Button) findViewById(R.id.btn_devide);
-		btn_left = (Button) findViewById(R.id.btn_left);
-		btn_right = (Button) findViewById(R.id.btn_right);
+		setContentView(R.layout.activity_suan24dian_main);
 
-		btn_back = (Button) findViewById(R.id.btn_back);
-		btn_clear = (Button) findViewById(R.id.btn_clear);
-		btn_commit = (Button) findViewById(R.id.btn_commit);
-
-		// btn_last = (Button) findViewById(R.id.btn_last);
-		btn_next = (Button) findViewById(R.id.btn_next);
+		btn_local = (Button) findViewById(R.id.btn_local);
+		btn_initiate_game = (Button) findViewById(R.id.btn_initiate_game);
+		btn_join_game = (Button) findViewById(R.id.btn_join_game);
+		btn_about = (Button) findViewById(R.id.btn_about);
 		btn_exit = (Button) findViewById(R.id.btn_exit);
+		btn_login = (Button) findViewById(R.id.btn_login);
 
-		edit_calculate = (EditText) findViewById(R.id.edit_calculate);
+		btn_OnClick = new btnOnClickListener();
+		btn_local.setOnClickListener(btn_OnClick);
+		// btn_check_ranking.setOnClickListener(btn_OnClick);
+		btn_about.setOnClickListener(btn_OnClick);
+		btn_exit.setOnClickListener(btn_OnClick);
+		btn_login.setOnClickListener(btn_OnClick);
+		btn_initiate_game.setOnClickListener(btn_OnClick);
+		btn_join_game.setOnClickListener(btn_OnClick);
+		sqlHelper = new SqlHandler(Suan24dianMain.this,
+				SqlHandler.DATABASE_NAME, null, SqlHandler.DATABASE_VERSION);
+		// sqlHelper.delete("哈哈");
+		// sqlHelper.upgradeByUser();
+		// 添加背景音乐
+		play_music();
+	}
 
-		text_countdown = (TextView) findViewById(R.id.text_countdown);
-		text_result = (TextView) findViewById(R.id.text_result);
-		text_time = (TextView) findViewById(R.id.text_countdown_show);
+	private void play_music() {
+		Intent mIntent = new Intent(this, Background_music.class);
+		startService(mIntent);
+	}
 
-		btnOnclick = new btnOnClickListener();
+	private List<String> getData() {
 
-		// btn_last.setOnClickListener(btnOnclick);
-		btn_next.setOnClickListener(btnOnclick);
-		btn_exit.setOnClickListener(btnOnclick);
+		List<String> data = new ArrayList<String>();
+		Cursor c = sqlHelper.select();
+		for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+			user_Name = c.getString(c.getColumnIndex(SqlHandler.USER_NAME));
+			user_highest = c.getInt(c.getColumnIndex(SqlHandler.USER_HIGHEST));
+			data.add("  " + user_Name + ":" + user_highest);
+		}
+		return data;
+	}
 
-		btn_1.setOnClickListener(btnOnclick);
-		btn_2.setOnClickListener(btnOnclick);
-		btn_3.setOnClickListener(btnOnclick);
-		btn_4.setOnClickListener(btnOnclick);
+	// send broadcast Thread
+	public class Send_Broadcast_Thread extends Thread {
+		InetAddress broadcast_addr;
+		int port;
+		DatagramPacket send_Packet;
+		DatagramSocket send_Socket;
+		String s;
+		ByteArrayOutputStream Bout;
+		PrintStream Pout;
+		byte buf[];
 
-		btn_plus.setOnClickListener(btnOnclick);
-		btn_minus.setOnClickListener(btnOnclick);
-		btn_cal.setOnClickListener(btnOnclick);
-		btn_devide.setOnClickListener(btnOnclick);
-		btn_left.setOnClickListener(btnOnclick);
-		btn_right.setOnClickListener(btnOnclick);
+		public void run() {
+			s = "suan24dian_initiate_game";
+			try {
+				// broadcast_addr=InetAddress.getByName("255.255.255.255");
+				broadcast_addr = InetAddress.getByName(ADDR);
+				Bout = new ByteArrayOutputStream();
+				Pout = new PrintStream(Bout);
+				Pout.println(s);
+				buf = Bout.toByteArray();
+				send_Packet = new DatagramPacket(buf, buf.length,
+						broadcast_addr, PORT);
+				send_Socket = new DatagramSocket();
+				send_Socket.send(send_Packet);
+				Pout.close();
+				Bout.close();
+				buf = null;
 
-		btn_back.setOnClickListener(btnOnclick);
-		btn_clear.setOnClickListener(btnOnclick);
-		btn_commit.setOnClickListener(btnOnclick);
-
-		text_countdown.setText("倒计时：");
-
-		myH = new myHandler();
-		// new NumThread().start();
-		timeThread = new TimeThread();
-		numThread = new NumThread();
-
-		setTimeAndNum();
-
-		if (correctNum > highestNum) {
-			highestNum = correctNum;
-			// 更新数据库
-			Suan24dian_welcome.sqlHelper.update(Suan24dian_welcome.USER_NAME,
-					highestNum);
+			} catch (Exception e) {
+				System.out.println("广播异常： " + e.toString());
+			}
 		}
 
 	}
@@ -169,518 +154,117 @@ public class Suan24dianMain extends Activity {
 		@Override
 		public void onClick(View v) {
 			switch (v.getId()) {
-			// 点击数字时候，需要判断前面一个是否为数字
-			case R.id.btn_1:
-				if (!preIfnum) {
-					numOrder[i++] = R.id.btn_1;
-					preNum = "" + btn_1.getText();
-					calculate = calculate + btn_1.getText();
-					btn_1.setText("");
-					btn_1.setBackgroundResource(R.drawable.bailv);
-					edit_calculate.setText(calculate);
-					preIfnum = true;
-					preIfnumorleftorright = true;
-					count++;
-				}
+			case R.id.btn_local:
+				Intent start_intent = new Intent(Suan24dianMain.this,
+						Suan24dian_local.class);
+				Suan24dianMain.this.startActivity(start_intent);
 				break;
-			case R.id.btn_2:
-				if (!preIfnum) {
-					numOrder[i++] = R.id.btn_2;
-					preNum = "" + btn_2.getText();
-					calculate = calculate + btn_2.getText();
-					btn_2.setText("");
-					btn_2.setBackgroundResource(R.drawable.bailv);
-					edit_calculate.setText(calculate);
-					preIfnum = true;
-					preIfnumorleftorright = true;
-					count++;
-				}
+			case R.id.btn_initiate_game:
+				// 点击发起游戏按钮时候，发送UDP广播，告知其他用户我发起了游戏，你们可以加进来
+				new Send_Broadcast_Thread().start();
+				Intent create_game = new Intent(Suan24dianMain.this,
+						Initiate_game.class);
+				Suan24dianMain.this.startActivity(create_game);
+
+				/*
+				 * new AlertDialog.Builder(Suan24dian_welcome.this)
+				 * 
+				 * .setTitle("创建游戏")
+				 * 
+				 * .setPositiveButton("确定", null).show();
+				 */
 
 				break;
-			case R.id.btn_3:
-				if (!preIfnum) {
-					numOrder[i++] = R.id.btn_3;
-					preNum = "" + btn_3.getText();
-					calculate = calculate + btn_3.getText();
-					btn_3.setText("");
-					btn_3.setBackgroundResource(R.drawable.bailv);
-					edit_calculate.setText(calculate);
-					preIfnum = true;
-					preIfnumorleftorright = true;
-					count++;
-				}
-				break;
-			case R.id.btn_4:
-				if (!preIfnum) {
-					numOrder[i++] = R.id.btn_4;
-					preNum = "" + btn_4.getText();
-					calculate = calculate + btn_4.getText();
-					btn_4.setText("");
-					btn_4.setBackgroundResource(R.drawable.bailv);
-					edit_calculate.setText(calculate);
-					preIfnum = true;
-					preIfnumorleftorright = true;
-					count++;
-				}
-				break;
-			// 只有数字还没全部输入完毕才可以输入+号
-			case R.id.btn_plus:
-				if (count != 4 && count != 0) {
-					if (preIfnumorleftorright) {
-						preNum = "" + btn_plus.getText();
-						calculate = calculate + btn_plus.getText();
-						edit_calculate.setText(calculate);
-						preIfnum = false;
-						preIfnumorleftorright = false;
-					}
-				}
-				break;
-			case R.id.btn_minus:
-				if (count != 4 && count != 0) {
-					if (preIfnumorleftorright) {
-						preNum = "" + btn_minus.getText();
-						calculate = calculate + btn_minus.getText();
-						edit_calculate.setText(calculate);
-						preIfnum = false;
-						preIfnumorleftorright = false;
-					}
+			case R.id.btn_join_game:
+				// 点击加入游戏按钮时候，搜索UDP数据包，把当前所有发起游戏人用列表列举出来，用户可以点击其中的一个游戏发起人，加入游戏组
+				Intent join_game = new Intent(Suan24dianMain.this,
+						Join_game.class);
+				Suan24dianMain.this.startActivity(join_game);
 
-				}
+				/*
+				 * rankListView = new ListView(Suan24dian_welcome.this);
+				 * rankListView.setAdapter(new ArrayAdapter(
+				 * Suan24dian_welcome.this, android.R.layout.simple_list_item_1,
+				 * getData()));
+				 * 
+				 * new AlertDialog.Builder(Suan24dian_welcome.this)
+				 * 
+				 * .setTitle("可以加入的游戏组").setView(rankListView)
+				 * 
+				 * .setPositiveButton("确定", null).show();
+				 */
 
 				break;
-			case R.id.btn_cal:
-				if (count != 4 && count != 0) {
-					if (preIfnumorleftorright) {
-						preNum = "" + btn_cal.getText();
-						calculate = calculate + btn_cal.getText();
-						edit_calculate.setText(calculate);
-						preIfnum = false;
-						preIfnumorleftorright = false;
-					}
-				}
+			case R.id.btn_about:
+
+				new AlertDialog.Builder(Suan24dianMain.this)
+
+				.setTitle("算24点")
+
+				.setMessage("开发者：Ancowei\n版本：1.0")
+
+				.setPositiveButton("确定", null).show();
 				break;
-			case R.id.btn_devide:
-				if (count != 4 && count != 0) {
-					if (preIfnumorleftorright) {
-						preNum = "" + btn_devide.getText();
-						calculate = calculate + btn_devide.getText();
-						edit_calculate.setText(calculate);
-						preIfnum = false;
-						preIfnumorleftorright = false;
-					}
-				}
+			case R.id.btn_login:
+				Intent loginIntent = new Intent(Suan24dianMain.this,
+						suan24dian_Login.class);
+				Suan24dianMain.this.startActivity(loginIntent);
 				break;
-			case R.id.btn_left:
-				if (count != 4) {
-					preNum = "" + btn_left.getText();
-					calculate = calculate + btn_left.getText();
-					edit_calculate.setText(calculate);
-					preIfnum = false;
-					preIfnumorleftorright = true;
-				}
+			case R.id.btn_exit: {
+
+				new AlertDialog.Builder(Suan24dianMain.this)
+						.setTitle("确定要退出算24点游戏吗?")
+						.setNegativeButton("取消", null)
+						.setPositiveButton("确定",
+								new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog,
+											int which) {
+										// stop background_music
+										Intent mIntent = new Intent(
+												Suan24dianMain.this,
+												Background_music.class);
+										Suan24dianMain.this
+												.stopService(mIntent);
+										// exit system
+										ExitApp.getInstance().exit();
+									}
+								}).show();
 				break;
-			case R.id.btn_right:
-				preNum = "" + btn_right.getText();
-				calculate = calculate + btn_right.getText();
-				edit_calculate.setText(calculate);
-				preIfnum = false;
-				preIfnumorleftorright = true;
-				break;
-			case R.id.btn_back:
-				int len = calculate.length();
-				if (len != 0) {
-					if (len == 1) {
-						preNum = "";
-						if (Character.isDigit(calculate.charAt(len - 1))) {
-							// 调用函数恢复数字
-							preIfnum = false;
-							i = 0;
-							recoverNum(numOrder[0]);
-							--count;
-						}
-						calculate = calculate.substring(0, len - 1);
-						edit_calculate.setText(calculate);
-					} else { // len>1
-						if (Character.isDigit(calculate.charAt(len - 1))) {
-							if (Character.isDigit(calculate.charAt(len - 2))) {
-								if (len == 2) {
-									preNum = "";
-								} else {
-									preNum = "" + calculate.charAt(len - 3);
+			}
+			}
+		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.suan24dian_welcome, menu);
+		return true;
+	}
+	// 重写返回手机返回按钮
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+			// 这里重写返回键
+			new AlertDialog.Builder(Suan24dianMain.this)
+					.setTitle("确定要退出算24点游戏吗?")
+					.setNegativeButton("取消", null)
+					.setPositiveButton("确定",
+							new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+									Intent mIntent = new Intent(
+											Suan24dianMain.this,
+											Background_music.class);
+									Suan24dianMain.this.stopService(mIntent);
+									ExitApp.getInstance().exit();
 								}
-								recoverNum(numOrder[--i]);
-								--count;
-								preIfnum = false;
-								calculate = calculate.substring(0, len - 2);
-								edit_calculate.setText(calculate);
-							} else {
-								recoverNum(numOrder[--i]);
-								--count;
-								preIfnum = false;
-								preNum = "" + calculate.charAt(len - 2);
-								calculate = calculate.substring(0, len - 1);
-								edit_calculate.setText(calculate);
-							}
-						} else {
-							if (Character.isDigit(calculate.charAt(len - 2))
-									&& len > 2
-									&& Character.isDigit(calculate
-											.charAt(len - 3))) {
-								preNum = "" + calculate.charAt(len - 3)
-										+ calculate.charAt(len - 2);
-
-							} else {
-								preNum = "" + calculate.charAt(len - 2);
-							}
-							calculate = calculate.substring(0, len - 1);
-							edit_calculate.setText(calculate);
-						}
-					}
-					System.out.println(preNum);
-				}
-				break;
-			case R.id.btn_clear:
-				count = 0;
-				i = 0;
-				preNum = "";
-				preIfnum = false;
-				edit_calculate.setText("");
-				calculate = "";
-				btn_1.setText(num1);
-				btn_1.setBackgroundResource(btn_1_background);
-				btn_2.setText(num2);
-				btn_2.setBackgroundResource(btn_2_background);
-				btn_3.setText(num3);
-				btn_3.setBackgroundResource(btn_3_background);
-				btn_4.setText(num4);
-				btn_4.setBackgroundResource(btn_4_background);
-				break;
-			case R.id.btn_commit:
-				if (count == 4) {
-					// 调用处理表达式是否正确，运算结果是否为24的函数
-					try {
-						String res = ifResult(calculate);
-						text_result.setText(res);
-					} catch (Exception e) {
-						e.printStackTrace();
-						text_result.setText("请输入正确的表达式！");
-					}
-				} else {
-					text_result.setText("必须用完四个数！");
-				}
-				break;
-			case R.id.btn_next:
-				i = 0;
-				count = 0;
-				preNum = "";
-				preIfnum = false;
-				calculate = "";
-				edit_calculate.setText(calculate);
-				new NumThread().start();
-				break;
-			case R.id.btn_exit:
-				timeThread.interrupt();
-				Suan24dianMain.this.finish();
-				break;
-			}
+							}).show();
+			return true;
 		}
-	}
+		return false;
 
-	// 实现倒计时功能
-	public void setTimeAndNum() {
-		time = 60;
-		timeThread.start();
-		numThread.start();
-	}
-
-	// 时间线程
-	public class TimeThread extends Thread {
-		public void run() {
-			time = 60;
-			try {
-				while (time >= 0) {
-					Message msg = myH.obtainMessage();
-					Bundle timeBundle = new Bundle();
-					timeBundle.putString("time", "" + time);
-					msg.what = TIME;
-					msg.setData(timeBundle);
-					if (time == 0) {
-						msg.arg1 = 0;
-					} else {
-						msg.arg1 = 1;
-					}
-					myH.sendMessage(msg);
-					Thread.sleep(1000);
-					time = time - 1;
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	// 回退时候，如果是数字，恢复按钮数字
-	public void recoverNum(int id) {
-		switch (id) {
-		case R.id.btn_1:
-			btn_1.setText(num1);
-			btn_1.setBackgroundResource(btn_1_background);
-			break;
-		case R.id.btn_2:
-			btn_2.setText(num2);
-			btn_2.setBackgroundResource(btn_2_background);
-			break;
-		case R.id.btn_3:
-			btn_3.setText(num3);
-			btn_3.setBackgroundResource(btn_3_background);
-			break;
-		case R.id.btn_4:
-			btn_4.setText(num4);
-			btn_4.setBackgroundResource(btn_4_background);
-			break;
-		default:
-			break;
-		}
-	}
-
-	// 判断输入表达式是否正确，结果是否为24的函数
-	public String ifResult(String str_calculate) throws Exception {
-		String res = "结果有待处理。。。";
-		ArrayList postfix;
-		Calculate cal = new Calculate();
-		postfix = cal.transform(str_calculate);
-		boolean resB = cal.calculate(postfix);
-		if (resB) {
-			res = "结果正确";
-			// 正确题数加1
-			correctNum++;
-			if (correctNum > highestNum) {
-				highestNum = correctNum;
-				Suan24dian_welcome.sqlHelper.update(
-						Suan24dian_welcome.USER_NAME, highestNum);
-			}
-		} else {
-			res = "结果错误，请重新计算";
-		}
-		return res;
-	}
-
-	public class myHandler extends Handler {
-		@Override
-		public void handleMessage(Message msg) {
-			super.handleMessage(msg);
-			switch (msg.what) {
-			case RANDOM:
-				Bundle numBundle = msg.getData();
-				num1 = numBundle.getString("num1");
-				num2 = numBundle.getString("num2");
-				num3 = numBundle.getString("num3");
-				num4 = numBundle.getString("num4");
-				if (num1.equals("" + 1)) {
-					btn_1_background = R.drawable.card_mouse_1;
-					btn_1.setBackgroundResource(R.drawable.card_mouse_1);
-
-				} else if (num1.equals("" + 2)) {
-					btn_1_background = R.drawable.card_cattle_2;
-					btn_1.setBackgroundResource(R.drawable.card_cattle_2);
-				} else if (num1.equals("" + 3)) {
-					btn_1_background = R.drawable.card_tiger_3;
-					btn_1.setBackgroundResource(R.drawable.card_tiger_3);
-				} else if (num1.equals("" + 4)) {
-					btn_1_background = R.drawable.card_rabbit_4;
-					btn_1.setBackgroundResource(R.drawable.card_rabbit_4);
-				} else if (num1.equals("" + 5)) {
-					btn_1_background = R.drawable.card_dragon_5;
-					btn_1.setBackgroundResource(R.drawable.card_dragon_5);
-				} else if (num1.equals("" + 6)) {
-					btn_1_background = R.drawable.card_snake_6;
-					btn_1.setBackgroundResource(R.drawable.card_snake_6);
-				} else if (num1.equals("" + 7)) {
-					btn_1_background = R.drawable.card_horse_7;
-					btn_1.setBackgroundResource(R.drawable.card_horse_7);
-				} else if (num1.equals("" + 8)) {
-					btn_1_background = R.drawable.card_sheep_8;
-					btn_1.setBackgroundResource(R.drawable.card_sheep_8);
-				} else if (num1.equals("" + 9)) {
-					btn_1_background = R.drawable.card_monkey_9;
-					btn_1.setBackgroundResource(R.drawable.card_monkey_9);
-				} else if (num1.equals("" + 10)) {
-					btn_1_background = R.drawable.card_chiken_10;
-					btn_1.setBackgroundResource(R.drawable.card_chiken_10);
-				} else if (num1.equals("" + 11)) {
-					btn_1_background = R.drawable.card_dog_11;
-					btn_1.setBackgroundResource(R.drawable.card_dog_11);
-				} else {
-					btn_1_background = R.drawable.card_pig_12;
-					btn_1.setBackgroundResource(R.drawable.card_pig_12);
-				}
-				if (num2.equals("" + 1)) {
-					btn_2_background = R.drawable.card_mouse_1;
-					btn_2.setBackgroundResource(R.drawable.card_mouse_1);
-				} else if (num2.equals("" + 2)) {
-					btn_2_background = R.drawable.card_cattle_2;
-					btn_2.setBackgroundResource(R.drawable.card_cattle_2);
-				} else if (num2.equals("" + 3)) {
-					btn_2_background = R.drawable.card_tiger_3;
-					btn_2.setBackgroundResource(R.drawable.card_tiger_3);
-				} else if (num2.equals("" + 4)) {
-					btn_2_background = R.drawable.card_rabbit_4;
-					btn_2.setBackgroundResource(R.drawable.card_rabbit_4);
-				} else if (num2.equals("" + 5)) {
-					btn_2_background = R.drawable.card_dragon_5;
-					btn_2.setBackgroundResource(R.drawable.card_dragon_5);
-				} else if (num2.equals("" + 6)) {
-					btn_2_background = R.drawable.card_snake_6;
-					btn_2.setBackgroundResource(R.drawable.card_snake_6);
-				} else if (num2.equals("" + 7)) {
-					btn_2_background = R.drawable.card_horse_7;
-					btn_2.setBackgroundResource(R.drawable.card_horse_7);
-				} else if (num2.equals("" + 8)) {
-					btn_2_background = R.drawable.card_sheep_8;
-					btn_2.setBackgroundResource(R.drawable.card_sheep_8);
-				} else if (num2.equals("" + 9)) {
-					btn_2_background = R.drawable.card_monkey_9;
-					btn_2.setBackgroundResource(R.drawable.card_monkey_9);
-				} else if (num2.equals("" + 10)) {
-					btn_2_background = R.drawable.card_chiken_10;
-					btn_2.setBackgroundResource(R.drawable.card_chiken_10);
-				} else if (num2.equals("" + 11)) {
-					btn_2_background = R.drawable.card_dog_11;
-					btn_2.setBackgroundResource(R.drawable.card_dog_11);
-				} else {
-					btn_2_background = R.drawable.card_pig_12;
-					btn_2.setBackgroundResource(R.drawable.card_pig_12);
-				}
-				if (num3.equals("" + 1)) {
-					btn_3_background = R.drawable.card_mouse_1;
-					btn_3.setBackgroundResource(R.drawable.card_mouse_1);
-				} else if (num3.equals("" + 2)) {
-					btn_3_background = R.drawable.card_cattle_2;
-					btn_3.setBackgroundResource(R.drawable.card_cattle_2);
-				} else if (num3.equals("" + 3)) {
-					btn_3_background = R.drawable.card_tiger_3;
-					btn_3.setBackgroundResource(R.drawable.card_tiger_3);
-				} else if (num3.equals("" + 4)) {
-					btn_3_background = R.drawable.card_rabbit_4;
-					btn_3.setBackgroundResource(R.drawable.card_rabbit_4);
-				} else if (num3.equals("" + 5)) {
-					btn_3_background = R.drawable.card_dragon_5;
-					btn_3.setBackgroundResource(R.drawable.card_dragon_5);
-				} else if (num3.equals("" + 6)) {
-					btn_3_background = R.drawable.card_snake_6;
-					btn_3.setBackgroundResource(R.drawable.card_snake_6);
-				} else if (num3.equals("" + 7)) {
-					btn_3_background = R.drawable.card_horse_7;
-					btn_3.setBackgroundResource(R.drawable.card_horse_7);
-				} else if (num3.equals("" + 8)) {
-					btn_3_background = R.drawable.card_sheep_8;
-					btn_3.setBackgroundResource(R.drawable.card_sheep_8);
-				} else if (num3.equals("" + 9)) {
-					btn_3_background = R.drawable.card_monkey_9;
-					btn_3.setBackgroundResource(R.drawable.card_monkey_9);
-				} else if (num3.equals("" + 10)) {
-					btn_3_background = R.drawable.card_chiken_10;
-					btn_3.setBackgroundResource(R.drawable.card_chiken_10);
-				} else if (num3.equals("" + 11)) {
-					btn_3_background = R.drawable.card_dog_11;
-					btn_3.setBackgroundResource(R.drawable.card_dog_11);
-				} else {
-					btn_3_background = R.drawable.card_pig_12;
-					btn_3.setBackgroundResource(R.drawable.card_pig_12);
-				}
-				if (num4.equals("" + 1)) {
-					btn_4_background = R.drawable.card_mouse_1;
-					btn_4.setBackgroundResource(R.drawable.card_mouse_1);
-				} else if (num4.equals("" + 2)) {
-					btn_4_background = R.drawable.card_cattle_2;
-					btn_4.setBackgroundResource(R.drawable.card_cattle_2);
-				} else if (num4.equals("" + 3)) {
-					btn_4_background = R.drawable.card_tiger_3;
-					btn_4.setBackgroundResource(R.drawable.card_tiger_3);
-				} else if (num4.equals("" + 4)) {
-					btn_4_background = R.drawable.card_rabbit_4;
-					btn_4.setBackgroundResource(R.drawable.card_rabbit_4);
-				} else if (num4.equals("" + 5)) {
-					btn_4_background = R.drawable.card_dragon_5;
-					btn_4.setBackgroundResource(R.drawable.card_dragon_5);
-				} else if (num4.equals("" + 6)) {
-					btn_4_background = R.drawable.card_snake_6;
-					btn_4.setBackgroundResource(R.drawable.card_snake_6);
-				} else if (num4.equals("" + 7)) {
-					btn_4_background = R.drawable.card_horse_7;
-					btn_4.setBackgroundResource(R.drawable.card_horse_7);
-				} else if (num4.equals("" + 8)) {
-					btn_4_background = R.drawable.card_sheep_8;
-					btn_4.setBackgroundResource(R.drawable.card_sheep_8);
-				} else if (num4.equals("" + 9)) {
-					btn_4_background = R.drawable.card_monkey_9;
-					btn_4.setBackgroundResource(R.drawable.card_monkey_9);
-				} else if (num4.equals("" + 10)) {
-					btn_4_background = R.drawable.card_chiken_10;
-					btn_4.setBackgroundResource(R.drawable.card_chiken_10);
-				} else if (num4.equals("" + 11)) {
-					btn_4_background = R.drawable.card_dog_11;
-					btn_4.setBackgroundResource(R.drawable.card_dog_11);
-				} else {
-					btn_4_background = R.drawable.card_pig_12;
-					btn_4.setBackgroundResource(R.drawable.card_pig_12);
-				}
-				btn_1.setText(num1);
-				btn_2.setText(num2);
-				btn_3.setText(num3);
-				btn_4.setText(num4);
-				btn_1.setTextColor(color.white);
-				btn_2.setTextColor(color.white);
-				btn_3.setTextColor(color.white);
-				btn_4.setTextColor(color.white);
-				break;
-			case TIME:
-				Bundle timeBundle = msg.getData();
-				if (msg.arg1 == 0) {
-					text_time.setText(timeBundle.getString("time"));
-					new AlertDialog.Builder(Suan24dianMain.this)
-
-							.setTitle("时间到，看看你做对了多少？")
-
-							.setMessage("做对数：" + correctNum)
-
-							.setPositiveButton("确定",
-									new DialogInterface.OnClickListener() {
-										@Override
-										public void onClick(
-												DialogInterface dialog,
-												int which) {
-											Suan24dianMain.this.finish(); // 时间到，退出计算界面
-										}
-									}).show();
-					// Suan24dianMain.this.finish(); //时间到，退出计算界面
-				} else {
-					text_time.setText(timeBundle.getString("time"));
-				}
-				break;
-			}
-		}
-	}
-
-	// 开启一个新的线程，产生1-13之间的随机数
-	public class NumThread extends Thread {
-		public void run() {
-			// 产生1-13之间的四个随机数
-			num1 = "" + (int) (Math.random() * 12 + 1);
-			num2 = "" + (int) (Math.random() * 12 + 1);
-			num3 = "" + (int) (Math.random() * 12 + 1);
-			num4 = "" + (int) (Math.random() * 12 + 1);
-
-			Bundle numBundle = new Bundle();
-			numBundle.putString("num1", num1);
-			numBundle.putString("num2", num2);
-			numBundle.putString("num3", num3);
-			numBundle.putString("num4", num4);
-			Message msg = myH.obtainMessage();
-			msg.what = RANDOM;
-			msg.setData(numBundle);
-			myH.sendMessage(msg);
-		}
 	}
 
 }

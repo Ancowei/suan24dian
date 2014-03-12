@@ -1,10 +1,12 @@
 package com.ancowei.login;
 
 import com.ancowei.db.SqlHandler;
+import com.ancowei.main.Suan24dianMain;
 import com.ancowei.welcome.Suan24dian_welcome;
 
 import com.example.suan24dian.R;
 
+import ExitApp.ExitApp;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.database.Cursor;
@@ -32,6 +34,8 @@ public class suan24dian_Login extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		// 退出程序
+				ExitApp.getInstance().addActivity(suan24dian_Login.this);
 		// 无标题
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		// 全屏
@@ -61,7 +65,7 @@ public class suan24dian_Login extends Activity {
 	}
 
 	public void set_Default_User() {
-		Cursor c = com.ancowei.welcome.Suan24dian_welcome.sqlHelper.select();
+		Cursor c = com.ancowei.main.Suan24dianMain.sqlHelper.select();
 		try {
 			c.moveToFirst();
 			user_Name = c.getString(c.getColumnIndex(SqlHandler.USER_NAME));
@@ -84,8 +88,8 @@ public class suan24dian_Login extends Activity {
 			// 点击确定按钮之后，把用户数据送往本地数据库，如果是第一次登录，则同时把登录数据发送往服务器进行注册
 			case R.id.btn_ok:
 
-				Suan24dian_welcome.USER_NAME = edit_name.getText().toString();
-				Suan24dian_welcome.USER_PASSWORD = edit_name.getText()
+				Suan24dianMain.USER_NAME = edit_name.getText().toString();
+				Suan24dianMain.USER_PASSWORD = edit_name.getText()
 						.toString();
 
 				user_Name = edit_name.getText().toString();
@@ -96,7 +100,7 @@ public class suan24dian_Login extends Activity {
 							.setTitle("用户名和密码都不能为空!")
 							.setPositiveButton("确定", null).show();
 				} else {
-					Suan24dian_welcome.sqlHelper.insert(user_Name,
+					Suan24dianMain.sqlHelper.insert(user_Name,
 							user_Password);
 					Toast.makeText(suan24dian_Login.this,
 							"登录信息\n" + "昵称：" + user_Name + "\n密码：*** ",

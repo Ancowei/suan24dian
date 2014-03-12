@@ -3,8 +3,12 @@ package ExitApp;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.ancowei.main.Suan24dianMain;
+import com.ancowei.services.Background_music;
+
 import android.app.Activity;
 import android.app.Application;
+import android.content.Intent;
 
 public class ExitApp extends Application {
 	private List<Activity> activityList = new LinkedList<Activity>();
@@ -24,7 +28,6 @@ public class ExitApp extends Application {
 	public void addActivity(Activity activity) {
 		activityList.add(activity);
 	}
-
 	// 遍历所有Activity并finish
 	public void exit() {
 		for (Activity activity : activityList) {

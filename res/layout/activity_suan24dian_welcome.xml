@@ -9,84 +9,23 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".Suan24dian_welcome" >
 
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/welcome_layout"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_centerInParent="true"
-        android:orientation="vertical"
-        android:weightSum="5" >
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:weightSum="4" >
-
-            <Button
-                android:id="@+id/btn_start"
-                android:layout_width="fill_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="10dp"
-                android:layout_weight="1"
-                android:text="单机游戏"
-                android:textSize="30dp" />
-
-            <Button
-                android:id="@+id/btn_initiate_game"
-                android:layout_width="fill_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="10dp"
-                android:layout_weight="1"
-                android:text="发起游戏"
-                android:textColor="#afb4db"
-                android:textSize="30dp" />
-
-            <Button
-                android:id="@+id/btn_join_game"
-                android:layout_width="fill_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="10dp"
-                android:layout_weight="1"
-                android:text="加入游戏"
-                android:textColor="#afb4db"
-                android:textSize="30dp" />
-
-            <Button
-                android:id="@+id/btn_about"
-                android:layout_width="fill_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="10dp"
-                android:layout_weight="1"
-                android:text="关于"
-                android:textColor="#afb4db"
-                android:textSize="30dp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="4"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:layout_margin="10dp"
-            android:weightSum="2" >
-
-            <Button
-                android:id="@+id/btn_login"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="登录" />
-
-            <Button
-                android:id="@+id/btn_exit"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="退出" />
-        </LinearLayout>
-    </LinearLayout>
+        android:layout_height="fill_parent" >
+       <ImageView 
+           android:id="@+id/welcome_image"
+           android:layout_width="fill_parent"
+           android:background="@drawable/card_mouse_1"
+           android:layout_height="fill_parent"/>
+       <TextView 
+          android:id="@+id/welcome_text"
+           android:layout_width="fill_parent"
+           android:layout_height="fill_parent"
+           android:text="点击进入主界面"
+           android:textSize="30dp"
+           android:gravity="center"
+        />
+    </RelativeLayout>
 
 </RelativeLayout>

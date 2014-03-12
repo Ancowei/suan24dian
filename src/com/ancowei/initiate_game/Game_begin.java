@@ -8,9 +8,11 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 
 import com.ancowei.calculate.Calculate;
+import com.ancowei.main.Suan24dianMain;
 import com.ancowei.welcome.Suan24dian_welcome;
 import com.example.suan24dian.R;
 
+import ExitApp.ExitApp;
 import android.R.color;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -98,9 +100,12 @@ public class Game_begin extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		// 退出程序
+				ExitApp.getInstance().addActivity(Game_begin.this);
 		//无标题
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.activity_suan24dian_main);
+		setContentView(R.layout.activity_suan24dian_play);
 		// 全屏
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -168,7 +173,7 @@ public class Game_begin extends Activity {
 		if (correctNum > highestNum) {
 			highestNum = correctNum;
 			// 更新数据库
-			Suan24dian_welcome.sqlHelper.update(Suan24dian_welcome.USER_NAME,
+			Suan24dianMain.sqlHelper.update(Suan24dianMain.USER_NAME,
 					highestNum);
 		}
 	}
@@ -411,7 +416,7 @@ public class Game_begin extends Activity {
 			case R.id.btn_exit:
 				timeThread.interrupt();
 				Intent intent = new Intent(Game_begin.this,
-						Suan24dian_welcome.class);
+						Suan24dianMain.class);
 				Game_begin.this.finish();
 				Game_begin.this.startActivity(intent);
 				break;
@@ -497,8 +502,8 @@ public class Game_begin extends Activity {
 			correctNum++;
 			if (correctNum > highestNum) {
 				highestNum = correctNum;
-				Suan24dian_welcome.sqlHelper.update(
-						Suan24dian_welcome.USER_NAME, highestNum);
+				Suan24dianMain.sqlHelper.update(
+						Suan24dianMain.USER_NAME, highestNum);
 			}
 		} else {
 			res = "结果错误，请重新计算";
@@ -517,12 +522,12 @@ public class Game_begin extends Activity {
 				pout.println(num3);
 				pout.println(num4);
 				InetAddress addr = InetAddress
-						.getByName(Suan24dian_welcome.ADDR);
+						.getByName(Suan24dianMain.ADDR);
 				byte buf[] = bout.toByteArray();
 
 				DatagramSocket socket = new DatagramSocket();
 				DatagramPacket packet = new DatagramPacket(buf, buf.length,
-						addr, Suan24dian_welcome.PORT);
+						addr, Suan24dianMain.PORT);
 				socket.send(packet);
 				bout.close();
 				pout.close();

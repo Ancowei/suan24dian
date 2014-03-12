@@ -8,6 +8,9 @@
 package com.example.suan24dian;
 
 public final class R {
+    public static final class anim {
+        public static final int my_anim_design=0x7f040000;
+    }
     public static final class attr {
     }
     public static final class dimen {
@@ -17,8 +20,8 @@ public final class R {
          screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
     
          */
-        public static final int activity_horizontal_margin=0x7f050000;
-        public static final int activity_vertical_margin=0x7f050001;
+        public static final int activity_horizontal_margin=0x7f060000;
+        public static final int activity_vertical_margin=0x7f060001;
     }
     public static final class drawable {
         public static final int bailv=0x7f020015;
@@ -46,64 +49,67 @@ public final class R {
         public static final int xingqiao=0x7f020011;
     }
     public static final class id {
-        public static final int ItemAddress=0x7f09001b;
-        public static final int ItemImage=0x7f09001a;
-        public static final int RelativeLayout01=0x7f090019;
-        public static final int action_settings=0x7f090026;
-        public static final int btn_1=0x7f090003;
-        public static final int btn_2=0x7f090004;
-        public static final int btn_3=0x7f090005;
-        public static final int btn_4=0x7f090006;
-        public static final int btn_about=0x7f090017;
-        public static final int btn_back=0x7f09000c;
-        public static final int btn_cal=0x7f09000a;
-        public static final int btn_cancle=0x7f090024;
-        public static final int btn_clear=0x7f09000f;
-        public static final int btn_commit=0x7f090010;
-        public static final int btn_devide=0x7f09000b;
-        public static final int btn_exit=0x7f090013;
-        public static final int btn_initiate_game=0x7f090015;
-        public static final int btn_join_game=0x7f090016;
-        public static final int btn_joingame_exit=0x7f09001f;
-        public static final int btn_left=0x7f09000d;
-        public static final int btn_login=0x7f090018;
-        public static final int btn_minus=0x7f090009;
-        public static final int btn_next=0x7f090012;
-        public static final int btn_ok=0x7f090025;
-        public static final int btn_plus=0x7f090008;
-        public static final int btn_right=0x7f09000e;
-        public static final int btn_start=0x7f090014;
-        public static final int btn_start_game=0x7f09001d;
-        public static final int edit_calculate=0x7f090007;
-        public static final int edit_name=0x7f090021;
-        public static final int edit_password=0x7f090023;
-        public static final int list_initator=0x7f09001e;
-        public static final int list_player=0x7f09001c;
-        public static final int text_countdown=0x7f090001;
-        public static final int text_countdown_show=0x7f090002;
-        public static final int text_name=0x7f090020;
-        public static final int text_password=0x7f090022;
-        public static final int text_result=0x7f090011;
-        public static final int text_time=0x7f090000;
+        public static final int ItemAddress=0x7f0a001e;
+        public static final int ItemImage=0x7f0a001d;
+        public static final int RelativeLayout01=0x7f0a001c;
+        public static final int btn_1=0x7f0a0009;
+        public static final int btn_2=0x7f0a000a;
+        public static final int btn_3=0x7f0a000b;
+        public static final int btn_4=0x7f0a000c;
+        public static final int btn_about=0x7f0a0003;
+        public static final int btn_back=0x7f0a0012;
+        public static final int btn_cal=0x7f0a0010;
+        public static final int btn_cancle=0x7f0a0027;
+        public static final int btn_clear=0x7f0a0015;
+        public static final int btn_commit=0x7f0a0016;
+        public static final int btn_devide=0x7f0a0011;
+        public static final int btn_exit=0x7f0a0005;
+        public static final int btn_initiate_game=0x7f0a0001;
+        public static final int btn_join_game=0x7f0a0002;
+        public static final int btn_joingame_exit=0x7f0a0022;
+        public static final int btn_left=0x7f0a0013;
+        public static final int btn_local=0x7f0a0000;
+        public static final int btn_login=0x7f0a0004;
+        public static final int btn_minus=0x7f0a000f;
+        public static final int btn_next=0x7f0a0018;
+        public static final int btn_ok=0x7f0a0028;
+        public static final int btn_plus=0x7f0a000e;
+        public static final int btn_right=0x7f0a0014;
+        public static final int btn_start_game=0x7f0a0020;
+        public static final int edit_calculate=0x7f0a000d;
+        public static final int edit_name=0x7f0a0024;
+        public static final int edit_password=0x7f0a0026;
+        public static final int list_initator=0x7f0a0021;
+        public static final int list_player=0x7f0a001f;
+        public static final int text_countdown=0x7f0a0007;
+        public static final int text_countdown_show=0x7f0a0008;
+        public static final int text_name=0x7f0a0023;
+        public static final int text_password=0x7f0a0025;
+        public static final int text_result=0x7f0a0017;
+        public static final int text_time=0x7f0a0006;
+        public static final int welcome_image=0x7f0a001a;
+        public static final int welcome_layout=0x7f0a0019;
+        public static final int welcome_text=0x7f0a001b;
     }
     public static final class layout {
         public static final int activity_suan24dian_main=0x7f030000;
-        public static final int activity_suan24dian_welcome=0x7f030001;
-        public static final int list_item=0x7f030002;
-        public static final int suan24dian_initiate_game=0x7f030003;
-        public static final int suan24dian_join_game=0x7f030004;
-        public static final int suan24dian_login=0x7f030005;
+        public static final int activity_suan24dian_play=0x7f030001;
+        public static final int activity_suan24dian_welcome=0x7f030002;
+        public static final int list_item=0x7f030003;
+        public static final int suan24dian_initiate_game=0x7f030004;
+        public static final int suan24dian_join_game=0x7f030005;
+        public static final int suan24dian_login=0x7f030006;
     }
     public static final class menu {
-        public static final int suan24dian_welcome=0x7f080000;
+        public static final int suan24dian_welcome=0x7f090000;
     }
     public static final class raw {
-        public static final int song=0x7f040000;
+        public static final int song=0x7f050000;
     }
     public static final class string {
-        public static final int action_settings=0x7f060001;
-        public static final int app_name=0x7f060000;
-        public static final int hello_world=0x7f060002;
+        public static final int action_settings=0x7f070001;
+        public static final int app_name=0x7f070000;
+        public static final int hello_world=0x7f070002;
     }
     public static final class style {
         /** 
@@ -127,10 +133,10 @@ public final class R {
     
  API 14 theme customizations can go here. 
          */
-        public static final int AppBaseTheme=0x7f070000;
+        public static final int AppBaseTheme=0x7f080000;
         /**  Application theme. 
  All customizations that are NOT specific to a particular API-level can go here. 
          */
-        public static final int AppTheme=0x7f070001;
+        public static final int AppTheme=0x7f080001;
     }
 }

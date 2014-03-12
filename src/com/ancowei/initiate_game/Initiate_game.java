@@ -8,9 +8,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.ancowei.main.Suan24dianMain;
 import com.ancowei.welcome.Suan24dian_welcome;
 import com.example.suan24dian.R;
 
+import ExitApp.ExitApp;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -69,6 +71,8 @@ public class Initiate_game extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		ExitApp.getInstance().addActivity(Initiate_game.this);
 		//无标题
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.suan24dian_initiate_game);
@@ -103,7 +107,7 @@ public class Initiate_game extends Activity {
 		for (int i = 0; i < 3; i++) {
 			HashMap<String, Object> map = new HashMap<String, Object>();
 			map.put("ItemImage", R.drawable.ic_launcher);// 图像资源的ID
-			map.put("ItemTitle", "" + Suan24dian_welcome.ADDR);
+			map.put("ItemTitle", "" + Suan24dianMain.ADDR);
 
 			listItem.add(map);
 		}

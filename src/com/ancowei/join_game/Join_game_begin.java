@@ -10,9 +10,11 @@ import java.util.ArrayList;
 import com.ancowei.calculate.Calculate;
 import com.ancowei.initiate_game.Game_begin;
 import com.ancowei.initiate_game.Game_begin.NumThread;
+import com.ancowei.main.Suan24dianMain;
 import com.ancowei.welcome.Suan24dian_welcome;
 import com.example.suan24dian.R;
 
+import ExitApp.ExitApp;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -91,9 +93,11 @@ public class Join_game_begin extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		// 退出程序
+				ExitApp.getInstance().addActivity(Join_game_begin.this);
 		//无标题
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.activity_suan24dian_main);
+		setContentView(R.layout.activity_suan24dian_play);
 		// 全屏
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);

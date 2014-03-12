@@ -15,6 +15,7 @@ import java.util.HashMap;
 import com.ancowei.welcome.Suan24dian_welcome;
 import com.example.suan24dian.R;
 
+import ExitApp.ExitApp;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -83,6 +84,8 @@ public class Join_game extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		// 退出程序
+		ExitApp.getInstance().addActivity(Join_game.this);
 		//无标题
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.suan24dian_join_game);
