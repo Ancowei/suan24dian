@@ -2,11 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bailv"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="@drawable/suan24dian_background"
     tools:context=".Suan24dian_welcome" >
 
     <LinearLayout
@@ -22,46 +18,65 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical"
-            android:weightSum="4" >
+            android:weightSum="10" >
 
-            <Button
-                android:id="@+id/btn_local"
+            <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="10dp"
-                android:layout_weight="1"
-                android:text="单机游戏"
-                android:textSize="30dp" />
+                android:layout_weight="9"
+                android:gravity="center"
+                android:orientation="vertical" >
 
-            <Button
-                android:id="@+id/btn_initiate_game"
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="此处内容有待研究" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="10dp"
                 android:layout_weight="1"
-                android:text="发起游戏"
-                android:textColor="#afb4db"
-                android:textSize="30dp" />
+                android:gravity="center"
+                android:orientation="vertical"
+                android:weightSum="4" >
 
-            <Button
-                android:id="@+id/btn_join_game"
-                android:layout_width="fill_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="10dp"
-                android:layout_weight="1"
-                android:text="加入游戏"
-                android:textColor="#afb4db"
-                android:textSize="30dp" />
+                <Button
+                    android:id="@+id/btn_local"
+                    android:layout_width="fill_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/suan24dian_btn_local"
+                    android:textSize="30dp" />
 
-            <Button
-                android:id="@+id/btn_about"
-                android:layout_width="fill_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="10dp"
-                android:layout_weight="1"
-                android:text="关于"
-                android:textColor="#afb4db"
-                android:textSize="30dp" />
+                <Button
+                    android:id="@+id/btn_initiate_game"
+                    android:layout_width="fill_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/suan24dian_btn_initiate"
+                    android:textColor="#afb4db"
+                    android:textSize="30dp" />
+
+                <Button
+                    android:id="@+id/btn_join_game"
+                    android:layout_width="fill_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/suan24dian_btn_join"
+                    android:textColor="#afb4db"
+                    android:textSize="30dp" />
+
+                <Button
+                    android:id="@+id/btn_about"
+                    android:layout_width="fill_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/suan24dian_btn_set"
+                    android:textColor="#afb4db"
+                    android:textSize="30dp" />
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
@@ -70,7 +85,6 @@
             android:layout_weight="4"
             android:gravity="center"
             android:orientation="horizontal"
-            android:layout_margin="10dp"
             android:weightSum="2" >
 
             <Button
@@ -78,14 +92,14 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="登录" />
+                android:background="@drawable/suan24dian_login" />
 
             <Button
                 android:id="@+id/btn_exit"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="退出" />
+                android:background="@drawable/suan24dian_exit" />
         </LinearLayout>
     </LinearLayout>
 

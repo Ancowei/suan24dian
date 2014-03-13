@@ -24,7 +24,7 @@ public final class R {
         public static final int activity_vertical_margin=0x7f060001;
     }
     public static final class drawable {
-        public static final int bailv=0x7f020015;
+        public static final int bailv=0x7f020022;
         public static final int card_cattle_2=0x7f020000;
         public static final int card_chiken_10=0x7f020001;
         public static final int card_dog_11=0x7f020002;
@@ -37,16 +37,29 @@ public final class R {
         public static final int card_sheep_8=0x7f020009;
         public static final int card_snake_6=0x7f02000a;
         public static final int card_tiger_3=0x7f02000b;
-        public static final int hufense=0x7f020016;
+        public static final int hufense=0x7f020023;
         public static final int ic_launcher=0x7f02000c;
         public static final int one=0x7f02000d;
-        public static final int ruocaose=0x7f020013;
-        public static final int shuise=0x7f020012;
-        public static final int suan24dian=0x7f02000e;
-        public static final int tengse=0x7f020014;
-        public static final int three=0x7f02000f;
-        public static final int two=0x7f020010;
-        public static final int xingqiao=0x7f020011;
+        public static final int plus=0x7f02000e;
+        public static final int ruocaose=0x7f020020;
+        public static final int shuise=0x7f02001f;
+        public static final int suan24dian=0x7f02000f;
+        public static final int suan24dian_back=0x7f020010;
+        public static final int suan24dian_background=0x7f020011;
+        public static final int suan24dian_btn_begingame=0x7f020012;
+        public static final int suan24dian_btn_initiate=0x7f020013;
+        public static final int suan24dian_btn_join=0x7f020014;
+        public static final int suan24dian_btn_local=0x7f020015;
+        public static final int suan24dian_btn_set=0x7f020016;
+        public static final int suan24dian_click_num=0x7f020017;
+        public static final int suan24dian_exit=0x7f020018;
+        public static final int suan24dian_login=0x7f020019;
+        public static final int suan24dian_next=0x7f02001a;
+        public static final int suan24dian_welcome=0x7f02001b;
+        public static final int tengse=0x7f020021;
+        public static final int three=0x7f02001c;
+        public static final int two=0x7f02001d;
+        public static final int xingqiao=0x7f02001e;
     }
     public static final class id {
         public static final int ItemAddress=0x7f0a001e;
@@ -93,12 +106,13 @@ public final class R {
     }
     public static final class layout {
         public static final int activity_suan24dian_main=0x7f030000;
-        public static final int activity_suan24dian_play=0x7f030001;
-        public static final int activity_suan24dian_welcome=0x7f030002;
-        public static final int list_item=0x7f030003;
-        public static final int suan24dian_initiate_game=0x7f030004;
-        public static final int suan24dian_join_game=0x7f030005;
-        public static final int suan24dian_login=0x7f030006;
+        public static final int activity_suan24dian_main_2=0x7f030001;
+        public static final int activity_suan24dian_play=0x7f030002;
+        public static final int activity_suan24dian_welcome=0x7f030003;
+        public static final int list_item=0x7f030004;
+        public static final int suan24dian_initiate_game=0x7f030005;
+        public static final int suan24dian_join_game=0x7f030006;
+        public static final int suan24dian_login=0x7f030007;
     }
     public static final class menu {
         public static final int suan24dian_welcome=0x7f090000;
