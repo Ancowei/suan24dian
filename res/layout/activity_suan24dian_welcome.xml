@@ -2,24 +2,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/suan24dian_final_background"
     tools:context=".Suan24dian_welcome" >
 
-    <RelativeLayout
-        android:id="@+id/welcome_layout"
+    <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" >
-       <ImageView 
-           android:id="@+id/welcome_image"
-           android:layout_width="fill_parent"
-           android:background="@drawable/suan24dian_welcome"
-           android:layout_height="fill_parent"/>
-       <TextView 
-          android:id="@+id/welcome_text"
-           android:layout_width="fill_parent"
-           android:layout_height="fill_parent"
-           android:textSize="30dp"
-           android:gravity="center"
-        />
-    </RelativeLayout>
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:orientation="vertical" >
+
+        <ImageView
+            android:id="@+id/welcome_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/suan24dian" />
+
+        <TextView
+            android:id="@+id/welcome_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/suan24dian_wel"
+            android:gravity="center" />
+    </LinearLayout>
 
 </RelativeLayout>

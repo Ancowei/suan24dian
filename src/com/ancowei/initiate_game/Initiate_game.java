@@ -29,7 +29,7 @@ import android.widget.SimpleAdapter;
 
 public class Initiate_game extends Activity {
 	Button btn_start_game;
-	Button btn_exit;
+	Button btn_back;
 
 	ServerSocket serverSocket;
 	Socket socket;
@@ -46,7 +46,7 @@ public class Initiate_game extends Activity {
 
 	myOnClickListener myOnclick;
 
-	static int playerNum = 1;
+	static int playerNum = 0;
 	static int i = 0;
 
 	Handler TcpHandler = new Handler() {
@@ -71,19 +71,21 @@ public class Initiate_game extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		ExitApp.getInstance().addActivity(Initiate_game.this);
-		//无标题
+		// 无标题
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		
 		setContentView(R.layout.suan24dian_initiate_game);
 		// 全屏
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		
 		btn_start_game = (Button) findViewById(R.id.btn_start_game);
-		btn_exit = (Button) findViewById(R.id.btn_exit);
+		btn_back = (Button) findViewById(R.id.btn_exit);
 		myOnclick = new myOnClickListener();
 		btn_start_game.setOnClickListener(myOnclick);
-		btn_exit.setOnClickListener(myOnclick);
+		btn_back.setOnClickListener(myOnclick);
 
 		list_player = (ListView) findViewById(R.id.list_player);
 
@@ -95,7 +97,6 @@ public class Initiate_game extends Activity {
 				// ImageItem的XML文件里面的一个ImageView,两个TextView ID
 				new int[] { R.id.ItemImage, R.id.ItemAddress });
 		list_player.setAdapter(listItemAdapter);
-
 		tcp_link = new TCP_Link_Thread();
 		tcp_link.start();
 	}
@@ -104,13 +105,12 @@ public class Initiate_game extends Activity {
 	public ArrayList<HashMap<String, Object>> getData() {
 
 		ArrayList<HashMap<String, Object>> listItem = new ArrayList<HashMap<String, Object>>();
-		for (int i = 0; i < 3; i++) {
+		/*for (int i = 0; i < 3; i++) {
 			HashMap<String, Object> map = new HashMap<String, Object>();
-			map.put("ItemImage", R.drawable.ic_launcher);// 图像资源的ID
+			map.put("ItemImage", R.drawable.card_horse_7);// 图像资源的ID
 			map.put("ItemTitle", "" + Suan24dianMain.ADDR);
-
 			listItem.add(map);
-		}
+		}*/
 		for (int j = 0; j < i; j++) {
 			HashMap<String, Object> map = new HashMap<String, Object>();
 			map.put("ItemImage", R.drawable.ic_launcher);
@@ -123,7 +123,6 @@ public class Initiate_game extends Activity {
 	// tcp socket listenning
 	public class TCP_Link_Thread extends Thread {
 		int playerNum = 0;
-
 		public void run() {
 			try {
 				serverSocket = new ServerSocket(3000);
@@ -135,7 +134,7 @@ public class Initiate_game extends Activity {
 					dout.writeUTF("TCP link succeed");
 					++playerNum;
 					// 只接收3个人进入游戏组
-					if (playerNum > 8)
+					if (playerNum > 3)
 						break;
 					data[i++] = socket.getInetAddress().toString();
 					Message msg = TcpHandler.obtainMessage();
@@ -160,7 +159,6 @@ public class Initiate_game extends Activity {
 		public void onClick(View v) {
 			switch (v.getId()) {
 			// 刚开始，开始游戏按钮是不可点击状态，只有有人加入游戏之后才可以开始游戏
-
 			case R.id.btn_start_game:
 				if (playerNum == 0) {
 					new AlertDialog.Builder(Initiate_game.this)
@@ -180,7 +178,6 @@ public class Initiate_game extends Activity {
 				break;
 			}
 		}
-
 	}
 
 	@Override

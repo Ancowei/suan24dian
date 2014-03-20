@@ -33,6 +33,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class Suan24dianMain extends Activity {
@@ -43,15 +44,18 @@ public class Suan24dianMain extends Activity {
 	private Button btn_exit;
 	private Button btn_login;
 	private Button btn_join_game;
+	private TextView tx_username;
 
 	private btnOnClickListener btn_OnClick;
 
-	public static String USER_NAME;
-	public static String USER_PASSWORD;
+	public static String USER_NAME="";
+	public static String USER_PASSWORD="";
 
 	public String user_Name = "";
 	public int user_highest = 0;
 	public boolean ifFirst = true;
+	//是否已经登录的标志
+	public static boolean ifLogin=false;
 
 	public static SqlHandler sqlHelper;
 
@@ -74,7 +78,16 @@ public class Suan24dianMain extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 		setContentView(R.layout.activity_suan24dian_main);
-
+		
+		tx_username=(TextView)findViewById(R.id.text_username);
+		if(ifLogin){
+			Cursor c = sqlHelper.select();
+			for (c.moveToFirst(); !c.isAfterLast();) {
+				user_Name = c.getString(c.getColumnIndex(SqlHandler.USER_NAME));
+			}
+			tx_username.setText(user_Name);
+		}
+		
 		btn_local = (Button) findViewById(R.id.btn_local);
 		btn_initiate_game = (Button) findViewById(R.id.btn_initiate_game);
 		btn_join_game = (Button) findViewById(R.id.btn_join_game);
@@ -160,11 +173,17 @@ public class Suan24dianMain extends Activity {
 				Suan24dianMain.this.startActivity(start_intent);
 				break;
 			case R.id.btn_initiate_game:
-				// 点击发起游戏按钮时候，发送UDP广播，告知其他用户我发起了游戏，你们可以加进来
-				new Send_Broadcast_Thread().start();
-				Intent create_game = new Intent(Suan24dianMain.this,
-						Initiate_game.class);
-				Suan24dianMain.this.startActivity(create_game);
+				if(!ifLogin){
+					//创建游戏的时候，如果还没有登录，像登录再创建游戏
+					Intent LIntent =new Intent(Suan24dianMain.this,suan24dian_Login.class);
+					Suan24dianMain.this.startActivity(LIntent);
+				}else{
+					// 点击发起游戏按钮时候，发送UDP广播，告知其他用户我发起了游戏，你们可以加进来
+					new Send_Broadcast_Thread().start();
+					Intent create_game = new Intent(Suan24dianMain.this,
+							Initiate_game.class);
+					Suan24dianMain.this.startActivity(create_game);
+				}
 
 				/*
 				 * new AlertDialog.Builder(Suan24dian_welcome.this)
@@ -209,6 +228,7 @@ public class Suan24dianMain extends Activity {
 				Intent loginIntent = new Intent(Suan24dianMain.this,
 						suan24dian_Login.class);
 				Suan24dianMain.this.startActivity(loginIntent);
+				
 				break;
 			case R.id.btn_exit: {
 

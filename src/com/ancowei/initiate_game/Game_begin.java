@@ -105,7 +105,7 @@ public class Game_begin extends Activity {
 				ExitApp.getInstance().addActivity(Game_begin.this);
 		//无标题
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.activity_suan24dian_play);
+		setContentView(R.layout.activity_suan24dian_initiate_play);
 		// 全屏
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -132,8 +132,10 @@ public class Game_begin extends Activity {
 
 		edit_calculate = (EditText) findViewById(R.id.edit_calculate);
 
-		text_countdown = (TextView) findViewById(R.id.text_countdown);
+		//text_countdown = (TextView) findViewById(R.id.text_countdown);
 		text_countdown_show = (TextView) findViewById(R.id.text_countdown_show);
+		text_countdown_show.setTextSize(20);
+		text_countdown_show.setTextColor(Color.BLUE);
 		text_result = (TextView) findViewById(R.id.text_result);
 		text_time = (TextView) findViewById(R.id.text_time);
 		text_time.setTextSize(20);
@@ -161,7 +163,7 @@ public class Game_begin extends Activity {
 		btn_clear.setOnClickListener(btnOnclick);
 		btn_commit.setOnClickListener(btnOnclick);
 
-		text_countdown.setText("剩余题数：");
+		//text_countdown.setText("剩余题数：");
 
 		myH = new myHandler();
 		// new NumThread().start();
@@ -440,7 +442,7 @@ public class Game_begin extends Activity {
 		public void run() {
 			STOP = false;
 			while (!STOP) {
-				time = 10;
+				time = 60;
 				try {
 					while (!STOP && time >= 0) {
 						Message msg = myH.obtainMessage();

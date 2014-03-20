@@ -105,6 +105,7 @@ public class suan24dian_Login extends Activity {
 					Toast.makeText(suan24dian_Login.this,
 							"登录信息\n" + "昵称：" + user_Name + "\n密码：*** ",
 							Toast.LENGTH_LONG).show();
+					Suan24dianMain.ifLogin=true;
 					suan24dian_Login.this.finish();
 				}
 				break;
