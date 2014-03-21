@@ -9,6 +9,7 @@ import com.example.suan24dian.R;
 import ExitApp.ExitApp;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
@@ -89,7 +90,7 @@ public class suan24dian_Login extends Activity {
 			case R.id.btn_ok:
 
 				Suan24dianMain.USER_NAME = edit_name.getText().toString();
-				Suan24dianMain.USER_PASSWORD = edit_name.getText()
+				Suan24dianMain.USER_PASSWORD = edit_password.getText()
 						.toString();
 
 				user_Name = edit_name.getText().toString();
@@ -100,6 +101,11 @@ public class suan24dian_Login extends Activity {
 							.setTitle("用户名和密码都不能为空!")
 							.setPositiveButton("确定", null).show();
 				} else {
+					Intent LIntent=new Intent();
+					LIntent.putExtra("user_name", user_Name);
+					LIntent.putExtra("user_password", user_Password);
+					setResult(1, LIntent);  
+					
 					Suan24dianMain.sqlHelper.insert(user_Name,
 							user_Password);
 					Toast.makeText(suan24dian_Login.this,

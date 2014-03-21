@@ -2,6 +2,7 @@ package com.ancowei.main;
 
 import java.io.ByteArrayOutputStream;
 
+
 import java.io.PrintStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -16,6 +17,7 @@ import com.ancowei.join_game.Join_game;
 import com.ancowei.local.Suan24dian_local;
 import com.ancowei.login.suan24dian_Login;
 import com.ancowei.main.Suan24dianMain;
+import com.ancowei.model.PropertyBean;
 import com.ancowei.services.Background_music;
 import com.example.suan24dian.R;
 import ExitApp.ExitApp;
@@ -38,6 +40,7 @@ import android.widget.Toast;
 
 public class Suan24dianMain extends Activity {
 
+	
 	private Button btn_local;
 	private Button btn_initiate_game;
 	private Button btn_about;
@@ -45,6 +48,7 @@ public class Suan24dianMain extends Activity {
 	private Button btn_login;
 	private Button btn_join_game;
 	private TextView tx_username;
+	private PropertyBean property;
 
 	private btnOnClickListener btn_OnClick;
 
@@ -78,14 +82,9 @@ public class Suan24dianMain extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 		setContentView(R.layout.activity_suan24dian_main);
-		
 		tx_username=(TextView)findViewById(R.id.text_username);
 		if(ifLogin){
-			Cursor c = sqlHelper.select();
-			for (c.moveToFirst(); !c.isAfterLast();) {
-				user_Name = c.getString(c.getColumnIndex(SqlHandler.USER_NAME));
-			}
-			tx_username.setText(user_Name);
+			tx_username.setText(USER_NAME+"在线");
 		}
 		
 		btn_local = (Button) findViewById(R.id.btn_local);
@@ -105,10 +104,12 @@ public class Suan24dianMain extends Activity {
 		btn_join_game.setOnClickListener(btn_OnClick);
 		sqlHelper = new SqlHandler(Suan24dianMain.this,
 				SqlHandler.DATABASE_NAME, null, SqlHandler.DATABASE_VERSION);
+		
 		// sqlHelper.delete("哈哈");
 		// sqlHelper.upgradeByUser();
 		// 添加背景音乐
 		play_music();
+		
 	}
 
 	private void play_music() {
@@ -175,8 +176,10 @@ public class Suan24dianMain extends Activity {
 			case R.id.btn_initiate_game:
 				if(!ifLogin){
 					//创建游戏的时候，如果还没有登录，像登录再创建游戏
+					Toast.makeText(Suan24dianMain.this, "请先登录", Toast.LENGTH_LONG).show();
 					Intent LIntent =new Intent(Suan24dianMain.this,suan24dian_Login.class);
-					Suan24dianMain.this.startActivity(LIntent);
+					Suan24dianMain.this.startActivityForResult(LIntent, 0);
+					
 				}else{
 					// 点击发起游戏按钮时候，发送UDP广播，告知其他用户我发起了游戏，你们可以加进来
 					new Send_Broadcast_Thread().start();
@@ -227,7 +230,7 @@ public class Suan24dianMain extends Activity {
 			case R.id.btn_login:
 				Intent loginIntent = new Intent(Suan24dianMain.this,
 						suan24dian_Login.class);
-				Suan24dianMain.this.startActivity(loginIntent);
+				Suan24dianMain.this.startActivityForResult(loginIntent, 0);
 				
 				break;
 			case R.id.btn_exit: {
@@ -253,6 +256,18 @@ public class Suan24dianMain extends Activity {
 				break;
 			}
 			}
+		}
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if(resultCode==1 && requestCode==0){
+			USER_NAME=data.getStringExtra("user_name");
+			USER_PASSWORD=data.getStringExtra("user_password");
+			property.setAndsave_user(USER_NAME, USER_PASSWORD);
+			tx_username.setText(USER_NAME+"在线");
+			ifLogin=true;
 		}
 	}
 
@@ -286,5 +301,13 @@ public class Suan24dianMain extends Activity {
 		return false;
 
 	}
-
+	
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		property=new PropertyBean(this);
+		//tx_username.setText(property.get_user_name());
+		
+	}
 }

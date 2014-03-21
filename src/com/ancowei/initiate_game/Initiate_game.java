@@ -46,7 +46,7 @@ public class Initiate_game extends Activity {
 
 	myOnClickListener myOnclick;
 
-	static int playerNum = 0;
+	static int playerNum = 1;
 	static int i = 0;
 
 	Handler TcpHandler = new Handler() {
@@ -105,12 +105,12 @@ public class Initiate_game extends Activity {
 	public ArrayList<HashMap<String, Object>> getData() {
 
 		ArrayList<HashMap<String, Object>> listItem = new ArrayList<HashMap<String, Object>>();
-		/*for (int i = 0; i < 3; i++) {
+		for (int i = 0; i < 3; i++) {
 			HashMap<String, Object> map = new HashMap<String, Object>();
-			map.put("ItemImage", R.drawable.card_horse_7);// 图像资源的ID
+			map.put("ItemImage", R.drawable.ic_launcher);// 图像资源的ID
 			map.put("ItemTitle", "" + Suan24dianMain.ADDR);
 			listItem.add(map);
-		}*/
+		}
 		for (int j = 0; j < i; j++) {
 			HashMap<String, Object> map = new HashMap<String, Object>();
 			map.put("ItemImage", R.drawable.ic_launcher);
