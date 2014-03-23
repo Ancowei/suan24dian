@@ -94,13 +94,23 @@ public class Join_game_begin extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		// 退出程序
-				ExitApp.getInstance().addActivity(Join_game_begin.this);
-		//无标题
+		ExitApp.getInstance().addActivity(Join_game_begin.this);
+		// 无标题
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_suan24dian_initiate_play);
 		// 全屏
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		findView();
+		registerListeners();
+		myH = new myHandler();
+		UDP_listener = new UDPLink_after_TCPLINK();
+		UDP_listener.start();
+		initData();
+
+	}
+
+	public void findView() {
 		btn_1 = (Button) findViewById(R.id.btn_1);
 		btn_2 = (Button) findViewById(R.id.btn_2);
 		btn_3 = (Button) findViewById(R.id.btn_3);
@@ -122,10 +132,13 @@ public class Join_game_begin extends Activity {
 
 		edit_calculate = (EditText) findViewById(R.id.edit_calculate);
 
-		//text_countdown = (TextView) findViewById(R.id.text_countdown);
+		// text_countdown = (TextView) findViewById(R.id.text_countdown);
 		text_countdown_show = (TextView) findViewById(R.id.text_countdown_show);
 		text_result = (TextView) findViewById(R.id.text_result);
 		text_time = (TextView) findViewById(R.id.text_time);
+	}
+
+	public void registerListeners() {
 		text_time.setTextSize(20);
 		text_time.setTextColor(Color.RED);
 
@@ -149,14 +162,6 @@ public class Join_game_begin extends Activity {
 		btn_back.setOnClickListener(btnOnclick);
 		btn_clear.setOnClickListener(btnOnclick);
 		btn_commit.setOnClickListener(btnOnclick);
-
-		//text_countdown.setText("剩余题数：");
-
-		myH = new myHandler();
-		UDP_listener = new UDPLink_after_TCPLINK();
-		UDP_listener.start();
-		initData();
-
 	}
 
 	public class btnOnClickListener implements OnClickListener {
@@ -367,7 +372,7 @@ public class Join_game_begin extends Activity {
 	// 显示初始化
 	public void initData() {
 		questionNum = 10;
-		//text_countdown_show.setText("" + questionNum);
+		// text_countdown_show.setText("" + questionNum);
 	}
 
 	// 回退时候，如果是数字，恢复按钮数字

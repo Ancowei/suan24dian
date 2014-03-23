@@ -36,26 +36,15 @@ public class suan24dian_Login extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		// 退出程序
-				ExitApp.getInstance().addActivity(suan24dian_Login.this);
+		ExitApp.getInstance().addActivity(suan24dian_Login.this);
 		// 无标题
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		// 全屏
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.suan24dian_login);
-
-		btn_cancle = (Button) findViewById(R.id.btn_cancle);
-		btn_ok = (Button) findViewById(R.id.btn_ok);
-
-		edit_name = (EditText) findViewById(R.id.edit_name);
-		edit_name.setFocusable(true);
-		edit_password = (EditText) findViewById(R.id.edit_password);
-		edit_password.setFocusable(true);
-
-		btn_onclick = new btn_OnClickListener();
-
-		btn_cancle.setOnClickListener(btn_onclick);
-		btn_ok.setOnClickListener(btn_onclick);
+		findView();
+		registerListeners();
 
 		/*
 		 * sqlHelper = new SqlHandler(suan24dian_Login.this,
@@ -63,6 +52,21 @@ public class suan24dian_Login extends Activity {
 		 */
 
 		set_Default_User();
+	}
+
+	public void findView() {
+		btn_cancle = (Button) findViewById(R.id.btn_cancle);
+		btn_ok = (Button) findViewById(R.id.btn_ok);
+		edit_password = (EditText) findViewById(R.id.edit_password);
+		edit_name = (EditText) findViewById(R.id.edit_name);
+	}
+
+	public void registerListeners() {
+		edit_name.setFocusable(true);
+		edit_password.setFocusable(true);
+		btn_onclick = new btn_OnClickListener();
+		btn_cancle.setOnClickListener(btn_onclick);
+		btn_ok.setOnClickListener(btn_onclick);
 	}
 
 	public void set_Default_User() {
@@ -101,17 +105,16 @@ public class suan24dian_Login extends Activity {
 							.setTitle("用户名和密码都不能为空!")
 							.setPositiveButton("确定", null).show();
 				} else {
-					Intent LIntent=new Intent();
+					Intent LIntent = new Intent();
 					LIntent.putExtra("user_name", user_Name);
 					LIntent.putExtra("user_password", user_Password);
-					setResult(1, LIntent);  
-					
-					Suan24dianMain.sqlHelper.insert(user_Name,
-							user_Password);
+					setResult(1, LIntent);
+
+					Suan24dianMain.sqlHelper.insert(user_Name, user_Password);
 					Toast.makeText(suan24dian_Login.this,
 							"登录信息\n" + "昵称：" + user_Name + "\n密码：*** ",
 							Toast.LENGTH_LONG).show();
-					Suan24dianMain.ifLogin=true;
+					Suan24dianMain.ifLogin = true;
 					suan24dian_Login.this.finish();
 				}
 				break;

@@ -1,7 +1,5 @@
 package com.ancowei.welcome;
 
-
-
 import com.ancowei.main.Suan24dianMain;
 import com.example.suan24dian.R;
 

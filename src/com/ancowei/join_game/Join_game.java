@@ -86,15 +86,14 @@ public class Join_game extends Activity {
 		super.onCreate(savedInstanceState);
 		// 退出程序
 		ExitApp.getInstance().addActivity(Join_game.this);
-		//无标题
+		// 无标题
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.suan24dian_join_game);
 		// 全屏
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-		btn_joingame_exit = (Button) findViewById(R.id.btn_joingame_exit);
-		list_inititor = (ListView) findViewById(R.id.list_initator);
+		findView();
+		registerListeners();
 
 		list_inititor_adapter = new SimpleAdapter(this, getInitiator(),
 				R.layout.list_item,
@@ -125,11 +124,19 @@ public class Join_game extends Activity {
 
 		});
 
-		btn_onclick = new btnOnClickListener();
-		btn_joingame_exit.setOnClickListener(btn_onclick);
-
 		UDP_serchThread = new UDP_SerchThread();
 		UDP_serchThread.start();
+	}
+
+	public void findView() {
+		btn_joingame_exit = (Button) findViewById(R.id.btn_joingame_exit);
+		list_inititor = (ListView) findViewById(R.id.list_initator);
+
+	}
+
+	public void registerListeners() {
+		btn_onclick = new btnOnClickListener();
+		btn_joingame_exit.setOnClickListener(btn_onclick);
 	}
 
 	public ArrayList<HashMap<String, Object>> getInitiator() {
