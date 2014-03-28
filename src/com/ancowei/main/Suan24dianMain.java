@@ -7,15 +7,15 @@ import java.io.PrintStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+
 import com.ancowei.db.SqlHandler;
+import com.ancowei.db.Suan24dian_DATA;
 import com.ancowei.initiate_game.Initiate_game;
 import com.ancowei.join_game.Join_game;
 import com.ancowei.local.Suan24dian_local;
 import com.ancowei.login.suan24dian_Login;
 import com.ancowei.main.Suan24dianMain;
-import com.ancowei.model.PropertyBean;
 import com.ancowei.services.Background_music;
-import com.ancowei.setting.suan24dian_Setting;
 import com.example.suan24dian.R;
 import ExitApp.ExitApp;
 import android.os.Bundle;
@@ -23,6 +23,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,6 +34,7 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,12 +47,15 @@ public class Suan24dianMain extends Activity {
 	private Button btn_exit;
 	private Button btn_login;
 	private TextView tx_username;
-	private PropertyBean property;
+	private ImageView image_user;
+	
+	private Suan24dian_DATA [] suan24dian_data;
 
 	private btnOnClickListener btn_OnClick;
 
-	public static String USER_NAME = "";
-	public static String USER_PASSWORD = "";
+	private static int LOGIN_REQUEST_CODE = 0;
+	private static int INITIATE_REQUEST_CODE = 1;
+	private static int JOIN_GAME_CODE = 2;
 
 	public String user_Name = "";
 	public int user_highest = 0;
@@ -87,13 +94,18 @@ public class Suan24dianMain extends Activity {
 	}
 
 	public void findView() {
-		tx_username = (TextView) findViewById(R.id.text_username);
+		tx_username = (TextView) findViewById(R.id.tx_username);
 		btn_local = (Button) findViewById(R.id.btn_local);
 		btn_initiate_game = (Button) findViewById(R.id.btn_initiate_game);
 		btn_join_game = (Button) findViewById(R.id.btn_join_game);
 		btn_about = (Button) findViewById(R.id.btn_setting);
 		btn_exit = (Button) findViewById(R.id.btn_exit);
 		btn_login = (Button) findViewById(R.id.btn_login);
+		image_user = (ImageView) findViewById(R.id.image_user);
+		suan24dian_data = new Suan24dian_DATA[5];
+		for(int k=0;k<5;k++){
+			suan24dian_data[k]=new Suan24dian_DATA();
+		}
 	}
 
 	public void registerListeners() {
@@ -105,16 +117,13 @@ public class Suan24dianMain extends Activity {
 		btn_initiate_game.setOnClickListener(btn_OnClick);
 		btn_join_game.setOnClickListener(btn_OnClick);
 		if (ifLogin) {
-			tx_username.setText(USER_NAME + "在线");
+			tx_username.setText(suan24dian_data[0].getName()+"在线");
 		}
-
 	}
-
 	private void play_music() {
 		Intent mIntent = new Intent(this, Background_music.class);
 		startService(mIntent);
 	}
-
 	/*
 	 * private List<String> getData() {
 	 * 
@@ -176,13 +185,16 @@ public class Suan24dianMain extends Activity {
 							Toast.LENGTH_LONG).show();
 					Intent LIntent = new Intent(Suan24dianMain.this,
 							suan24dian_Login.class);
-					Suan24dianMain.this.startActivityForResult(LIntent, 0);
+					Suan24dianMain.this.startActivityForResult(LIntent,
+							INITIATE_REQUEST_CODE);
 
 				} else {
 					// 点击发起游戏按钮时候，发送UDP广播，告知其他用户我发起了游戏，你们可以加进来
 					new Send_Broadcast_Thread().start();
 					Intent create_game = new Intent(Suan24dianMain.this,
 							Initiate_game.class);
+					create_game.putExtra("image", suan24dian_data[0].getImage());
+					create_game.putExtra("user_name", suan24dian_data[0].getName());
 					Suan24dianMain.this.startActivity(create_game);
 				}
 
@@ -194,25 +206,30 @@ public class Suan24dianMain extends Activity {
 							Toast.LENGTH_LONG).show();
 					Intent LIntent = new Intent(Suan24dianMain.this,
 							suan24dian_Login.class);
-					Suan24dianMain.this.startActivityForResult(LIntent, 0);
+					Suan24dianMain.this.startActivityForResult(LIntent,
+							JOIN_GAME_CODE);
 				} else {
 					// 点击加入游戏按钮时候，搜索UDP数据包，把当前所有发起游戏人用列表列举出来，用户可以点击其中的一个游戏发起人，加入游戏组
 					Intent join_game = new Intent(Suan24dianMain.this,
 							Join_game.class);
+					join_game.putExtra("image", suan24dian_data[0].getImage());
+					join_game.putExtra("user_name", suan24dian_data[0].getName());
 					Suan24dianMain.this.startActivity(join_game);
 				}
 
 				break;
 			case R.id.btn_setting:
-				Intent settingIntent = new Intent(Suan24dianMain.this,
-						suan24dian_Setting.class);
-				Suan24dianMain.this.startActivity(settingIntent);
-				
+				Intent setIntent = new Intent(Suan24dianMain.this,
+						suan24dian_Login.class);
+				Suan24dianMain.this.startActivityForResult(setIntent,
+						LOGIN_REQUEST_CODE);
+
 				break;
 			case R.id.btn_login:
 				Intent loginIntent = new Intent(Suan24dianMain.this,
 						suan24dian_Login.class);
-				Suan24dianMain.this.startActivityForResult(loginIntent, 0);
+				Suan24dianMain.this.startActivityForResult(loginIntent,
+						LOGIN_REQUEST_CODE);
 
 				break;
 			case R.id.btn_exit: {
@@ -240,17 +257,42 @@ public class Suan24dianMain extends Activity {
 			}
 		}
 	}
-
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if (resultCode == 1 && requestCode == 0) {
-			USER_NAME = data.getStringExtra("user_name");
-			USER_PASSWORD = data.getStringExtra("user_password");
-			property.setAndsave_user(USER_NAME, USER_PASSWORD);
-			tx_username.setText(USER_NAME + "在线");
-			ifLogin = true;
+		if (resultCode == suan24dian_Login.LOGIN_RESULT_CODE) {
+			if (requestCode == LOGIN_REQUEST_CODE) {
+				Bundle extras = data.getExtras();
+				if (extras != null) {
+					Bitmap photo = extras.getParcelable("data");
+					Drawable drawable = new BitmapDrawable(photo);
+					image_user.setImageDrawable(drawable);
+					tx_username.setText(data.getStringExtra("user_name") + "在线");
+					ifLogin = true;
+					suan24dian_data[0].setData(0, data.getStringExtra("user_name"), data, "127.0.0.1");
+				}
+			} else if (requestCode == INITIATE_REQUEST_CODE) {
+				Bundle extras = data.getExtras();
+				if (extras != null) {
+					Bitmap photo = extras.getParcelable("data");
+					Drawable drawable = new BitmapDrawable(photo);
+					image_user.setImageDrawable(drawable);
+					tx_username.setText(data.getStringExtra("user_name") + "在线");
+					ifLogin = true;
+				}
+
+			} else if (requestCode == JOIN_GAME_CODE) {
+				Bundle extras = data.getExtras();
+				if (extras != null) {
+					Bitmap photo = extras.getParcelable("data");
+					Drawable drawable = new BitmapDrawable(photo);
+					image_user.setImageDrawable(drawable);
+					tx_username.setText(data.getStringExtra("user_name") + "在线");
+					ifLogin = true;
+				}
+			}
 		}
+
 	}
 
 	@Override
@@ -259,11 +301,9 @@ public class Suan24dianMain extends Activity {
 		return true;
 	}
 
-	
-
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()){
+		switch (item.getItemId()) {
 		case R.id.menu_about:
 			new AlertDialog.Builder(Suan24dianMain.this)
 
@@ -275,23 +315,22 @@ public class Suan24dianMain extends Activity {
 			return true;
 		case R.id.menu_exit:
 			new AlertDialog.Builder(Suan24dianMain.this)
-			.setTitle("确定要退出算24点游戏吗?")
-			.setNegativeButton("取消", null)
-			.setPositiveButton("确定",
-					new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog,
-								int which) {
-							// stop background_music
-							Intent mIntent = new Intent(
-									Suan24dianMain.this,
-									Background_music.class);
-							Suan24dianMain.this
-									.stopService(mIntent);
-							// exit system
-							ExitApp.getInstance().exit();
-						}
-					}).show();
+					.setTitle("确定要退出算24点游戏吗?")
+					.setNegativeButton("取消", null)
+					.setPositiveButton("确定",
+							new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+									// stop background_music
+									Intent mIntent = new Intent(
+											Suan24dianMain.this,
+											Background_music.class);
+									Suan24dianMain.this.stopService(mIntent);
+									// exit system
+									ExitApp.getInstance().exit();
+								}
+							}).show();
 			return true;
 		case R.id.menu_setting:
 			new AlertDialog.Builder(Suan24dianMain.this)
@@ -302,10 +341,10 @@ public class Suan24dianMain extends Activity {
 
 			.setPositiveButton("确定", null).show();
 			return true;
-		
+
 		}
 		return false;
-		
+
 	}
 
 	// 重写返回手机返回按钮
@@ -337,7 +376,6 @@ public class Suan24dianMain extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		property = new PropertyBean(this);
 		// tx_username.setText(property.get_user_name());
 
 	}

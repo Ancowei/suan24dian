@@ -20,6 +20,9 @@ import com.example.suan24dian.R;
 import ExitApp.ExitApp;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,10 +32,15 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
 public class Join_game extends Activity {
 	Button btn_joingame_exit;
+	ImageView image_user;
+	TextView tx_username;
+
 	MyListView join_game_listview;
 	ArrayList<HashMap<String, Object>> listItem;
 
@@ -92,12 +100,15 @@ public class Join_game extends Activity {
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		findView();
 		registerListeners();
+		set_image_and_name();
 		UDP_serchThread = new UDP_SerchThread();
 		UDP_serchThread.start();
 	}
 
 	public void findView() {
 		btn_joingame_exit = (Button) findViewById(R.id.btn_joingame_exit);
+		image_user = (ImageView) findViewById(R.id.image_user);
+		tx_username = (TextView) findViewById(R.id.tx_username);
 		join_game_listview = (MyListView) findViewById(R.id.join_game_listview);
 		listItem = new ArrayList<HashMap<String, Object>>();
 		join_game_listAdapter = new SimpleAdapter(this, getData(),
@@ -110,7 +121,6 @@ public class Join_game extends Activity {
 	public void registerListeners() {
 		btn_onclick = new btnOnClickListener();
 		btn_joingame_exit.setOnClickListener(btn_onclick);
-
 		join_game_listview.setAdapter(join_game_listAdapter);
 		join_game_listview.setonRefreshListener(new OnRefreshListener() {
 			@Override
@@ -136,7 +146,19 @@ public class Join_game extends Activity {
 			}
 		});
 	}
+	public void set_image_and_name() {
+		Intent image_and_name = this.getIntent();
+		String name = image_and_name.getStringExtra("user_name");
+		Intent image = image_and_name.getParcelableExtra("image");
+		Bundle extras = image.getExtras();
+		if (extras != null) {
+			Bitmap photo = extras.getParcelable("data");
+			Drawable drawable = new BitmapDrawable(photo);
+			image_user.setImageDrawable(drawable);
+		}
+		tx_username.setText(name);
 
+	}
 	private void handleList() {
 		listItem.clear();
 		for (int j = 0; j < 1; j++) {

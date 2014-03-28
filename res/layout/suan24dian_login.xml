@@ -3,11 +3,61 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/suan24dian_final_background"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".Suan24dian_welcome" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <!-- title -->
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/title_bg"
+            android:gravity="center"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/title_bar_txt"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+
+        <!-- image switch -->
+
+        <RelativeLayout
+            android:id="@+id/switch_face_rl"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="20dip"
+            android:clickable="true"
+            android:padding="5dip" >
+
+            <ImageView
+                android:id="@+id/face"
+                android:layout_width="42dip"
+                android:layout_height="42dip"
+                android:layout_alignParentLeft="true"
+                android:layout_marginLeft="10dip"
+                android:src="@drawable/mini_avatar" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="5dip"
+                android:layout_marginTop="5dip"
+                android:layout_toRightOf="@id/face"
+                android:text="@string/set_image"
+                android:textColor="@drawable/xingqiao" />
+        </RelativeLayout>
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -29,9 +79,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
                 android:gravity="center"
-                android:text="昵称:"
+                android:text="@string/name"
                 android:textColor="@drawable/xingqiao"
-                android:textSize="20dp" />
+                android:textSize="20sp" />
 
             <EditText
                 android:id="@+id/edit_name"
@@ -53,16 +103,16 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
                 android:gravity="center"
-                android:text="密码:"
+                android:text="@string/password"
                 android:textColor="@drawable/xingqiao"
-                android:textSize="20dp" />
+                android:textSize="20sp" />
 
             <EditText
                 android:id="@+id/edit_password"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:password="true"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:password="true" />
         </LinearLayout>
 
         <LinearLayout
@@ -75,17 +125,19 @@
 
             <Button
                 android:id="@+id/btn_cancle"
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="取消" />
+                android:text="@string/cancel"
+                android:textColor="@drawable/xingqiao" />
 
             <Button
                 android:id="@+id/btn_ok"
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="确定" />
+                android:text="@string/yes"
+                android:textColor="@drawable/xingqiao" />
         </LinearLayout>
     </LinearLayout>
 

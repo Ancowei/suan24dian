@@ -121,8 +121,8 @@ public class Game_begin extends Activity {
 		if (correctNum > highestNum) {
 			highestNum = correctNum;
 			// 更新数据库
-			Suan24dianMain.sqlHelper.update(Suan24dianMain.USER_NAME,
-					highestNum);
+			/*Suan24dianMain.sqlHelper.update(Suan24dianMain.USER_NAME,
+					highestNum);*/
 		}
 	}
 
@@ -506,8 +506,8 @@ public class Game_begin extends Activity {
 			correctNum++;
 			if (correctNum > highestNum) {
 				highestNum = correctNum;
-				Suan24dianMain.sqlHelper.update(Suan24dianMain.USER_NAME,
-						highestNum);
+				/*Suan24dianMain.sqlHelper.update(Suan24dianMain.USER_NAME,
+						highestNum);*/
 			}
 		} else {
 			res = "结果错误，请重新计算";

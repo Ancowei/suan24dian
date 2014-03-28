@@ -9,6 +9,8 @@
         android:targetSdkVersion="17" />
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" >
+    </uses-permission>
 
     <application
         android:allowBackup="true"
@@ -46,7 +48,8 @@
 
         <activity android:name="com.ancowei.local.Suan24dian_local" >
         </activity>
-        <activity android:name="com.ancowei.setting.suan24dian_Setting"></activity>
+        <activity android:name="com.ancowei.setting.suan24dian_Setting" >
+        </activity>
     </application>
 
 </manifest>

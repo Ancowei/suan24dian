@@ -8,6 +8,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,9 @@ import ExitApp.ExitApp;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -27,11 +31,15 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
 public class Initiate_game extends Activity {
 	Button btn_start_game;
 	Button btn_back;
+	ImageView image_user;
+	TextView tx_username;
 
 	ServerSocket serverSocket;
 	Socket socket;
@@ -69,6 +77,7 @@ public class Initiate_game extends Activity {
 		findView();
 		buildAdapter();
 		registerListeners();
+		set_image_and_name();
 		udp_brocast.start();
 		tcp_link.start();
 	}
@@ -77,6 +86,8 @@ public class Initiate_game extends Activity {
 		btn_start_game = (Button) findViewById(R.id.btn_start_game);
 		btn_back = (Button) findViewById(R.id.btn_exit);
 		list_player = (MyListView) findViewById(R.id.list_player);
+		image_user = (ImageView) findViewById(R.id.image_user);
+		tx_username = (TextView) findViewById(R.id.tx_username);
 	}
 
 	public void registerListeners() {
@@ -110,6 +121,20 @@ public class Initiate_game extends Activity {
 		inet_initiate_control = new Inet_initiate_control();
 		tcp_link = new TCP_Link_Thread();
 		udp_brocast = new UDP_Brocast_initiate_Thread();
+	}
+
+	public void set_image_and_name() {
+		Intent image_and_name = this.getIntent();
+		String name = image_and_name.getStringExtra("user_name");
+		Intent image = image_and_name.getParcelableExtra("image");
+		Bundle extras = image.getExtras();
+		if (extras != null) {
+			Bitmap photo = extras.getParcelable("data");
+			Drawable drawable = new BitmapDrawable(photo);
+			image_user.setImageDrawable(drawable);
+		}
+		tx_username.setText(name);
+
 	}
 
 	private void handleList() {
