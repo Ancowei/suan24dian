@@ -2,14 +2,11 @@ package com.ancowei.main;
 
 import java.io.ByteArrayOutputStream;
 
+
 import java.io.PrintStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.ArrayList;
-
-import java.util.List;
-
 import com.ancowei.db.SqlHandler;
 import com.ancowei.initiate_game.Initiate_game;
 import com.ancowei.join_game.Join_game;
@@ -18,6 +15,7 @@ import com.ancowei.login.suan24dian_Login;
 import com.ancowei.main.Suan24dianMain;
 import com.ancowei.model.PropertyBean;
 import com.ancowei.services.Background_music;
+import com.ancowei.setting.suan24dian_Setting;
 import com.example.suan24dian.R;
 import ExitApp.ExitApp;
 import android.os.Bundle;
@@ -25,7 +23,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,7 +31,6 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -95,7 +91,7 @@ public class Suan24dianMain extends Activity {
 		btn_local = (Button) findViewById(R.id.btn_local);
 		btn_initiate_game = (Button) findViewById(R.id.btn_initiate_game);
 		btn_join_game = (Button) findViewById(R.id.btn_join_game);
-		btn_about = (Button) findViewById(R.id.btn_about);
+		btn_about = (Button) findViewById(R.id.btn_setting);
 		btn_exit = (Button) findViewById(R.id.btn_exit);
 		btn_login = (Button) findViewById(R.id.btn_login);
 	}
@@ -207,15 +203,11 @@ public class Suan24dianMain extends Activity {
 				}
 
 				break;
-			case R.id.btn_about:
-
-				new AlertDialog.Builder(Suan24dianMain.this)
-
-				.setTitle("算24点")
-
-				.setMessage("开发者：Ancowei\n版本：1.0")
-
-				.setPositiveButton("确定", null).show();
+			case R.id.btn_setting:
+				Intent settingIntent = new Intent(Suan24dianMain.this,
+						suan24dian_Setting.class);
+				Suan24dianMain.this.startActivity(settingIntent);
+				
 				break;
 			case R.id.btn_login:
 				Intent loginIntent = new Intent(Suan24dianMain.this,

@@ -27,11 +27,11 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/suan24dian_chose_room" />
 
-            <ListView
-                android:id="@+id/list_initator"
+             <com.ancowei.listview.MyListView
+                android:id="@+id/join_game_listview"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content" >
-            </ListView>
+                android:layout_height="fill_parent" />
+             
         </LinearLayout>
 
         <LinearLayout

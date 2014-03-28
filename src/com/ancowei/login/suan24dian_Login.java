@@ -111,6 +111,7 @@ public class suan24dian_Login extends Activity {
 					setResult(1, LIntent);
 
 					Suan24dianMain.sqlHelper.insert(user_Name, user_Password);
+					
 					Toast.makeText(suan24dian_Login.this,
 							"登录信息\n" + "昵称：" + user_Name + "\n密码：*** ",
 							Toast.LENGTH_LONG).show();

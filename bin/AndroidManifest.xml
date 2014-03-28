@@ -46,6 +46,7 @@
 
         <activity android:name="com.ancowei.local.Suan24dian_local" >
         </activity>
+        <activity android:name="com.ancowei.setting.suan24dian_Setting"></activity>
     </application>
 
 </manifest>

@@ -1,6 +1,7 @@
 package com.ancowei.initiate_game;
 
 import java.io.ByteArrayOutputStream;
+
 import java.io.PrintStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -9,7 +10,6 @@ import java.util.ArrayList;
 
 import com.ancowei.calculate.Calculate;
 import com.ancowei.main.Suan24dianMain;
-import com.ancowei.welcome.Suan24dian_welcome;
 import com.example.suan24dian.R;
 
 import ExitApp.ExitApp;
@@ -29,7 +29,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class Game_begin extends Activity {
 
@@ -144,12 +143,10 @@ public class Game_begin extends Activity {
 		btn_clear = (Button) findViewById(R.id.btn_clear);
 		btn_commit = (Button) findViewById(R.id.btn_commit);
 
-		// btn_last = (Button) findViewById(R.id.btn_last);
 		btn_next = (Button) findViewById(R.id.btn_next);
 		btn_exit = (Button) findViewById(R.id.btn_exit);
 		edit_calculate = (EditText) findViewById(R.id.edit_calculate);
 
-		// text_countdown = (TextView) findViewById(R.id.text_countdown);
 		text_countdown_show = (TextView) findViewById(R.id.text_countdown_show);
 		text_result = (TextView) findViewById(R.id.text_result);
 		text_time = (TextView) findViewById(R.id.text_time);
@@ -530,7 +527,6 @@ public class Game_begin extends Activity {
 				pout.println(num4);
 				InetAddress addr = InetAddress.getByName(Suan24dianMain.ADDR);
 				byte buf[] = bout.toByteArray();
-
 				DatagramSocket socket = new DatagramSocket();
 				DatagramPacket packet = new DatagramPacket(buf, buf.length,
 						addr, Suan24dianMain.PORT);

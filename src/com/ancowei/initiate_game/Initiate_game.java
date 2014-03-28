@@ -2,18 +2,20 @@ package com.ancowei.initiate_game;
 
 import java.io.DataInputStream;
 import java.io.PrintWriter;
-
 import java.io.DataOutputStream;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.ancowei.internet.Inet_initiate_control;
 import com.ancowei.listview.MyListView;
 import com.ancowei.listview.MyListView.OnRefreshListener;
 import com.example.suan24dian.R;
-
 import ExitApp.ExitApp;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -34,6 +36,8 @@ public class Initiate_game extends Activity {
 	ServerSocket serverSocket;
 	Socket socket;
 	TCP_Link_Thread tcp_link;
+	UDP_Brocast_initiate_Thread udp_brocast;
+	Inet_initiate_control inet_initiate_control;
 
 	DataInputStream din;
 	DataOutputStream dout;
@@ -48,7 +52,7 @@ public class Initiate_game extends Activity {
 	ArrayList<HashMap<String, Object>> listItem;
 	static int playerNum = 0;
 	static int i = 0;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -65,18 +69,8 @@ public class Initiate_game extends Activity {
 		findView();
 		buildAdapter();
 		registerListeners();
-		tcp_link = new TCP_Link_Thread();
+		udp_brocast.start();
 		tcp_link.start();
-	}
-
-	private void handleList() {
-		listItem.clear();
-		for (int j = 0; j < i; j++) {
-			HashMap<String, Object> map = new HashMap<String, Object>();
-			map.put("ItemImage", R.drawable.ic_launcher);
-			map.put("ItemTitle", data[j]);
-			listItem.add(map);
-		}
 	}
 
 	public void findView() {
@@ -113,7 +107,19 @@ public class Initiate_game extends Activity {
 				}.execute();
 			}
 		});
+		inet_initiate_control = new Inet_initiate_control();
+		tcp_link = new TCP_Link_Thread();
+		udp_brocast = new UDP_Brocast_initiate_Thread();
+	}
 
+	private void handleList() {
+		listItem.clear();
+		for (int j = 0; j < i; j++) {
+			HashMap<String, Object> map = new HashMap<String, Object>();
+			map.put("ItemImage", R.drawable.ic_launcher);
+			map.put("ItemTitle", data[j]);
+			listItem.add(map);
+		}
 	}
 
 	// 生成适配器的Item和动态数组对应的元素
@@ -134,6 +140,24 @@ public class Initiate_game extends Activity {
 		return listItem;
 	}
 
+	// UDP brocast UDP广播：我发起游戏了,局域网的广播地址是 255.255.255.255
+	public class UDP_Brocast_initiate_Thread extends Thread {
+		public void run() {
+			try {
+				// InetAddress addr = InetAddress.getByName("172.18.54.198");
+				InetAddress addr = InetAddress.getByName("255.255.255.255");
+				byte[] data = "suan24dian_initiate".getBytes();
+				DatagramSocket socket = new DatagramSocket();
+				DatagramPacket packet = new DatagramPacket(data, data.length,
+						addr, 4242);
+				socket.send(packet);
+				socket.close();
+			} catch (Exception e) {
+				System.out.print(e.toString());
+			}
+		}
+	}
+
 	// tcp socket listenning
 	public class TCP_Link_Thread extends Thread {
 		public void run() {
@@ -141,12 +165,13 @@ public class Initiate_game extends Activity {
 				ServerSocket serverSocket = new ServerSocket(3000);
 				while (true) {
 					socket = serverSocket.accept();
-					PrintWriter writer=new PrintWriter(socket.getOutputStream());
-					String advice="hava a good day";
+					PrintWriter writer = new PrintWriter(
+							socket.getOutputStream());
+					String advice = "hava a good day";
 					writer.print(advice);
 					writer.close();
 					playerNum++;
-					data[i++]=socket.getInetAddress().toString();
+					data[i++] = socket.getInetAddress().toString();
 				}
 			} catch (Exception e) {
 				System.out.print("TCP link listenning exception :"
@@ -154,6 +179,7 @@ public class Initiate_game extends Activity {
 			}
 		}
 	}
+
 	public class myOnClickListener implements OnClickListener {
 		@Override
 		public void onClick(View v) {

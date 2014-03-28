@@ -1,6 +1,7 @@
 package com.ancowei.join_game;
 
 import java.io.BufferedReader;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
@@ -8,16 +9,18 @@ import java.io.PrintStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.ancowei.welcome.Suan24dian_welcome;
+import com.ancowei.listview.MyListView;
+import com.ancowei.listview.MyListView.OnRefreshListener;
 import com.example.suan24dian.R;
 
 import ExitApp.ExitApp;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -25,16 +28,13 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.Toast;
 
 public class Join_game extends Activity {
 	Button btn_joingame_exit;
-	ListView list_inititor;
+	MyListView join_game_listview;
+	ArrayList<HashMap<String, Object>> listItem;
 
 	btnOnClickListener btn_onclick;
 
@@ -50,7 +50,7 @@ public class Join_game extends Activity {
 	static InetAddress TCP_ADDR;
 	static final int PORT = 3000;
 	static int i = 0;
-	static SimpleAdapter list_inititor_adapter;
+	static SimpleAdapter join_game_listAdapter;
 
 	UDP_SerchThread UDP_serchThread;
 	Handler join_Handler = new Handler() {
@@ -59,8 +59,8 @@ public class Join_game extends Activity {
 			super.handleMessage(msg);
 			switch (msg.what) {
 			case INITIATOR_ADD:
-				list_inititor_adapter.notifyDataSetChanged();
-				list_inititor.setAdapter(list_inititor_adapter);
+				join_game_listAdapter.notifyDataSetChanged();
+				join_game_listview.setAdapter(join_game_listAdapter);
 				break;
 			// 链接成功之后,跳转到游戏页面,等待游戏开始
 			case TCP_LINK_SUCCEED:
@@ -76,9 +76,7 @@ public class Join_game extends Activity {
 			default:
 				break;
 			}
-
 		}
-
 	};
 
 	@Override
@@ -94,63 +92,66 @@ public class Join_game extends Activity {
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		findView();
 		registerListeners();
-
-		list_inititor_adapter = new SimpleAdapter(this, getInitiator(),
-				R.layout.list_item,
-				new String[] { "ItemImage", "ItemAddress" }, new int[] {
-						R.id.ItemImage, R.id.ItemAddress });
-		list_inititor.setAdapter(list_inititor_adapter);
-		list_inititor.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View list,
-					int position, long id) {
-
-				ListView listView = (ListView) parent;
-				HashMap<String, Object> map = (HashMap<String, Object>) listView
-						.getItemAtPosition(position);
-
-				String ItemAddr = (String) map.get("ItemAddress");
-				try {
-					TCP_ADDR = InetAddress.getByName(ItemAddr);
-					new join_gameThread().start();
-				} catch (UnknownHostException e) {
-					e.printStackTrace();
-				}
-				// 点击之后获取发起玩家的IP进行TCP链接,链接成功之后进行UDP广播监听,接收发起玩家的发牌和命令
-				// Toast.makeText(Join_game.this, addr.toString(),
-				// Toast.LENGTH_LONG).show();
-
-			}
-
-		});
-
 		UDP_serchThread = new UDP_SerchThread();
 		UDP_serchThread.start();
 	}
 
 	public void findView() {
 		btn_joingame_exit = (Button) findViewById(R.id.btn_joingame_exit);
-		list_inititor = (ListView) findViewById(R.id.list_initator);
+		join_game_listview = (MyListView) findViewById(R.id.join_game_listview);
+		listItem = new ArrayList<HashMap<String, Object>>();
+		join_game_listAdapter = new SimpleAdapter(this, getData(),
+				R.layout.list_item,
+				new String[] { "ItemImage", "ItemAddress" }, new int[] {
+						R.id.ItemImage, R.id.ItemAddress });
 
 	}
 
 	public void registerListeners() {
 		btn_onclick = new btnOnClickListener();
 		btn_joingame_exit.setOnClickListener(btn_onclick);
+
+		join_game_listview.setAdapter(join_game_listAdapter);
+		join_game_listview.setonRefreshListener(new OnRefreshListener() {
+			@Override
+			public void onRefresh() {
+				new AsyncTask<Void, Void, Void>() {
+					protected Void doInBackground(Void... params) {
+						try {
+							Thread.sleep(1000);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						handleList();
+						return null;
+					}
+
+					@Override
+					protected void onPostExecute(Void result) {
+						join_game_listAdapter.notifyDataSetChanged();
+						join_game_listview.onRefreshComplete();
+					}
+
+				}.execute();
+			}
+		});
 	}
 
-	public ArrayList<HashMap<String, Object>> getInitiator() {
-		ArrayList<HashMap<String, Object>> listItem = new ArrayList<HashMap<String, Object>>();
+	private void handleList() {
+		listItem.clear();
+		for (int j = 0; j < 1; j++) {
+			HashMap<String, Object> map = new HashMap<String, Object>();
+			map.put("ItemImage", R.drawable.ic_launcher);
+			map.put("ItemAddress",i);
+			listItem.add(map);
+		}
+	}
+
+	public ArrayList<HashMap<String, Object>> getData() {
 		for (int j = 0; j < i; j++) {
 			HashMap<String, Object> map = new HashMap<String, Object>();
 			map.put("ItemImage", R.drawable.ic_launcher);// 图像资源的ID
 			map.put("ItemAddress", ADDR[j]);
-			listItem.add(map);
-		}
-		for (int j = 0; j < 3; j++) {
-			HashMap<String, Object> map = new HashMap<String, Object>();
-			map.put("ItemImage", R.drawable.ic_launcher);// 图像资源的ID
-			map.put("ItemAddress", "172.18.13.128".toString());
 			listItem.add(map);
 		}
 		return listItem;
@@ -165,7 +166,6 @@ public class Join_game extends Activity {
 				break;
 			}
 		}
-
 	}
 
 	public class UDP_SerchThread extends Thread {
@@ -173,27 +173,29 @@ public class Join_game extends Activity {
 			while (true) {
 				try {
 					InetAddress addr;
-					byte buf[] = new byte[256];
-					DatagramSocket UDPSocket = new DatagramSocket(3000);
+					byte buf[] = new byte[19];
+					DatagramSocket UDPSocket = new DatagramSocket(4242);
 					DatagramPacket UDPPacket = new DatagramPacket(buf,
 							buf.length);
 					UDPSocket.receive(UDPPacket);
-					ByteArrayInputStream bin = new ByteArrayInputStream(
-							UDPPacket.getData());
-					BufferedReader reader = new BufferedReader(
-							new InputStreamReader(bin));
-					s = reader.readLine();
-					if (s.equals("suan24dian_initiate")) {
-						// 加入发起玩家队列
-						addr = UDPPacket.getAddress();
+					String s = new String(buf);
+					addr = UDPPacket.getAddress();
+					
+					if ("suan24dian_initiate".equals(s)) {
+						// 加入发起玩家队列,并且进行TCP链接
 						ADDR[i++] = addr;
-						Message msg = join_Handler.obtainMessage();
-						msg.what = INITIATOR_ADD;
-						join_Handler.sendMessage(msg);
+						try{
+							Socket socket=new Socket(addr,3000);
+							socket.close();
+						}catch(Exception e){
+							System.out.println(e.toString());
+							e.printStackTrace();
+						}
+					
 					} else if (s.equals("game_begin")) {
 						String nums[] = new String[4];
 						for (int j = 0; j < 3; j++) {
-							nums[j] = reader.readLine();
+							//nums[j] = reader.readLine();
 						}
 						Bundle numBundle = new Bundle();
 						numBundle.putString("num1", nums[0]);
