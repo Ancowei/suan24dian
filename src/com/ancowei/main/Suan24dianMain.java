@@ -1,13 +1,4 @@
 package com.ancowei.main;
-
-import java.io.ByteArrayOutputStream;
-
-
-import java.io.PrintStream;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-
 import com.ancowei.db.SqlHandler;
 import com.ancowei.db.Suan24dian_DATA;
 import com.ancowei.initiate_game.Initiate_game;
@@ -48,8 +39,9 @@ public class Suan24dianMain extends Activity {
 	private Button btn_login;
 	private TextView tx_username;
 	private ImageView image_user;
-	
-	private Suan24dian_DATA [] suan24dian_data;
+	//全局变量，整个应用程序公用一份
+	public static Suan24dian_DATA [] suan24dian_data;
+	public static int p=1;
 
 	private btnOnClickListener btn_OnClick;
 
@@ -134,41 +126,6 @@ public class Suan24dianMain extends Activity {
 	 * c.getInt(c.getColumnIndex(SqlHandler.USER_HIGHEST)); data.add("  " +
 	 * user_Name + ":" + user_highest); } return data; }
 	 */
-	// send broadcast Thread
-	public class Send_Broadcast_Thread extends Thread {
-		InetAddress broadcast_addr;
-		int port;
-		DatagramPacket send_Packet;
-		DatagramSocket send_Socket;
-		String s;
-		ByteArrayOutputStream Bout;
-		PrintStream Pout;
-		byte buf[];
-
-		public void run() {
-			s = "suan24dian_initiate_game";
-			try {
-				// broadcast_addr=InetAddress.getByName("255.255.255.255");
-				broadcast_addr = InetAddress.getByName(ADDR);
-				Bout = new ByteArrayOutputStream();
-				Pout = new PrintStream(Bout);
-				Pout.println(s);
-				buf = Bout.toByteArray();
-				send_Packet = new DatagramPacket(buf, buf.length,
-						broadcast_addr, PORT);
-				send_Socket = new DatagramSocket();
-				send_Socket.send(send_Packet);
-				Pout.close();
-				Bout.close();
-				buf = null;
-
-			} catch (Exception e) {
-				System.out.println("广播异常： " + e.toString());
-			}
-		}
-
-	}
-
 	public class btnOnClickListener implements OnClickListener {
 		@Override
 		public void onClick(View v) {
@@ -190,7 +147,7 @@ public class Suan24dianMain extends Activity {
 
 				} else {
 					// 点击发起游戏按钮时候，发送UDP广播，告知其他用户我发起了游戏，你们可以加进来
-					new Send_Broadcast_Thread().start();
+					//new Send_Broadcast_Thread().start();
 					Intent create_game = new Intent(Suan24dianMain.this,
 							Initiate_game.class);
 					create_game.putExtra("image", suan24dian_data[0].getImage());
@@ -261,7 +218,6 @@ public class Suan24dianMain extends Activity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (resultCode == suan24dian_Login.LOGIN_RESULT_CODE) {
-			if (requestCode == LOGIN_REQUEST_CODE) {
 				Bundle extras = data.getExtras();
 				if (extras != null) {
 					Bitmap photo = extras.getParcelable("data");
@@ -270,27 +226,7 @@ public class Suan24dianMain extends Activity {
 					tx_username.setText(data.getStringExtra("user_name") + "在线");
 					ifLogin = true;
 					suan24dian_data[0].setData(0, data.getStringExtra("user_name"), data, "127.0.0.1");
-				}
-			} else if (requestCode == INITIATE_REQUEST_CODE) {
-				Bundle extras = data.getExtras();
-				if (extras != null) {
-					Bitmap photo = extras.getParcelable("data");
-					Drawable drawable = new BitmapDrawable(photo);
-					image_user.setImageDrawable(drawable);
-					tx_username.setText(data.getStringExtra("user_name") + "在线");
-					ifLogin = true;
-				}
-
-			} else if (requestCode == JOIN_GAME_CODE) {
-				Bundle extras = data.getExtras();
-				if (extras != null) {
-					Bitmap photo = extras.getParcelable("data");
-					Drawable drawable = new BitmapDrawable(photo);
-					image_user.setImageDrawable(drawable);
-					tx_username.setText(data.getStringExtra("user_name") + "在线");
-					ifLogin = true;
-				}
-			}
+		}
 		}
 
 	}

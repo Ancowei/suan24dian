@@ -50,6 +50,7 @@
         </activity>
         <activity android:name="com.ancowei.setting.suan24dian_Setting" >
         </activity>
+        <activity android:name="com.ancowei.join_game.Game_begin_wait"></activity>
     </application>
 
 </manifest>

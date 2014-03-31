@@ -2,9 +2,11 @@ package com.ancowei.join_game;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.ArrayList;
 
 import com.ancowei.calculate.Calculate;
@@ -501,5 +503,40 @@ public class Join_game_begin extends Activity {
 			}
 		}
 	}
+	//UDP listenning
+	public class UDP_SerchThread extends Thread {
+		public void run() {
+			try {
+				InetAddress addr;
+				byte buf[] = new byte[1024];
+				DatagramSocket UDPSocket = new DatagramSocket(4242);
+				DatagramPacket UDPPacket = new DatagramPacket(buf,
+						buf.length);
+				UDPSocket.receive(UDPPacket);
+				ByteArrayInputStream bais = new ByteArrayInputStream(buf); // 把刚才的部分视为输入流
+				DataInputStream dis = new DataInputStream(bais);
+				String s = dis.readUTF();
+				String name = dis.readUTF();
+				addr = UDPPacket.getAddress();
+			if ("game_begin".equals(s)) {
+				String nums[] = new String[4];
+				for (int j = 0; j < 4; j++) {
+					nums[j] = dis.readLine();
+				}
+				Bundle numBundle = new Bundle();
+				numBundle.putString("num1", nums[0]);
+				numBundle.putString("num2", nums[1]);
+				numBundle.putString("num3", nums[2]);
+				numBundle.putString("num4", nums[3]);
+				//Message msg = join_Handler.obtainMessage();
+				//msg.what = GAME_BEGIN;
+				//msg.setData(numBundle);
+				//join_Handler.sendMessage(msg);
+			}
 
+		}catch(Exception e){
+			
+		}
+	}
+}
 }
