@@ -28,6 +28,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -113,7 +114,6 @@ public class Initiate_game extends Activity {
 						handleList();
 						return null;
 					}
-
 					@Override
 					protected void onPostExecute(Void result) {
 						listItemAdapter.notifyDataSetChanged();
@@ -124,7 +124,6 @@ public class Initiate_game extends Activity {
 			}
 		});
 		inet_initiate_control = new Inet_initiate_control();
-		//tcp_link = new TCP_Link_Thread();
 		UDP_link = new UDP_listenning();
 		udp_brocast = new UDP_Brocast_initiate_Thread("suan24dian_initiate");
 	}
@@ -141,9 +140,7 @@ public class Initiate_game extends Activity {
 				image_user.setImageDrawable(drawable);
 			}
 		}
-		
 		tx_username.setText(name);
-
 	}
 
 	private void handleList() {
@@ -183,15 +180,27 @@ public class Initiate_game extends Activity {
 		public void run() {
 			try {
 				InetAddress addr = InetAddress.getByName("255.255.255.255");
+				addr=InetAddress.getByName("172.18.13.128");
 				ByteArrayOutputStream bout = new ByteArrayOutputStream();
 				DataOutputStream dout = new DataOutputStream(bout);
 				//dout.writeUTF("suan24dian_initiate");
 				dout.writeUTF(msg);
-				dout.writeUTF(Suan24dianMain.suan24dian_data[0].getName());
+				if("suan24dian_initiate".equals(msg)){
+					dout.writeUTF(Suan24dianMain.user_Name);
+				}else if("suan24dian_game_begin".equals(msg)){
+					String num1="1";
+					String num2="4";
+					String num3="7";
+					String num4="9";
+					dout.writeUTF(num1);
+					dout.writeUTF(num2);
+					dout.writeUTF(num3);
+					dout.writeUTF(num4);
+				}
 				byte buf[] = bout.toByteArray();
 				DatagramSocket socket = new DatagramSocket();
 				DatagramPacket packet = new DatagramPacket(buf, buf.length,
-						addr, 4242);
+						addr, 4243);
 				socket.send(packet);
 				socket.close();
 				bout.close();
@@ -203,40 +212,6 @@ public class Initiate_game extends Activity {
 		}
 	}
 
-	/*// tcp socket listenning
-	public class TCP_Link_Thread extends Thread {
-		public void run() {
-			try {
-				ServerSocket serverSocket = new ServerSocket(3000);
-				while (true) {
-					socket = serverSocket.accept();
-					PrintWriter writer = new PrintWriter(
-							socket.getOutputStream());
-					InputStreamReader ISReader = new InputStreamReader(
-							socket.getInputStream());
-					BufferedReader reader = new BufferedReader(ISReader);
-					String name = reader.readLine();
-					String msg = "link success";
-					writer.print(msg);
-					playerNum++;
-					data[i++] = socket.getInetAddress().toString();
-					NAME[i] = name;
-					i++;
-					if (name != null) {
-						Suan24dianMain.suan24dian_data[Suan24dianMain.p]
-								.setData(Suan24dianMain.p, name, null, socket
-										.getInetAddress().toString());
-						Suan24dianMain.p++;
-					}
-					writer.close();
-					reader.close();
-				}
-			} catch (Exception e) {
-				System.out.print("TCP link listenning exception :"
-						+ e.toString());
-			}
-		}
-	}*/
 	//UDP link
 	public class UDP_listenning extends Thread {
 		public void run() {
@@ -248,7 +223,6 @@ public class Initiate_game extends Activity {
 					DatagramPacket UDPPacket = new DatagramPacket(buf,
 							buf.length);
 					UDPSocket.receive(UDPPacket);
-					
 					ByteArrayInputStream bais = new ByteArrayInputStream(buf); // 把刚才的部分视为输入流
 					DataInputStream dis = new DataInputStream(bais);
 					String s = dis.readUTF();
@@ -261,6 +235,8 @@ public class Initiate_game extends Activity {
 						data[i] = addr.toString();
 						NAME[i] = name;
 						i++;
+						if(playerNum>=4)
+							break;
 					} 
 					dis.close();
 					bais.close();
@@ -284,10 +260,14 @@ public class Initiate_game extends Activity {
 				} else {
 					//向所有玩家发送游戏开始的广播
 					new UDP_Brocast_initiate_Thread("suan24dian_game_begin").start();
-					/*Intent intent = new Intent(Initiate_game.this,
-							Game_begin.class);
+					Intent intent = new Intent(Initiate_game.this,
+							Suan24dian_game_begin_wait.class);
+					intent.putExtra("num1", "1");
+					intent.putExtra("num2", "4");
+					intent.putExtra("num3", "7");
+					intent.putExtra("num4", "9");
 					Initiate_game.this.finish();
-					Initiate_game.this.startActivity(intent);*/
+					Initiate_game.this.startActivity(intent);
 				}
 				break;
 			case R.id.btn_exit:
@@ -297,6 +277,15 @@ public class Initiate_game extends Activity {
 				break;
 			}
 		}
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if(keyCode==event.KEYCODE_BACK ){
+			Initiate_game.this.finish();
+			return true;
+		}
+		return false;
 	}
 
 	@Override

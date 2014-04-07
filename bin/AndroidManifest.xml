@@ -51,6 +51,8 @@
         <activity android:name="com.ancowei.setting.suan24dian_Setting" >
         </activity>
         <activity android:name="com.ancowei.join_game.Game_begin_wait"></activity>
+        <activity android:name="com.ancowei.initiate_game.Suan24dian_game_begin_wait"></activity>
+        <activity android:name="com.ancowei.gameover.Suan24dian_game_over"></activity>
     </application>
 
 </manifest>

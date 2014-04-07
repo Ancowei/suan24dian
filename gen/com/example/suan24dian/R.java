@@ -10,6 +10,7 @@ package com.example.suan24dian;
 public final class R {
     public static final class anim {
         public static final int my_anim_design=0x7f040000;
+        public static final int wait_anim_design=0x7f040001;
     }
     public static final class attr {
     }
@@ -137,16 +138,17 @@ public final class R {
     }
     public static final class layout {
         public static final int activity_suan24dian_initiate_play=0x7f030000;
-        public static final int activity_suan24dian_main=0x7f030001;
-        public static final int activity_suan24dian_play=0x7f030002;
-        public static final int activity_suan24dian_welcome=0x7f030003;
-        public static final int head=0x7f030004;
-        public static final int list_item=0x7f030005;
-        public static final int main=0x7f030006;
-        public static final int suan24dian_game_begin_wait=0x7f030007;
-        public static final int suan24dian_initiate_game=0x7f030008;
-        public static final int suan24dian_join_game=0x7f030009;
-        public static final int suan24dian_login=0x7f03000a;
+        public static final int activity_suan24dian_join_game_play=0x7f030001;
+        public static final int activity_suan24dian_main=0x7f030002;
+        public static final int activity_suan24dian_play=0x7f030003;
+        public static final int activity_suan24dian_welcome=0x7f030004;
+        public static final int head=0x7f030005;
+        public static final int list_item=0x7f030006;
+        public static final int main=0x7f030007;
+        public static final int suan24dian_game_begin_wait=0x7f030008;
+        public static final int suan24dian_initiate_game=0x7f030009;
+        public static final int suan24dian_join_game=0x7f03000a;
+        public static final int suan24dian_login=0x7f03000b;
     }
     public static final class menu {
         public static final int suan24dian_welcome=0x7f0a0000;

@@ -1,8 +1,10 @@
 package com.ancowei.main;
+
 import com.ancowei.db.SqlHandler;
-import com.ancowei.db.Suan24dian_DATA;
+
 import com.ancowei.initiate_game.Initiate_game;
 import com.ancowei.join_game.Join_game;
+import com.ancowei.join_game.Join_game_begin;
 import com.ancowei.local.Suan24dian_local;
 import com.ancowei.login.suan24dian_Login;
 import com.ancowei.main.Suan24dianMain;
@@ -14,6 +16,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -39,9 +42,8 @@ public class Suan24dianMain extends Activity {
 	private Button btn_login;
 	private TextView tx_username;
 	private ImageView image_user;
-	//全局变量，整个应用程序公用一份
-	public static Suan24dian_DATA [] suan24dian_data;
-	public static int p=1;
+	// 全局变量，整个应用程序公用一份
+	public static int p = 1;
 
 	private btnOnClickListener btn_OnClick;
 
@@ -49,8 +51,8 @@ public class Suan24dianMain extends Activity {
 	private static int INITIATE_REQUEST_CODE = 1;
 	private static int JOIN_GAME_CODE = 2;
 
-	public String user_Name = "";
-	public int user_highest = 0;
+	public static String user_Name = "";
+	public Intent user_data;
 	// 是否已经登录的标志
 	public static boolean ifLogin = false;
 
@@ -75,14 +77,12 @@ public class Suan24dianMain extends Activity {
 		setContentView(R.layout.activity_suan24dian_main);
 		findView();
 		registerListeners();
-		sqlHelper = new SqlHandler(Suan24dianMain.this,
-				SqlHandler.DATABASE_NAME, null, SqlHandler.DATABASE_VERSION);
-
+		set_Default_User();
 		// sqlHelper.delete("哈哈");
-		// sqlHelper.upgradeByUser();
+		 //sqlHelper.upgradeByUser();
+		
 		// 添加背景音乐
 		play_music();
-
 	}
 
 	public void findView() {
@@ -94,10 +94,8 @@ public class Suan24dianMain extends Activity {
 		btn_exit = (Button) findViewById(R.id.btn_exit);
 		btn_login = (Button) findViewById(R.id.btn_login);
 		image_user = (ImageView) findViewById(R.id.image_user);
-		suan24dian_data = new Suan24dian_DATA[5];
-		for(int k=0;k<5;k++){
-			suan24dian_data[k]=new Suan24dian_DATA();
-		}
+		sqlHelper = new SqlHandler(Suan24dianMain.this,
+				SqlHandler.DATABASE_NAME, null, SqlHandler.DATABASE_VERSION);
 	}
 
 	public void registerListeners() {
@@ -108,8 +106,16 @@ public class Suan24dianMain extends Activity {
 		btn_login.setOnClickListener(btn_OnClick);
 		btn_initiate_game.setOnClickListener(btn_OnClick);
 		btn_join_game.setOnClickListener(btn_OnClick);
-		if (ifLogin) {
-			tx_username.setText(suan24dian_data[0].getName()+"在线");
+		
+	}
+	public void set_Default_User() {
+		Cursor c = sqlHelper.select();
+		try {
+			c.moveToFirst();
+			user_Name = c.getString(c.getColumnIndex(SqlHandler.USER_NAME));
+			tx_username.setText(user_Name);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	private void play_music() {
@@ -147,11 +153,13 @@ public class Suan24dianMain extends Activity {
 
 				} else {
 					// 点击发起游戏按钮时候，发送UDP广播，告知其他用户我发起了游戏，你们可以加进来
-					//new Send_Broadcast_Thread().start();
+					// new Send_Broadcast_Thread().start();
 					Intent create_game = new Intent(Suan24dianMain.this,
 							Initiate_game.class);
-					create_game.putExtra("image", suan24dian_data[0].getImage());
-					create_game.putExtra("user_name", suan24dian_data[0].getName());
+					create_game
+							.putExtra("image", user_data);
+					create_game.putExtra("user_name",user_Name
+							);
 					Suan24dianMain.this.startActivity(create_game);
 				}
 
@@ -167,11 +175,13 @@ public class Suan24dianMain extends Activity {
 							JOIN_GAME_CODE);
 				} else {
 					// 点击加入游戏按钮时候，搜索UDP数据包，把当前所有发起游戏人用列表列举出来，用户可以点击其中的一个游戏发起人，加入游戏组
-					Intent join_game = new Intent(Suan24dianMain.this,
+				Intent join_game = new Intent(Suan24dianMain.this,
 							Join_game.class);
-					join_game.putExtra("image", suan24dian_data[0].getImage());
-					join_game.putExtra("user_name", suan24dian_data[0].getName());
+					join_game.putExtra("image", user_data);
+					join_game.putExtra("user_name",
+							user_Name);
 					Suan24dianMain.this.startActivity(join_game);
+					
 				}
 
 				break;
@@ -214,19 +224,21 @@ public class Suan24dianMain extends Activity {
 			}
 		}
 	}
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (resultCode == suan24dian_Login.LOGIN_RESULT_CODE) {
-				Bundle extras = data.getExtras();
-				if (extras != null) {
-					Bitmap photo = extras.getParcelable("data");
-					Drawable drawable = new BitmapDrawable(photo);
-					image_user.setImageDrawable(drawable);
-					tx_username.setText(data.getStringExtra("user_name") + "在线");
-					ifLogin = true;
-					suan24dian_data[0].setData(0, data.getStringExtra("user_name"), data, "127.0.0.1");
-		}
+			Bundle extras = data.getExtras();
+			if (extras != null) {
+				Bitmap photo = extras.getParcelable("data");
+				Drawable drawable = new BitmapDrawable(photo);
+				image_user.setImageDrawable(drawable);
+				user_Name=data.getStringExtra("user_name");
+				user_data=data;
+				tx_username.setText(data.getStringExtra("user_name") + "在线");
+				ifLogin = true;
+			}
 		}
 
 	}
@@ -310,9 +322,43 @@ public class Suan24dianMain extends Activity {
 	}
 
 	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		//界面销毁之前保存数据
+		
+		
+		
+		
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+	}
+
+	@Override
 	protected void onResume() {
 		super.onResume();
-		// tx_username.setText(property.get_user_name());
-
+		if (ifLogin) {
+			Cursor c = sqlHelper.select();
+			try {
+				c.moveToFirst();
+				user_Name = c.getString(c.getColumnIndex(SqlHandler.USER_NAME));
+				tx_username.setText(user_Name+"在线");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			}else{
+				Cursor c = sqlHelper.select();
+				try {
+					c.moveToFirst();
+					user_Name = c.getString(c.getColumnIndex(SqlHandler.USER_NAME));
+					tx_username.setText(user_Name+"未登录");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			
+		
 	}
 }

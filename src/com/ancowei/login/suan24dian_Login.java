@@ -41,7 +41,7 @@ public class suan24dian_Login extends Activity {
 
 	public static String user_Name;
 	public static String user_Password;
-	public static Intent image;
+	public static Intent user_image;
 
 	private btn_OnClickListener btn_onclick;
 	public static int LOGIN_RESULT_CODE = 3;
@@ -87,14 +87,14 @@ public class suan24dian_Login extends Activity {
 		edit_name = (EditText) findViewById(R.id.edit_name);
 		switchAvatar = (RelativeLayout) findViewById(R.id.switch_face_rl);
 		faceImage = (ImageView) findViewById(R.id.face);
-		image = new Intent();
+		user_image = new Intent();
+		btn_onclick = new btn_OnClickListener();
 
 	}
 
 	public void registerListeners() {
 		edit_name.setFocusable(true);
 		edit_password.setFocusable(true);
-		btn_onclick = new btn_OnClickListener();
 		btn_cancle.setOnClickListener(btn_onclick);
 		btn_ok.setOnClickListener(btn_onclick);
 		switchAvatar.setOnClickListener(listener);
@@ -178,7 +178,7 @@ public class suan24dian_Login extends Activity {
 			break;
 		case RESULT_REQUEST_CODE:
 			if (data != null) {
-				image = data;
+				user_image = data;
 				getImageToView(data);
 			}
 			break;
@@ -261,11 +261,12 @@ public class suan24dian_Login extends Activity {
 							.setTitle("用户名和密码都不能为空!")
 							.setPositiveButton("确定", null).show();
 				} else {
-					image.putExtra("user_name", user_Name);
-					image.putExtra("user_password", user_Password);
-					setResult(LOGIN_RESULT_CODE, image);
-
+					user_image.putExtra("user_name", user_Name);
+					user_image.putExtra("user_password", user_Password);
+					setResult(LOGIN_RESULT_CODE, user_image);
+					
 					Suan24dianMain.sqlHelper.insert(user_Name, user_Password);
+					Suan24dianMain.sqlHelper.update(user_Name);
 
 					Toast.makeText(suan24dian_Login.this,
 							"登录信息\n" + "昵称：" + user_Name + "\n密码：*** ",

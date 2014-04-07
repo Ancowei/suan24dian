@@ -2,7 +2,9 @@ package com.ancowei.join_game;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -10,13 +12,17 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 
 import com.ancowei.calculate.Calculate;
+import com.ancowei.gameover.Suan24dian_game_over;
 import com.ancowei.initiate_game.Game_begin;
 import com.ancowei.initiate_game.Game_begin.NumThread;
+import com.ancowei.initiate_game.Game_begin.game_over_Thread;
+import com.ancowei.initiate_game.Game_begin.send_card_Thread;
 import com.ancowei.main.Suan24dianMain;
 import com.ancowei.welcome.Suan24dian_welcome;
 import com.example.suan24dian.R;
 
 import ExitApp.ExitApp;
+import android.R.color;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -35,7 +41,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class Join_game_begin extends Activity {
-
 	Button btn_1;
 	Button btn_2;
 	Button btn_3;
@@ -52,9 +57,6 @@ public class Join_game_begin extends Activity {
 	Button btn_clear; // 清屏
 	Button btn_commit; // 提交
 
-	Button btn_next;
-	Button btn_exit;
-
 	TextView text_countdown;
 	TextView text_countdown_show;
 	TextView text_result;
@@ -65,6 +67,10 @@ public class Join_game_begin extends Activity {
 	public String num2;
 	public String num3;
 	public String num4;
+	public int btn_1_background;
+	public int btn_2_background;
+	public int btn_3_background;
+	public int btn_4_background;
 
 	public String calculate = "";
 	// 两个数字不可以连在一起
@@ -79,7 +85,7 @@ public class Join_game_begin extends Activity {
 	public int[] numOrder = new int[4];
 	int i = 0;
 	// message 的what字段
-	static final int GAME_BEGIN = 0;
+	static final int GAME_OVER = 0;
 	static final int NEXT = 1;
 	public static int questionNum = 10;
 
@@ -88,7 +94,7 @@ public class Join_game_begin extends Activity {
 
 	static Handler myH;
 
-	static UDPLink_after_TCPLINK UDP_listener;
+	static UDPLink_Thread UDP_listener;
 
 	private btnOnClickListener btnOnclick;
 
@@ -99,14 +105,15 @@ public class Join_game_begin extends Activity {
 		ExitApp.getInstance().addActivity(Join_game_begin.this);
 		// 无标题
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.activity_suan24dian_initiate_play);
+		setContentView(R.layout.activity_suan24dian_join_game_play);
 		// 全屏
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		findView();
 		registerListeners();
+		getFirstNum();
 		myH = new myHandler();
-		UDP_listener = new UDPLink_after_TCPLINK();
+		UDP_listener = new UDPLink_Thread();
 		UDP_listener.start();
 		initData();
 
@@ -128,12 +135,7 @@ public class Join_game_begin extends Activity {
 		btn_back = (Button) findViewById(R.id.btn_back);
 		btn_clear = (Button) findViewById(R.id.btn_clear);
 		btn_commit = (Button) findViewById(R.id.btn_commit);
-
-		btn_next = (Button) findViewById(R.id.btn_next);
-		btn_exit = (Button) findViewById(R.id.btn_exit);
-
 		edit_calculate = (EditText) findViewById(R.id.edit_calculate);
-
 		// text_countdown = (TextView) findViewById(R.id.text_countdown);
 		text_countdown_show = (TextView) findViewById(R.id.text_countdown_show);
 		text_result = (TextView) findViewById(R.id.text_result);
@@ -143,27 +145,145 @@ public class Join_game_begin extends Activity {
 	public void registerListeners() {
 		text_time.setTextSize(20);
 		text_time.setTextColor(Color.RED);
-
 		btnOnclick = new btnOnClickListener();
-
-		btn_next.setClickable(false);
-		btn_exit.setOnClickListener(btnOnclick);
-
 		btn_1.setOnClickListener(btnOnclick);
 		btn_2.setOnClickListener(btnOnclick);
 		btn_3.setOnClickListener(btnOnclick);
 		btn_4.setOnClickListener(btnOnclick);
-
 		btn_plus.setOnClickListener(btnOnclick);
 		btn_minus.setOnClickListener(btnOnclick);
 		btn_cal.setOnClickListener(btnOnclick);
 		btn_devide.setOnClickListener(btnOnclick);
 		btn_left.setOnClickListener(btnOnclick);
 		btn_right.setOnClickListener(btnOnclick);
-
 		btn_back.setOnClickListener(btnOnclick);
 		btn_clear.setOnClickListener(btnOnclick);
 		btn_commit.setOnClickListener(btnOnclick);
+	}
+
+	public void getFirstNum() {
+		Intent fNum = this.getIntent();
+		num1 = fNum.getStringExtra("num1");
+		num2 = fNum.getStringExtra("num2");
+		num3 = fNum.getStringExtra("num3");
+		num4 = fNum.getStringExtra("num4");
+		setNum();
+	}
+
+	public void setNum() {
+		if (num1.equals("" + 1)) {
+			btn_1_background = R.drawable.card_mouse_1;
+		} else if (num1.equals("" + 2)) {
+			btn_1_background = R.drawable.card_cattle_2;
+		} else if (num1.equals("" + 3)) {
+			btn_1_background = R.drawable.card_tiger_3;
+		} else if (num1.equals("" + 4)) {
+			btn_1_background = R.drawable.card_rabbit_4;
+		} else if (num1.equals("" + 5)) {
+			btn_1_background = R.drawable.card_dragon_5;
+		} else if (num1.equals("" + 6)) {
+			btn_1_background = R.drawable.card_snake_6;
+		} else if (num1.equals("" + 7)) {
+			btn_1_background = R.drawable.card_horse_7;
+		} else if (num1.equals("" + 8)) {
+			btn_1_background = R.drawable.card_sheep_8;
+		} else if (num1.equals("" + 9)) {
+			btn_1_background = R.drawable.card_monkey_9;
+		} else if (num1.equals("" + 10)) {
+			btn_1_background = R.drawable.card_chiken_10;
+		} else if (num1.equals("" + 11)) {
+			btn_1_background = R.drawable.card_dog_11;
+		} else {
+			btn_1_background = R.drawable.card_pig_12;
+		}
+		if (num2.equals("" + 1)) {
+			btn_2_background = R.drawable.card_mouse_1;
+		} else if (num2.equals("" + 2)) {
+			btn_2_background = R.drawable.card_cattle_2;
+		} else if (num2.equals("" + 3)) {
+			btn_2_background = R.drawable.card_tiger_3;
+		} else if (num2.equals("" + 4)) {
+			btn_2_background = R.drawable.card_rabbit_4;
+		} else if (num2.equals("" + 5)) {
+			btn_2_background = R.drawable.card_dragon_5;
+		} else if (num2.equals("" + 6)) {
+			btn_2_background = R.drawable.card_snake_6;
+		} else if (num2.equals("" + 7)) {
+			btn_2_background = R.drawable.card_horse_7;
+		} else if (num2.equals("" + 8)) {
+			btn_2_background = R.drawable.card_sheep_8;
+		} else if (num2.equals("" + 9)) {
+			btn_2_background = R.drawable.card_monkey_9;
+		} else if (num2.equals("" + 10)) {
+			btn_2_background = R.drawable.card_chiken_10;
+		} else if (num2.equals("" + 11)) {
+			btn_2_background = R.drawable.card_dog_11;
+		} else {
+			btn_2_background = R.drawable.card_pig_12;
+		}
+		if (num3.equals("" + 1)) {
+			btn_3_background = R.drawable.card_mouse_1;
+		} else if (num3.equals("" + 2)) {
+			btn_3_background = R.drawable.card_cattle_2;
+		} else if (num3.equals("" + 3)) {
+			btn_3_background = R.drawable.card_tiger_3;
+		} else if (num3.equals("" + 4)) {
+			btn_3_background = R.drawable.card_rabbit_4;
+		} else if (num3.equals("" + 5)) {
+			btn_3_background = R.drawable.card_dragon_5;
+		} else if (num3.equals("" + 6)) {
+			btn_3_background = R.drawable.card_snake_6;
+		} else if (num3.equals("" + 7)) {
+			btn_3_background = R.drawable.card_horse_7;
+		} else if (num3.equals("" + 8)) {
+			btn_3_background = R.drawable.card_sheep_8;
+		} else if (num3.equals("" + 9)) {
+			btn_3_background = R.drawable.card_monkey_9;
+		} else if (num3.equals("" + 10)) {
+			btn_3_background = R.drawable.card_chiken_10;
+		} else if (num3.equals("" + 11)) {
+			btn_3_background = R.drawable.card_dog_11;
+		} else {
+			btn_3_background = R.drawable.card_pig_12;
+		}
+		if (num4.equals("" + 1)) {
+			btn_4_background = R.drawable.card_mouse_1;
+		} else if (num4.equals("" + 2)) {
+			btn_4_background = R.drawable.card_cattle_2;
+		} else if (num4.equals("" + 3)) {
+			btn_4_background = R.drawable.card_tiger_3;
+		} else if (num4.equals("" + 4)) {
+			btn_4_background = R.drawable.card_rabbit_4;
+		} else if (num4.equals("" + 5)) {
+			btn_4_background = R.drawable.card_dragon_5;
+		} else if (num4.equals("" + 6)) {
+			btn_4_background = R.drawable.card_snake_6;
+		} else if (num4.equals("" + 7)) {
+			btn_4_background = R.drawable.card_horse_7;
+		} else if (num4.equals("" + 8)) {
+			btn_4_background = R.drawable.card_sheep_8;
+		} else if (num4.equals("" + 9)) {
+			btn_4_background = R.drawable.card_monkey_9;
+		} else if (num4.equals("" + 10)) {
+			btn_4_background = R.drawable.card_chiken_10;
+		} else if (num4.equals("" + 11)) {
+			btn_4_background = R.drawable.card_dog_11;
+		} else {
+			btn_4_background = R.drawable.card_pig_12;
+		}
+		btn_1.setText(num1);
+		btn_2.setText(num2);
+		btn_3.setText(num3);
+		btn_4.setText(num4);
+		btn_1.setTextColor(color.white);
+		btn_2.setTextColor(color.white);
+		btn_3.setTextColor(color.white);
+		btn_4.setTextColor(color.white);
+		btn_1.setBackgroundResource(btn_1_background);
+		btn_2.setBackgroundResource(btn_2_background);
+		btn_3.setBackgroundResource(btn_3_background);
+		btn_4.setBackgroundResource(btn_4_background);
+
 	}
 
 	public class btnOnClickListener implements OnClickListener {
@@ -177,6 +297,7 @@ public class Join_game_begin extends Activity {
 					preNum = "" + btn_1.getText();
 					calculate = calculate + btn_1.getText();
 					btn_1.setText("");
+					btn_1.setBackgroundResource(R.drawable.bailv);
 					edit_calculate.setText(calculate);
 					preIfnum = true;
 					preIfnumorleftorright = true;
@@ -189,6 +310,7 @@ public class Join_game_begin extends Activity {
 					preNum = "" + btn_2.getText();
 					calculate = calculate + btn_2.getText();
 					btn_2.setText("");
+					btn_2.setBackgroundResource(R.drawable.bailv);
 					edit_calculate.setText(calculate);
 					preIfnum = true;
 					preIfnumorleftorright = true;
@@ -202,6 +324,7 @@ public class Join_game_begin extends Activity {
 					preNum = "" + btn_3.getText();
 					calculate = calculate + btn_3.getText();
 					btn_3.setText("");
+					btn_3.setBackgroundResource(R.drawable.bailv);
 					edit_calculate.setText(calculate);
 					preIfnum = true;
 					preIfnumorleftorright = true;
@@ -214,6 +337,7 @@ public class Join_game_begin extends Activity {
 					preNum = "" + btn_4.getText();
 					calculate = calculate + btn_4.getText();
 					btn_4.setText("");
+					btn_4.setBackgroundResource(R.drawable.bailv);
 					edit_calculate.setText(calculate);
 					preIfnum = true;
 					preIfnumorleftorright = true;
@@ -342,9 +466,14 @@ public class Join_game_begin extends Activity {
 				edit_calculate.setText("");
 				calculate = "";
 				btn_1.setText(num1);
+				btn_1.setBackgroundResource(btn_1_background);
 				btn_2.setText(num2);
+				btn_2.setBackgroundResource(btn_2_background);
 				btn_3.setText(num3);
+				btn_3.setBackgroundResource(btn_3_background);
 				btn_4.setText(num4);
+				btn_4.setBackgroundResource(btn_4_background);
+				text_result.setText("");
 				break;
 			case R.id.btn_commit:
 				if (count == 4) {
@@ -360,13 +489,6 @@ public class Join_game_begin extends Activity {
 					text_result.setText("必须用完四个数！");
 				}
 				break;
-			case R.id.btn_exit:
-				// timeThread.interrupt();
-				Intent intent = new Intent(Join_game_begin.this,
-						Suan24dian_welcome.class);
-				Join_game_begin.this.finish();
-				Join_game_begin.this.startActivity(intent);
-				break;
 			}
 		}
 	}
@@ -374,7 +496,7 @@ public class Join_game_begin extends Activity {
 	// 显示初始化
 	public void initData() {
 		questionNum = 10;
-		// text_countdown_show.setText("" + questionNum);
+		text_countdown_show.setText("" + questionNum);
 	}
 
 	// 回退时候，如果是数字，恢复按钮数字
@@ -382,15 +504,19 @@ public class Join_game_begin extends Activity {
 		switch (id) {
 		case R.id.btn_1:
 			btn_1.setText(num1);
+			btn_1.setBackgroundResource(btn_1_background);
 			break;
 		case R.id.btn_2:
 			btn_2.setText(num2);
+			btn_2.setBackgroundResource(btn_2_background);
 			break;
 		case R.id.btn_3:
 			btn_3.setText(num3);
+			btn_3.setBackgroundResource(btn_3_background);
 			break;
 		case R.id.btn_4:
 			btn_4.setText(num4);
+			btn_4.setBackgroundResource(btn_4_background);
 			break;
 		default:
 			break;
@@ -405,12 +531,13 @@ public class Join_game_begin extends Activity {
 		postfix = cal.transform(str_calculate);
 		boolean resB = cal.calculate(postfix);
 		if (resB) {
-			res = "结果正确";
+			res = "恭喜你,算对了！";
+			new Collect_Thread().start();
 			// 正确题数加1
 			correctNum++;
 
 		} else {
-			res = "结果错误，请重新计算";
+			res = "对不起,算错了,请重新计算.";
 		}
 		return res;
 	}
@@ -419,29 +546,11 @@ public class Join_game_begin extends Activity {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
-			Bundle numBundle = msg.getData();
 			switch (msg.what) {
-			case GAME_BEGIN:
-				num1 = numBundle.getString("num1");
-				num2 = numBundle.getString("num2");
-				num3 = numBundle.getString("num3");
-				num4 = numBundle.getString("num4");
-				btn_1.setText(num1);
-				btn_2.setText(num2);
-				btn_3.setText(num3);
-				btn_4.setText(num4);
-				Toast.makeText(Join_game_begin.this, "" + num1,
-						Toast.LENGTH_LONG).show();
-				break;
 			case NEXT:
-				num1 = numBundle.getString("num1");
-				num2 = numBundle.getString("num2");
-				num3 = numBundle.getString("num3");
-				num4 = numBundle.getString("num4");
-				btn_1.setText(num1);
-				btn_2.setText(num2);
-				btn_3.setText(num3);
-				btn_4.setText(num4);
+				Toast.makeText(Join_game_begin.this, "请做下一题", Toast.LENGTH_LONG)
+						.show();
+				setNum();
 				questionNum = questionNum - 1;
 				text_countdown_show.setText("" + questionNum);
 				i = 0;
@@ -450,52 +559,62 @@ public class Join_game_begin extends Activity {
 				preIfnum = false;
 				calculate = "";
 				edit_calculate.setText(calculate);
+				break;
+			case GAME_OVER:
+				//当游戏结束的时候，显示玩家的排名
+				Intent gameoverIntent=new Intent(Join_game_begin.this,Suan24dian_game_over.class);
+				Join_game_begin.this.finish();
+				Join_game_begin.this.startActivity(gameoverIntent);
+			}
+		}
+	}
+
+	// 计算正确的时候向发起玩家发送信息，以便进入下一题
+	public class Collect_Thread extends Thread {
+		public void run() {
+			try {
+				InetAddress addr = InetAddress.getByName("172.18.13.128");
+				ByteArrayOutputStream bout = new ByteArrayOutputStream();
+				DataOutputStream dout = new DataOutputStream(bout);
+				dout.writeUTF("collect");
+				byte[] collect_buf = bout.toByteArray();
+				DatagramPacket collect_packet = new DatagramPacket(collect_buf,
+						collect_buf.length, addr, 4545);
+				DatagramSocket collect_socket = new DatagramSocket();
+				collect_socket.send(collect_packet);
+				collect_socket.close();
+			} catch (Exception e) {
+				e.toString();
 			}
 		}
 	}
 
 	// UDP
-	// TCP链接之后,进行UDP侦听,接收发牌信息和命令
-	public class UDPLink_after_TCPLINK extends Thread {
+	// 链接之后,进行UDP侦听,接收发牌信息和命令
+	public class UDPLink_Thread extends Thread {
 		public void run() {
 			while (true) {
 				try {
 					byte buf[] = new byte[256];
-					DatagramSocket UDPSocket = new DatagramSocket(3000);
+					DatagramSocket UDPSocket = new DatagramSocket(4546);
 					DatagramPacket UDPPacket = new DatagramPacket(buf,
 							buf.length);
 					UDPSocket.receive(UDPPacket);
-					ByteArrayInputStream bin = new ByteArrayInputStream(
-							UDPPacket.getData());
-					BufferedReader reader = new BufferedReader(
-							new InputStreamReader(bin));
-					String nums[] = new String[4];
-					if (reader.readLine().equals("game_begin")) {
-						for (int j = 0; j < 3; j++) {
-							nums[j] = reader.readLine();
-						}
-						Bundle numBundle = new Bundle();
-						numBundle.putString("num1", nums[0]);
-						numBundle.putString("num2", nums[1]);
-						numBundle.putString("num3", nums[2]);
-						numBundle.putString("num4", nums[3]);
-						Message msg = myH.obtainMessage();
-						msg.what = GAME_BEGIN;
-						msg.setData(numBundle);
-						myH.sendMessage(msg);
-						// 有人作对了或者时间到了,进入下一题
-					} else if (reader.readLine().equals("next")) {
-						for (int j = 0; j < 3; j++) {
-							nums[j] = reader.readLine();
-						}
-						Bundle numBundle = new Bundle();
-						numBundle.putString("num1", nums[0]);
-						numBundle.putString("num2", nums[1]);
-						numBundle.putString("num3", nums[2]);
-						numBundle.putString("num4", nums[3]);
+					ByteArrayInputStream bin = new ByteArrayInputStream(buf);
+					DataInputStream din = new DataInputStream(bin);
+					String s = din.readUTF();
+					// 有人作对了或者时间到了,进入下一题
+					if ("next".equals(s)) {
+						num1 = din.readUTF();
+						num2 = din.readUTF();
+						num3 = din.readUTF();
+						num4 = din.readUTF();
 						Message msg = myH.obtainMessage();
 						msg.what = NEXT;
-						msg.setData(numBundle);
+						myH.sendMessage(msg);
+					} else if ("game_over".equals(s)) {
+						Message msg = myH.obtainMessage();
+						msg.what = GAME_OVER;
 						myH.sendMessage(msg);
 					}
 				} catch (Exception e) {
@@ -503,40 +622,5 @@ public class Join_game_begin extends Activity {
 			}
 		}
 	}
-	//UDP listenning
-	public class UDP_SerchThread extends Thread {
-		public void run() {
-			try {
-				InetAddress addr;
-				byte buf[] = new byte[1024];
-				DatagramSocket UDPSocket = new DatagramSocket(4242);
-				DatagramPacket UDPPacket = new DatagramPacket(buf,
-						buf.length);
-				UDPSocket.receive(UDPPacket);
-				ByteArrayInputStream bais = new ByteArrayInputStream(buf); // 把刚才的部分视为输入流
-				DataInputStream dis = new DataInputStream(bais);
-				String s = dis.readUTF();
-				String name = dis.readUTF();
-				addr = UDPPacket.getAddress();
-			if ("game_begin".equals(s)) {
-				String nums[] = new String[4];
-				for (int j = 0; j < 4; j++) {
-					nums[j] = dis.readLine();
-				}
-				Bundle numBundle = new Bundle();
-				numBundle.putString("num1", nums[0]);
-				numBundle.putString("num2", nums[1]);
-				numBundle.putString("num3", nums[2]);
-				numBundle.putString("num4", nums[3]);
-				//Message msg = join_Handler.obtainMessage();
-				//msg.what = GAME_BEGIN;
-				//msg.setData(numBundle);
-				//join_Handler.sendMessage(msg);
-			}
 
-		}catch(Exception e){
-			
-		}
-	}
-}
 }

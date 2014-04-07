@@ -1,6 +1,7 @@
 package com.ancowei.initiate_game;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 
 import java.io.PrintStream;
 import java.net.DatagramPacket;
@@ -115,15 +116,14 @@ public class Game_begin extends Activity {
 		// new NumThread().start();
 		timeThread = new TimeThread();
 		numThread = new NumThread();
-
+		getFirstNum();
 		setQuestionNum();
 
-		if (correctNum > highestNum) {
-			highestNum = correctNum;
-			// 更新数据库
-			/*Suan24dianMain.sqlHelper.update(Suan24dianMain.USER_NAME,
-					highestNum);*/
-		}
+		/*
+		 * if (correctNum > highestNum) { highestNum = correctNum; // 更新数据库
+		 * Suan24dianMain.sqlHelper.update(Suan24dianMain.USER_NAME,
+		 * highestNum); }
+		 */
 	}
 
 	public void findView() {
@@ -178,6 +178,131 @@ public class Game_begin extends Activity {
 		btn_back.setOnClickListener(btnOnclick);
 		btn_clear.setOnClickListener(btnOnclick);
 		btn_commit.setOnClickListener(btnOnclick);
+	}
+
+	public void getFirstNum() {
+		Intent fNum = this.getIntent();
+		num1 = fNum.getStringExtra("num1");
+		num2 = fNum.getStringExtra("num2");
+		num3 = fNum.getStringExtra("num3");
+		num4 = fNum.getStringExtra("num4");
+		setNum();
+	}
+
+	public void setNum() {
+		if (num1.equals("" + 1)) {
+			btn_1_background = R.drawable.card_mouse_1;
+		} else if (num1.equals("" + 2)) {
+			btn_1_background = R.drawable.card_cattle_2;
+		} else if (num1.equals("" + 3)) {
+			btn_1_background = R.drawable.card_tiger_3;
+		} else if (num1.equals("" + 4)) {
+			btn_1_background = R.drawable.card_rabbit_4;
+		} else if (num1.equals("" + 5)) {
+			btn_1_background = R.drawable.card_dragon_5;
+		} else if (num1.equals("" + 6)) {
+			btn_1_background = R.drawable.card_snake_6;
+		} else if (num1.equals("" + 7)) {
+			btn_1_background = R.drawable.card_horse_7;
+		} else if (num1.equals("" + 8)) {
+			btn_1_background = R.drawable.card_sheep_8;
+		} else if (num1.equals("" + 9)) {
+			btn_1_background = R.drawable.card_monkey_9;
+		} else if (num1.equals("" + 10)) {
+			btn_1_background = R.drawable.card_chiken_10;
+		} else if (num1.equals("" + 11)) {
+			btn_1_background = R.drawable.card_dog_11;
+		} else {
+			btn_1_background = R.drawable.card_pig_12;
+		}
+		if (num2.equals("" + 1)) {
+			btn_2_background = R.drawable.card_mouse_1;
+		} else if (num2.equals("" + 2)) {
+			btn_2_background = R.drawable.card_cattle_2;
+		} else if (num2.equals("" + 3)) {
+			btn_2_background = R.drawable.card_tiger_3;
+		} else if (num2.equals("" + 4)) {
+			btn_2_background = R.drawable.card_rabbit_4;
+		} else if (num2.equals("" + 5)) {
+			btn_2_background = R.drawable.card_dragon_5;
+		} else if (num2.equals("" + 6)) {
+			btn_2_background = R.drawable.card_snake_6;
+		} else if (num2.equals("" + 7)) {
+			btn_2_background = R.drawable.card_horse_7;
+		} else if (num2.equals("" + 8)) {
+			btn_2_background = R.drawable.card_sheep_8;
+		} else if (num2.equals("" + 9)) {
+			btn_2_background = R.drawable.card_monkey_9;
+		} else if (num2.equals("" + 10)) {
+			btn_2_background = R.drawable.card_chiken_10;
+		} else if (num2.equals("" + 11)) {
+			btn_2_background = R.drawable.card_dog_11;
+		} else {
+			btn_2_background = R.drawable.card_pig_12;
+		}
+		if (num3.equals("" + 1)) {
+			btn_3_background = R.drawable.card_mouse_1;
+		} else if (num3.equals("" + 2)) {
+			btn_3_background = R.drawable.card_cattle_2;
+		} else if (num3.equals("" + 3)) {
+			btn_3_background = R.drawable.card_tiger_3;
+		} else if (num3.equals("" + 4)) {
+			btn_3_background = R.drawable.card_rabbit_4;
+		} else if (num3.equals("" + 5)) {
+			btn_3_background = R.drawable.card_dragon_5;
+		} else if (num3.equals("" + 6)) {
+			btn_3_background = R.drawable.card_snake_6;
+		} else if (num3.equals("" + 7)) {
+			btn_3_background = R.drawable.card_horse_7;
+		} else if (num3.equals("" + 8)) {
+			btn_3_background = R.drawable.card_sheep_8;
+		} else if (num3.equals("" + 9)) {
+			btn_3_background = R.drawable.card_monkey_9;
+		} else if (num3.equals("" + 10)) {
+			btn_3_background = R.drawable.card_chiken_10;
+		} else if (num3.equals("" + 11)) {
+			btn_3_background = R.drawable.card_dog_11;
+		} else {
+			btn_3_background = R.drawable.card_pig_12;
+		}
+		if (num4.equals("" + 1)) {
+			btn_4_background = R.drawable.card_mouse_1;
+		} else if (num4.equals("" + 2)) {
+			btn_4_background = R.drawable.card_cattle_2;
+		} else if (num4.equals("" + 3)) {
+			btn_4_background = R.drawable.card_tiger_3;
+		} else if (num4.equals("" + 4)) {
+			btn_4_background = R.drawable.card_rabbit_4;
+		} else if (num4.equals("" + 5)) {
+			btn_4_background = R.drawable.card_dragon_5;
+		} else if (num4.equals("" + 6)) {
+			btn_4_background = R.drawable.card_snake_6;
+		} else if (num4.equals("" + 7)) {
+			btn_4_background = R.drawable.card_horse_7;
+		} else if (num4.equals("" + 8)) {
+			btn_4_background = R.drawable.card_sheep_8;
+		} else if (num4.equals("" + 9)) {
+			btn_4_background = R.drawable.card_monkey_9;
+		} else if (num4.equals("" + 10)) {
+			btn_4_background = R.drawable.card_chiken_10;
+		} else if (num4.equals("" + 11)) {
+			btn_4_background = R.drawable.card_dog_11;
+		} else {
+			btn_4_background = R.drawable.card_pig_12;
+		}
+		btn_1.setText(num1);
+		btn_2.setText(num2);
+		btn_3.setText(num3);
+		btn_4.setText(num4);
+		btn_1.setTextColor(color.white);
+		btn_2.setTextColor(color.white);
+		btn_3.setTextColor(color.white);
+		btn_4.setTextColor(color.white);
+		btn_1.setBackgroundResource(btn_1_background);
+		btn_2.setBackgroundResource(btn_2_background);
+		btn_3.setBackgroundResource(btn_3_background);
+		btn_4.setBackgroundResource(btn_4_background);
+
 	}
 
 	public class btnOnClickListener implements OnClickListener {
@@ -383,9 +508,10 @@ public class Game_begin extends Activity {
 				}
 				break;
 			case R.id.btn_next:
+				
 				questionNum = questionNum - 1;
 				if (questionNum < 0) {
-					//游戏结束时候，应该发送广播给所有玩家，告诉大家游戏已经结束，并且公布游戏结果
+					// 游戏结束时候，应该发送广播给所有玩家，告诉大家游戏已经结束，并且公布游戏结果
 					new game_over_Thread().start();
 					STOP = true;
 					new AlertDialog.Builder(Game_begin.this)
@@ -411,6 +537,8 @@ public class Game_begin extends Activity {
 					calculate = "";
 					edit_calculate.setText(calculate);
 					new NumThread().start();
+					//点击下一题的时候，通知其他玩家进入下一题，并发牌给其他玩家
+					new send_card_Thread().start();
 					time = 11;
 					STOP = true;
 					STOP = false;
@@ -432,10 +560,10 @@ public class Game_begin extends Activity {
 	public void setQuestionNum() {
 		STOP = false;
 		time = 100;
-		timeThread.start();
 		questionNum = 10;
 		text_countdown_show.setText("" + questionNum);
-		numThread.start();
+		//numThread.start();
+		// timeThread.start();
 	}
 
 	// 时间线程
@@ -506,8 +634,10 @@ public class Game_begin extends Activity {
 			correctNum++;
 			if (correctNum > highestNum) {
 				highestNum = correctNum;
-				/*Suan24dianMain.sqlHelper.update(Suan24dianMain.USER_NAME,
-						highestNum);*/
+				/*
+				 * Suan24dianMain.sqlHelper.update(Suan24dianMain.USER_NAME,
+				 * highestNum);
+				 */
 			}
 		} else {
 			res = "结果错误，请重新计算";
@@ -520,48 +650,50 @@ public class Game_begin extends Activity {
 		public void run() {
 			try {
 				ByteArrayOutputStream bout = new ByteArrayOutputStream();
-				PrintStream pout = new PrintStream(bout);
-				pout.println(num1);
-				pout.println(num2);
-				pout.println(num3);
-				pout.println(num4);
-				InetAddress addr = InetAddress.getByName(Suan24dianMain.ADDR);
+				DataOutputStream dout = new DataOutputStream(bout);
+				dout.writeUTF(num1);
+				dout.writeUTF(num2);
+				dout.writeUTF(num3);
+				dout.writeUTF(num4);
+				InetAddress addr = InetAddress.getByName("172.18.13.128");
 				byte buf[] = bout.toByteArray();
 				DatagramSocket socket = new DatagramSocket();
 				DatagramPacket packet = new DatagramPacket(buf, buf.length,
-						addr, Suan24dianMain.PORT);
+						addr, 4345);
 				socket.send(packet);
 				bout.close();
-				pout.close();
+				dout.close();
+				socket.close();
 
 			} catch (Exception e) {
 				System.out.println("\n广播发送失败：" + e.toString());
 			}
 		}
 	}
-//游戏结束线程--游戏结束的时候，向所有玩家发送广播：游戏已经结束的通知，游戏结果公布
-	public class game_over_Thread extends Thread{
-		public void run(){
+
+	// 游戏结束线程--游戏结束的时候，向所有玩家发送广播：游戏已经结束的通知，游戏结果公布
+	public class game_over_Thread extends Thread {
+		public void run() {
 			try {
 				ByteArrayOutputStream bout = new ByteArrayOutputStream();
-				PrintStream pout = new PrintStream(bout);
-				pout.println("gameIsover");
-				pout.println("The resault of this game is:");
-				InetAddress addr = InetAddress.getByName(Suan24dianMain.ADDR);
+				DataOutputStream dout = new DataOutputStream(bout);
+				dout.writeUTF("suan24dian_game_over");
+				InetAddress addr = InetAddress.getByName("");
 				byte buf[] = bout.toByteArray();
-
 				DatagramSocket socket = new DatagramSocket();
 				DatagramPacket packet = new DatagramPacket(buf, buf.length,
-						addr, Suan24dianMain.PORT);
+						addr, 4345);
 				socket.send(packet);
 				bout.close();
-				pout.close();
+				dout.close();
+				socket.close();
 
 			} catch (Exception e) {
 				System.out.println("\n游戏结束广播发送失败：" + e.toString());
 			}
 		}
 	}
+
 	public class myHandler extends Handler {
 		@Override
 		public void handleMessage(Message msg) {
@@ -570,120 +702,8 @@ public class Game_begin extends Activity {
 			case RANDOM:
 				// 产生的四个随机数先广播发给其他客户，再在自己处显示（发牌的公平性考虑）
 				new send_card_Thread().start();
-				//Bundle numBundle = msg.getData();
-				if (num1.equals("" + 1)) {
-					btn_1_background = R.drawable.card_mouse_1;
-				} else if (num1.equals("" + 2)) {
-					btn_1_background = R.drawable.card_cattle_2;
-				} else if (num1.equals("" + 3)) {
-					btn_1_background = R.drawable.card_tiger_3;
-				} else if (num1.equals("" + 4)) {
-					btn_1_background = R.drawable.card_rabbit_4;
-				} else if (num1.equals("" + 5)) {
-					btn_1_background = R.drawable.card_dragon_5;
-				} else if (num1.equals("" + 6)) {
-					btn_1_background = R.drawable.card_snake_6;
-				} else if (num1.equals("" + 7)) {
-					btn_1_background = R.drawable.card_horse_7;
-				} else if (num1.equals("" + 8)) {
-					btn_1_background = R.drawable.card_sheep_8;
-				} else if (num1.equals("" + 9)) {
-					btn_1_background = R.drawable.card_monkey_9;
-				} else if (num1.equals("" + 10)) {
-					btn_1_background = R.drawable.card_chiken_10;
-				} else if (num1.equals("" + 11)) {
-					btn_1_background = R.drawable.card_dog_11;
-				} else {
-					btn_1_background = R.drawable.card_pig_12;
-				}
-				if (num2.equals("" + 1)) {
-					btn_2_background = R.drawable.card_mouse_1;
-				} else if (num2.equals("" + 2)) {
-					btn_2_background = R.drawable.card_cattle_2;
-				} else if (num2.equals("" + 3)) {
-					btn_2_background = R.drawable.card_tiger_3;
-				} else if (num2.equals("" + 4)) {
-					btn_2_background = R.drawable.card_rabbit_4;
-				} else if (num2.equals("" + 5)) {
-					btn_2_background = R.drawable.card_dragon_5;
-				} else if (num2.equals("" + 6)) {
-					btn_2_background = R.drawable.card_snake_6;
-				} else if (num2.equals("" + 7)) {
-					btn_2_background = R.drawable.card_horse_7;
-				} else if (num2.equals("" + 8)) {
-					btn_2_background = R.drawable.card_sheep_8;
-				} else if (num2.equals("" + 9)) {
-					btn_2_background = R.drawable.card_monkey_9;
-				} else if (num2.equals("" + 10)) {
-					btn_2_background = R.drawable.card_chiken_10;
-				} else if (num2.equals("" + 11)) {
-					btn_2_background = R.drawable.card_dog_11;
-				} else {
-					btn_2_background = R.drawable.card_pig_12;
-				}
-				if (num3.equals("" + 1)) {
-					btn_3_background = R.drawable.card_mouse_1;
-				} else if (num3.equals("" + 2)) {
-					btn_3_background = R.drawable.card_cattle_2;
-				} else if (num3.equals("" + 3)) {
-					btn_3_background = R.drawable.card_tiger_3;
-				} else if (num3.equals("" + 4)) {
-					btn_3_background = R.drawable.card_rabbit_4;
-				} else if (num3.equals("" + 5)) {
-					btn_3_background = R.drawable.card_dragon_5;
-				} else if (num3.equals("" + 6)) {
-					btn_3_background = R.drawable.card_snake_6;
-				} else if (num3.equals("" + 7)) {
-					btn_3_background = R.drawable.card_horse_7;
-				} else if (num3.equals("" + 8)) {
-					btn_3_background = R.drawable.card_sheep_8;
-				} else if (num3.equals("" + 9)) {
-					btn_3_background = R.drawable.card_monkey_9;
-				} else if (num3.equals("" + 10)) {
-					btn_3_background = R.drawable.card_chiken_10;
-				} else if (num3.equals("" + 11)) {
-					btn_3_background = R.drawable.card_dog_11;
-				} else {
-					btn_3_background = R.drawable.card_pig_12;
-				}
-				if (num4.equals("" + 1)) {
-					btn_4_background = R.drawable.card_mouse_1;
-				} else if (num4.equals("" + 2)) {
-					btn_4_background = R.drawable.card_cattle_2;
-				} else if (num4.equals("" + 3)) {
-					btn_4_background = R.drawable.card_tiger_3;
-				} else if (num4.equals("" + 4)) {
-					btn_4_background = R.drawable.card_rabbit_4;
-				} else if (num4.equals("" + 5)) {
-					btn_4_background = R.drawable.card_dragon_5;
-				} else if (num4.equals("" + 6)) {
-					btn_4_background = R.drawable.card_snake_6;
-				} else if (num4.equals("" + 7)) {
-					btn_4_background = R.drawable.card_horse_7;
-				} else if (num4.equals("" + 8)) {
-					btn_4_background = R.drawable.card_sheep_8;
-				} else if (num4.equals("" + 9)) {
-					btn_4_background = R.drawable.card_monkey_9;
-				} else if (num4.equals("" + 10)) {
-					btn_4_background = R.drawable.card_chiken_10;
-				} else if (num4.equals("" + 11)) {
-					btn_4_background = R.drawable.card_dog_11;
-				} else {
-					btn_4_background = R.drawable.card_pig_12;
-				}
-				btn_1.setText(num1);
-				btn_2.setText(num2);
-				btn_3.setText(num3);
-				btn_4.setText(num4);
-				btn_1.setTextColor(color.white);
-				btn_2.setTextColor(color.white);
-				btn_3.setTextColor(color.white);
-				btn_4.setTextColor(color.white);
-				btn_1.setBackgroundResource(btn_1_background);
-				btn_2.setBackgroundResource(btn_2_background);
-				btn_3.setBackgroundResource(btn_3_background);
-				btn_4.setBackgroundResource(btn_4_background);
-
+				// Bundle numBundle = msg.getData();
+				setNum();
 				break;
 			case TIME:
 				Bundle timeBundle = msg.getData();
@@ -702,7 +722,7 @@ public class Game_begin extends Activity {
 											// 这里要实现重新发牌功能
 											questionNum = questionNum - 1;
 											if (questionNum < 0) {
-												//游戏结束时候，应该发送广播给所有玩家，告诉大家游戏已经结束，并且公布游戏结果
+												// 游戏结束时候，应该发送广播给所有玩家，告诉大家游戏已经结束，并且公布游戏结果
 												new game_over_Thread().start();
 												STOP = true;
 												new AlertDialog.Builder(
@@ -754,10 +774,10 @@ public class Game_begin extends Activity {
 	public class NumThread extends Thread {
 		public void run() {
 			// 产生1-13之间的四个随机数
-			num1 = "" + (int) (Math.random() * 13 + 1);
-			num2 = "" + (int) (Math.random() * 13 + 1);
-			num3 = "" + (int) (Math.random() * 13 + 1);
-			num4 = "" + (int) (Math.random() * 13 + 1);
+			num1 = "" + (int) (Math.random() * 12 + 1);
+			num2 = "" + (int) (Math.random() * 12 + 1);
+			num3 = "" + (int) (Math.random() * 12 + 1);
+			num4 = "" + (int) (Math.random() * 12 + 1);
 
 			Bundle numBundle = new Bundle();
 			numBundle.putString("num1", num1);

@@ -1,16 +1,15 @@
 package com.ancowei.join_game;
 
-import java.io.BufferedReader;
+
 import java.io.ByteArrayInputStream;
+
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -27,8 +26,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -69,29 +67,6 @@ public class Join_game extends Activity {
 	UDP_SerchThread UDP_serchThread = new UDP_SerchThread();
 	// join_gameThread join_game_thread=new join_gameThread();
 	UDP_link_Thread UDP_link = new UDP_link_Thread();
-
-	Handler join_Handler = new Handler() {
-		@Override
-		public void handleMessage(Message msg) {
-			super.handleMessage(msg);
-			switch (msg.what) {
-
-			// 链接成功之后,跳转到游戏页面,等待游戏开始
-			case TCP_LINK_SUCCEED:
-				Intent intent = new Intent(Join_game.this,
-						Join_game_begin.class);
-				Join_game.this.finish();
-				Join_game.this.startActivity(intent);
-
-				break;
-			case GAME_BEGIN:
-				Bundle numBundle = msg.getData();
-				break;
-			default:
-				break;
-			}
-		}
-	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -157,9 +132,10 @@ public class Join_game extends Activity {
 				p = arg2 - 1;
 				UDP_link.start();
 				// 进入游戏开始等待界面
-				Intent gameIntent = new Intent(Join_game.this,
+				Intent game_wait_Intent = new Intent(Join_game.this,
 						Game_begin_wait.class);
-				Join_game.this.startActivity(gameIntent);
+				Join_game.this.finish();
+				Join_game.this.startActivity(game_wait_Intent);
 			}
 		});
 	}
@@ -178,7 +154,6 @@ public class Join_game extends Activity {
 		}
 
 		tx_username.setText(name);
-
 	}
 
 	private void handleList() {
@@ -227,7 +202,6 @@ public class Join_game extends Activity {
 					String s = dis.readUTF();
 					String name = dis.readUTF();
 					addr = UDPPacket.getAddress();
-
 					if ("suan24dian_initiate".equals(s)) {
 						// 加入发起玩家队列
 						ADDR[i] = addr;
@@ -244,18 +218,6 @@ public class Join_game extends Activity {
 		}
 	}
 
-	/*
-	 * // 当用户选择一个玩家时候，发送TCP链接请求，和该玩家进行TCP链接 public class join_gameThread extends
-	 * Thread { public void run() { try{ InetAddress
-	 * addr=InetAddress.getByName("172.18.54.198"); addr=ADDR[p]; Socket s=new
-	 * Socket(addr,3000); InputStreamReader ISReader=new
-	 * InputStreamReader(s.getInputStream()); BufferedReader reader=new
-	 * BufferedReader(ISReader); String msg=reader.readLine(); PrintWriter
-	 * writer = new PrintWriter( s.getOutputStream()); String name = "Ancowei";
-	 * writer.print(name); writer.close(); reader.close(); s.close();
-	 * }catch(Exception e){ System.out.println(e.toString());
-	 * e.printStackTrace(); } } }
-	 */
 	// 当用户选择一个玩家时候，发送UDP链接请求，和该玩家进行UDP链接
 	public class UDP_link_Thread extends Thread {
 		public void run() {
@@ -265,7 +227,7 @@ public class Join_game extends Activity {
 				ByteArrayOutputStream bout = new ByteArrayOutputStream();
 				DataOutputStream dout = new DataOutputStream(bout);
 				dout.writeUTF("suan24dian_join_game");
-				dout.writeUTF(Suan24dianMain.suan24dian_data[0].getName());
+				dout.writeUTF(Suan24dianMain.user_Name);
 
 				byte buf[] = bout.toByteArray();
 				DatagramSocket socket = new DatagramSocket();
@@ -281,4 +243,15 @@ public class Join_game extends Activity {
 			}
 		}
 	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if(keyCode==event.KEYCODE_BACK ){
+			UDP_serchThread.interrupt();
+			Join_game.this.finish();
+			return true;
+		}
+		return false;
+	}
+	
 }

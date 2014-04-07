@@ -29,7 +29,7 @@ public class SqlHandler extends SQLiteOpenHelper {
 				+ " varchar(15) UNIQUE, " + USER_PASSWORD + " varchar(15), "+USER_HIGHEST+" INTEGER)";
 		db.execSQL(sql);
 	}
-	@Override
+	@Override	
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		String sql = "DROP TABLE IF EXISTS " + TABLE_NAME;
 		db.execSQL(sql);
@@ -51,7 +51,6 @@ public class SqlHandler extends SQLiteOpenHelper {
 	public boolean insert(String user_name, String user_password) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		boolean b=false;
-		
 		Cursor c=this.select();
 		for(c.moveToFirst();!c.isAfterLast();c.moveToNext()){
 			if(user_name.equals(c.getString(c.getColumnIndex(USER_NAME)))){
@@ -80,13 +79,11 @@ public class SqlHandler extends SQLiteOpenHelper {
 	}
 
 	// 更新操作，在这个应用中，用户名和密码都不需要改变，只需要修改最高记录
-	public void update( String user_name,int user_highest) {
+	public void update( String user_name) {
 		SQLiteDatabase db = this.getWritableDatabase();
-		String where = USER_NAME + " = ?";
-		String[] whereValue = {user_name };
+		String where = USER_ID + " = 1";
 		ContentValues cv = new ContentValues();
-		cv.put(USER_HIGHEST,user_highest);
-		
-		db.update(TABLE_NAME, cv, where, whereValue);
+		cv.put("USER_NAME", user_name);
+		db.update(TABLE_NAME, cv, where, null);
 	}
 }
