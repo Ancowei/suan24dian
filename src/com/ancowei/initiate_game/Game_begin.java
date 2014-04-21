@@ -1,9 +1,11 @@
 package com.ancowei.initiate_game;
 
+import java.io.ByteArrayInputStream;
+
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import java.io.PrintStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -19,6 +21,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -82,11 +85,13 @@ public class Game_begin extends Activity {
 	// message 的what字段
 	public static final int RANDOM = 0;
 	public static final int TIME = 1;
+	public static final int NEXT = 2;
+	public static final int COLLECT = 3;
 	public static int questionNum = 10;
 	public static int time = 10;
 
 	// 玩家计算正确的题数
-	public int correctNum = 0;
+	public int correctNum[] = new int[4];
 	public static int highestNum = 0;
 
 	private static Handler myH;
@@ -96,6 +101,13 @@ public class Game_begin extends Activity {
 	public static TimeThread timeThread;
 	public static NumThread numThread;
 	public static boolean STOP = false;
+
+	private final static String TABLE_NAME = "suan24dian_table";
+	private final static String USER_NAME = "user_name";
+	private final static String USER_COLLECT = "user_collect";
+	private final static String USER_ADDR = "user_addr";
+	private final static String USER_LOCAL_ADDR="127.0.0.1";
+	private String user_Name;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -116,14 +128,10 @@ public class Game_begin extends Activity {
 		// new NumThread().start();
 		timeThread = new TimeThread();
 		numThread = new NumThread();
+		new collect_UDP_listenning().start();
 		getFirstNum();
 		setQuestionNum();
 
-		/*
-		 * if (correctNum > highestNum) { highestNum = correctNum; // 更新数据库
-		 * Suan24dianMain.sqlHelper.update(Suan24dianMain.USER_NAME,
-		 * highestNum); }
-		 */
 	}
 
 	public void findView() {
@@ -150,10 +158,11 @@ public class Game_begin extends Activity {
 		text_countdown_show = (TextView) findViewById(R.id.text_countdown_show);
 		text_result = (TextView) findViewById(R.id.text_result);
 		text_time = (TextView) findViewById(R.id.text_time);
+		
+		
 	}
 
 	public void registerListeners() {
-
 		text_countdown_show.setTextSize(20);
 		text_countdown_show.setTextColor(Color.BLUE);
 		text_time.setTextSize(20);
@@ -179,13 +188,14 @@ public class Game_begin extends Activity {
 		btn_clear.setOnClickListener(btnOnclick);
 		btn_commit.setOnClickListener(btnOnclick);
 	}
-
 	public void getFirstNum() {
 		Intent fNum = this.getIntent();
+	user_Name=fNum.getStringExtra("name");
 		num1 = fNum.getStringExtra("num1");
 		num2 = fNum.getStringExtra("num2");
 		num3 = fNum.getStringExtra("num3");
 		num4 = fNum.getStringExtra("num4");
+		//DB_handler.insert_into_table("127.0.0.1", name, TABLE_NAME);
 		setNum();
 	}
 
@@ -508,26 +518,17 @@ public class Game_begin extends Activity {
 				}
 				break;
 			case R.id.btn_next:
-				
+
 				questionNum = questionNum - 1;
 				if (questionNum < 0) {
 					// 游戏结束时候，应该发送广播给所有玩家，告诉大家游戏已经结束，并且公布游戏结果
 					new game_over_Thread().start();
 					STOP = true;
-					new AlertDialog.Builder(Game_begin.this)
-							.setTitle("游戏结束")
-							.setMessage(
-									"A:" + num1 + "\nB:" + num2 + "\nC:" + num3
-											+ "\nD:" + num4)
-							.setPositiveButton("确定",
-									new DialogInterface.OnClickListener() {
-										@Override
-										public void onClick(
-												DialogInterface dialog,
-												int which) {
-											Game_begin.this.finish();
-										}
-									}).show();
+					Intent game_over = new Intent(Game_begin.this,
+							Initiate_game_over.class);
+					Game_begin.this.finish();
+					Game_begin.this.startActivity(game_over);
+					
 				} else {
 					text_countdown_show.setText("" + questionNum);
 					i = 0;
@@ -537,7 +538,7 @@ public class Game_begin extends Activity {
 					calculate = "";
 					edit_calculate.setText(calculate);
 					new NumThread().start();
-					//点击下一题的时候，通知其他玩家进入下一题，并发牌给其他玩家
+					// 点击下一题的时候，通知其他玩家进入下一题，并发牌给其他玩家
 					new send_card_Thread().start();
 					time = 11;
 					STOP = true;
@@ -562,7 +563,7 @@ public class Game_begin extends Activity {
 		time = 100;
 		questionNum = 10;
 		text_countdown_show.setText("" + questionNum);
-		//numThread.start();
+		// numThread.start();
 		// timeThread.start();
 	}
 
@@ -630,15 +631,6 @@ public class Game_begin extends Activity {
 		boolean resB = cal.calculate(postfix);
 		if (resB) {
 			res = "结果正确";
-			// 正确题数加1
-			correctNum++;
-			if (correctNum > highestNum) {
-				highestNum = correctNum;
-				/*
-				 * Suan24dianMain.sqlHelper.update(Suan24dianMain.USER_NAME,
-				 * highestNum);
-				 */
-			}
 		} else {
 			res = "结果错误，请重新计算";
 		}
@@ -671,13 +663,47 @@ public class Game_begin extends Activity {
 		}
 	}
 
+	// 开始游戏之后，UDP侦听其它玩家是否正确算出来了
+	public class collect_UDP_listenning extends Thread {
+		public void run() {
+			try {
+				byte[] collect_buf = new byte[256];
+				DatagramPacket packet = new DatagramPacket(collect_buf,
+						collect_buf.length);
+				DatagramSocket socket = new DatagramSocket(4246);
+				socket.receive(packet);
+				ByteArrayInputStream bin = new ByteArrayInputStream(collect_buf);
+				DataInputStream din = new DataInputStream(bin);
+				String s = din.readUTF();
+				String name=din.readUTF();
+				if ("collect".equals(s)) {
+					// 有人做出来了,更新数据库，然后进入下一题
+					Message msg = myH.obtainMessage();
+					Bundle b = new Bundle();
+					b.putString("addr", packet.getAddress().toString());
+					b.putString("name", name);
+					msg.what = COLLECT;
+					msg.setData(b);
+					myH.sendMessage(msg);
+
+				}
+			} catch (Exception e) {
+
+			}
+		}
+	}
+
 	// 游戏结束线程--游戏结束的时候，向所有玩家发送广播：游戏已经结束的通知，游戏结果公布
 	public class game_over_Thread extends Thread {
 		public void run() {
 			try {
+				
 				ByteArrayOutputStream bout = new ByteArrayOutputStream();
 				DataOutputStream dout = new DataOutputStream(bout);
 				dout.writeUTF("suan24dian_game_over");
+				String name;
+				int collect;
+				
 				InetAddress addr = InetAddress.getByName("");
 				byte buf[] = bout.toByteArray();
 				DatagramSocket socket = new DatagramSocket();
@@ -687,13 +713,11 @@ public class Game_begin extends Activity {
 				bout.close();
 				dout.close();
 				socket.close();
-
 			} catch (Exception e) {
 				System.out.println("\n游戏结束广播发送失败：" + e.toString());
 			}
 		}
 	}
-
 	public class myHandler extends Handler {
 		@Override
 		public void handleMessage(Message msg) {
@@ -702,8 +726,41 @@ public class Game_begin extends Activity {
 			case RANDOM:
 				// 产生的四个随机数先广播发给其他客户，再在自己处显示（发牌的公平性考虑）
 				new send_card_Thread().start();
-				// Bundle numBundle = msg.getData();
 				setNum();
+				break;
+			// 有玩家做出来了，跟新数据库，然后进入下一题
+			case COLLECT:
+				Bundle b = msg.getData();
+				try {
+				} catch (Exception e) {
+					System.out.print(e.toString());
+				}
+				questionNum = questionNum - 1;
+				if (questionNum < 0) {
+					// 游戏结束时候，应该发送广播给所有玩家，告诉大家游戏已经结束，并且公布游戏结果
+					new game_over_Thread().start();
+					STOP = true;
+					Intent game_over = new Intent(Game_begin.this,
+							Initiate_game_over.class);
+					Game_begin.this.finish();
+					Game_begin.this.startActivity(game_over);
+					
+				} else {
+					// 通知其他玩家有玩家做出了这一题，请进入下一题，并发牌给其他玩家
+					new send_card_Thread().start();
+					text_countdown_show.setText("" + questionNum);
+					i = 0;
+					count = 0;
+					preNum = "";
+					preIfnum = false;
+					calculate = "";
+					edit_calculate.setText(calculate);
+					new NumThread().start();
+					time = 11;
+					STOP = true;
+					STOP = false;
+
+				}
 				break;
 			case TIME:
 				Bundle timeBundle = msg.getData();
@@ -770,7 +827,7 @@ public class Game_begin extends Activity {
 		}
 	}
 
-	// 开启一个新的线程，产生1-13之间的随机数
+	// 开启一个新的线程，产生1-12之间的随机数
 	public class NumThread extends Thread {
 		public void run() {
 			// 产生1-13之间的四个随机数

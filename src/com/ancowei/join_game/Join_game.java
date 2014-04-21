@@ -152,7 +152,6 @@ public class Join_game extends Activity {
 				image_user.setImageDrawable(drawable);
 			}
 		}
-
 		tx_username.setText(name);
 	}
 

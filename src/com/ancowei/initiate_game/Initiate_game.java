@@ -1,7 +1,7 @@
 package com.ancowei.initiate_game;
 
-
 import java.io.ByteArrayInputStream;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -14,20 +14,25 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.ancowei.initiate_game.Game_begin.send_card_Thread;
 import com.ancowei.internet.Inet_initiate_control;
 import com.ancowei.listview.MyListView;
 import com.ancowei.listview.MyListView.OnRefreshListener;
+import com.ancowei.login.suan24dian_Login;
 import com.ancowei.main.Suan24dianMain;
 import com.example.suan24dian.R;
 import ExitApp.ExitApp;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
@@ -43,10 +48,10 @@ public class Initiate_game extends Activity {
 	Button btn_back;
 	ImageView image_user;
 	TextView tx_username;
+	
 
 	ServerSocket serverSocket;
 	Socket socket;
-	//TCP_Link_Thread tcp_link;
 	UDP_listenning UDP_link;
 	UDP_Brocast_initiate_Thread udp_brocast;
 	Inet_initiate_control inet_initiate_control;
@@ -54,18 +59,28 @@ public class Initiate_game extends Activity {
 	DataInputStream din;
 	DataOutputStream dout;
 
+	//public static String ADDR[] = new String[10];
+	//public static String NAME[] = new String[10];
+	public static int i = 0;
+	public static int playerNum = 0;
+	public static String Name;
+
 	MyListView list_player;
 	List<String> list_player_show;
-	static String data[] = new String[10];
-	static String NAME[] = new String[10];
-
 	SimpleAdapter listItemAdapter;
-
 	myOnClickListener myOnclick;
 	ArrayList<HashMap<String, Object>> listItem;
-	static int playerNum = 0;
-	static int i = 0;
-
+	
+	private final static String TABLE_NAME = "suan24dian_table";
+	private final static String USER_ID = "user_id";
+	private final static String USER_NAME = "user_name";
+	private final static String USER_COLLECT="user_collect";
+	private final static String USER_ADDR="user_addr";
+	private final static String USER_LOCAL="127.0.0.1";
+	private final static int PLAYER_ADD=0;
+	private Handler myH;
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -79,13 +94,13 @@ public class Initiate_game extends Activity {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		listItem = new ArrayList<HashMap<String, Object>>();
+		//create_player_db();
 		findView();
 		buildAdapter();
 		registerListeners();
 		set_image_and_name();
 		udp_brocast.start();
 		UDP_link.start();
-		//tcp_link.start();
 	}
 
 	public void findView() {
@@ -94,6 +109,7 @@ public class Initiate_game extends Activity {
 		list_player = (MyListView) findViewById(R.id.list_player);
 		image_user = (ImageView) findViewById(R.id.image_user);
 		tx_username = (TextView) findViewById(R.id.tx_username);
+		myH=new myHandler();
 	}
 
 	public void registerListeners() {
@@ -114,6 +130,7 @@ public class Initiate_game extends Activity {
 						handleList();
 						return null;
 					}
+
 					@Override
 					protected void onPostExecute(Void result) {
 						listItemAdapter.notifyDataSetChanged();
@@ -130,9 +147,9 @@ public class Initiate_game extends Activity {
 
 	public void set_image_and_name() {
 		Intent image_and_name = this.getIntent();
-		String name = image_and_name.getStringExtra("user_name");
+		Name = image_and_name.getStringExtra("user_name");
 		Intent image = image_and_name.getParcelableExtra("image");
-		if(image!=null){
+		if (image != null) {
 			Bundle extras = image.getExtras();
 			if (extras != null) {
 				Bitmap photo = extras.getParcelable("data");
@@ -140,17 +157,19 @@ public class Initiate_game extends Activity {
 				image_user.setImageDrawable(drawable);
 			}
 		}
-		tx_username.setText(name);
+		tx_username.setText(Name+" 在线");
 	}
+
 
 	private void handleList() {
 		listItem.clear();
-		for (int j = 0; j < i; j++) {
-			HashMap<String, Object> map = new HashMap<String, Object>();
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		/*Cursor c=DB_handler.query_from_table(TABLE_NAME);
+		for(c.moveToFirst();!c.isAfterLast();c.moveToNext()){
 			map.put("ItemImage", R.drawable.ic_launcher);
-			map.put("ItemTitle", NAME[j]);
+			map.put("ItemTitle", c.getString(c.getColumnIndex(USER_ADDR)));
 			listItem.add(map);
-		}
+		}*/
 	}
 
 	// 生成适配器的Item和动态数组对应的元素
@@ -162,36 +181,43 @@ public class Initiate_game extends Activity {
 
 	// getData();
 	public ArrayList<HashMap<String, Object>> getData() {
-		for (int j = 0; j < i; j++) {
-			HashMap<String, Object> map = new HashMap<String, Object>();
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		/*Cursor c=DB_handler.query_from_table(TABLE_NAME);
+		if(c!=null){
+			c.moveToFirst();
+			c.moveToNext();
+		for(;!c.isAfterLast();c.moveToNext()){
 			map.put("ItemImage", R.drawable.ic_launcher);
-			map.put("ItemTitle", NAME[j]);
+			map.put("ItemTitle", c.getString(c.getColumnIndex(USER_ADDR)));
 			listItem.add(map);
-		}
+		}}*/
+		
 		return listItem;
 	}
 
 	// UDP brocast UDP广播：我发起游戏了,局域网的广播地址是 255.255.255.255
 	public class UDP_Brocast_initiate_Thread extends Thread {
 		private String msg;
-		public UDP_Brocast_initiate_Thread(String s){
-			this.msg=s;
+
+		public UDP_Brocast_initiate_Thread(String s) {
+			this.msg = s;
 		}
+
 		public void run() {
 			try {
 				InetAddress addr = InetAddress.getByName("255.255.255.255");
-				addr=InetAddress.getByName("172.18.13.128");
+				addr = InetAddress.getByName("172.18.13.128");
 				ByteArrayOutputStream bout = new ByteArrayOutputStream();
 				DataOutputStream dout = new DataOutputStream(bout);
-				//dout.writeUTF("suan24dian_initiate");
+				// dout.writeUTF("suan24dian_initiate");
 				dout.writeUTF(msg);
-				if("suan24dian_initiate".equals(msg)){
+				if ("suan24dian_initiate".equals(msg)) {
 					dout.writeUTF(Suan24dianMain.user_Name);
-				}else if("suan24dian_game_begin".equals(msg)){
-					String num1="1";
-					String num2="4";
-					String num3="7";
-					String num4="9";
+				} else if ("suan24dian_game_begin".equals(msg)) {
+					String num1 = "1";
+					String num2 = "4";
+					String num3 = "7";
+					String num4 = "9";
 					dout.writeUTF(num1);
 					dout.writeUTF(num2);
 					dout.writeUTF(num3);
@@ -212,14 +238,14 @@ public class Initiate_game extends Activity {
 		}
 	}
 
-	//UDP link
+	// UDP link
 	public class UDP_listenning extends Thread {
 		public void run() {
 			while (true) {
 				try {
 					InetAddress addr;
 					byte buf[] = new byte[1024];
-					DatagramSocket UDPSocket = new DatagramSocket(4243);
+					DatagramSocket UDPSocket = new DatagramSocket(4244);
 					DatagramPacket UDPPacket = new DatagramPacket(buf,
 							buf.length);
 					UDPSocket.receive(UDPPacket);
@@ -228,25 +254,30 @@ public class Initiate_game extends Activity {
 					String s = dis.readUTF();
 					String name = dis.readUTF();
 					addr = UDPPacket.getAddress();
-					
 					if ("suan24dian_join_game".equals(s)) {
 						// 加入发起玩家队列
-						playerNum++;
-						data[i] = addr.toString();
-						NAME[i] = name;
+						Message msg=myH.obtainMessage();
+						msg.what=PLAYER_ADD;
+						Bundle b=new Bundle();
+						b.putString("name", name);
+						b.putString("addr", addr.toString());
+						msg.setData(b);
+						myH.sendMessage(msg);
 						i++;
-						if(playerNum>=4)
+						if (playerNum >= 4)
 							break;
-					} 
+					}
 					dis.close();
 					bais.close();
 					UDPSocket.close();
 				} catch (Exception e) {
-					
+
 				}
 			}
+			
 		}
 	}
+
 	public class myOnClickListener implements OnClickListener {
 		@Override
 		public void onClick(View v) {
@@ -258,10 +289,12 @@ public class Initiate_game extends Activity {
 							.setMessage("玩家个数为0\n还不可以开始游戏哦")
 							.setPositiveButton("确定", null).show();
 				} else {
-					//向所有玩家发送游戏开始的广播
-					new UDP_Brocast_initiate_Thread("suan24dian_game_begin").start();
+					// 向所有玩家发送游戏开始的广播
+					new UDP_Brocast_initiate_Thread("suan24dian_game_begin")
+							.start();
 					Intent intent = new Intent(Initiate_game.this,
 							Suan24dian_game_begin_wait.class);
+					intent.putExtra("name", Name);
 					intent.putExtra("num1", "1");
 					intent.putExtra("num2", "4");
 					intent.putExtra("num3", "7");
@@ -281,7 +314,7 @@ public class Initiate_game extends Activity {
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if(keyCode==event.KEYCODE_BACK ){
+		if (keyCode == event.KEYCODE_BACK) {
 			Initiate_game.this.finish();
 			return true;
 		}
@@ -292,4 +325,28 @@ public class Initiate_game extends Activity {
 	protected void onDestroy() {
 		super.onDestroy();
 	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		//重新进入该页面时候，应该清空之前玩家的数据
+		playerNum=0;
+		i=0;
+	}
+	
+	public class myHandler extends Handler {
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			switch (msg.what) {
+			case PLAYER_ADD:
+				//有玩家加进来了，更新相应的数据
+				Bundle b=msg.getData();
+				playerNum++;
+				break;
+			}
+		}
+		
+		}
+		
 }

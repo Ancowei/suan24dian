@@ -2,7 +2,7 @@ package com.ancowei.login;
 
 import java.io.File;
 
-import com.ancowei.db.SqlHandler;
+
 import com.ancowei.main.Suan24dianMain;
 import com.ancowei.setting.Tools;
 
@@ -11,16 +11,16 @@ import com.example.suan24dian.R;
 import ExitApp.ExitApp;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Parcel;
 import android.provider.MediaStore;
 import android.view.View;
 import android.view.Window;
@@ -38,10 +38,13 @@ public class suan24dian_Login extends Activity {
 
 	private EditText edit_name;
 	private EditText edit_password;
+	
+	private SharedPreferences sp;
 
-	public static String user_Name;
-	public static String user_Password;
-	public static Intent user_image;
+	private static String user_Name;
+	private static String user_Password;
+	private static Intent user_image;
+	
 
 	private btn_OnClickListener btn_onclick;
 	public static int LOGIN_RESULT_CODE = 3;
@@ -57,6 +60,7 @@ public class suan24dian_Login extends Activity {
 	private static final int IMAGE_REQUEST_CODE = 0;
 	private static final int CAMERA_REQUEST_CODE = 1;
 	private static final int RESULT_REQUEST_CODE = 2;
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -72,11 +76,6 @@ public class suan24dian_Login extends Activity {
 		findView();
 		registerListeners();
 
-		/*
-		 * sqlHelper = new SqlHandler(suan24dian_Login.this,
-		 * SqlHandler.DATABASE_NAME, null, SqlHandler.DATABASE_VERSION);
-		 */
-
 		set_Default_User();
 	}
 
@@ -89,7 +88,7 @@ public class suan24dian_Login extends Activity {
 		faceImage = (ImageView) findViewById(R.id.face);
 		user_image = new Intent();
 		btn_onclick = new btn_OnClickListener();
-
+		sp=this.getSharedPreferences("user_msg", Context.MODE_PRIVATE);
 	}
 
 	public void registerListeners() {
@@ -231,17 +230,9 @@ public class suan24dian_Login extends Activity {
 	}
 
 	public void set_Default_User() {
-		Cursor c = com.ancowei.main.Suan24dianMain.sqlHelper.select();
-		try {
-			c.moveToFirst();
-			user_Name = c.getString(c.getColumnIndex(SqlHandler.USER_NAME));
-			user_Password = c.getString(c
-					.getColumnIndex(SqlHandler.USER_PASSWORD));
-			edit_name.setText(user_Name);
-			edit_password.setText(user_Password);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		edit_name.setText(sp.getString("user_name", ""));
+		edit_password.setText(sp.getString("user_password", ""));
+		
 	}
 
 	public class btn_OnClickListener implements OnClickListener {
@@ -261,17 +252,17 @@ public class suan24dian_Login extends Activity {
 							.setTitle("用户名和密码都不能为空!")
 							.setPositiveButton("确定", null).show();
 				} else {
+					Suan24dianMain.ifLogin = true;
 					user_image.putExtra("user_name", user_Name);
 					user_image.putExtra("user_password", user_Password);
 					setResult(LOGIN_RESULT_CODE, user_image);
+					//SharedPreferences
+					sp.edit().putString("user_name", user_Name)
+					.putString("user_password", user_Password).commit();
 					
-					Suan24dianMain.sqlHelper.insert(user_Name, user_Password);
-					Suan24dianMain.sqlHelper.update(user_Name);
-
 					Toast.makeText(suan24dian_Login.this,
 							"登录信息\n" + "昵称：" + user_Name + "\n密码：*** ",
 							Toast.LENGTH_LONG).show();
-					Suan24dianMain.ifLogin = true;
 					suan24dian_Login.this.finish();
 				}
 				break;

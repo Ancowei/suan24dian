@@ -1,6 +1,8 @@
 package com.ancowei.main;
 
-import com.ancowei.db.SqlHandler;
+
+import com.ancowei.db.Player_msg;
+
 
 import com.ancowei.initiate_game.Initiate_game;
 import com.ancowei.join_game.Join_game;
@@ -14,9 +16,12 @@ import ExitApp.ExitApp;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -42,25 +47,21 @@ public class Suan24dianMain extends Activity {
 	private Button btn_login;
 	private TextView tx_username;
 	private ImageView image_user;
+	private SharedPreferences sp;
 	// 全局变量，整个应用程序公用一份
-	public static int p = 1;
-
+	public static Player_msg[] play_msg =new Player_msg[10];
+	
 	private btnOnClickListener btn_OnClick;
-
 	private static int LOGIN_REQUEST_CODE = 0;
 	private static int INITIATE_REQUEST_CODE = 1;
 	private static int JOIN_GAME_CODE = 2;
+	private final static String TABLE_NAME = "suan24dian_table";
+	private final static String USER_LOCAL_ADDR = "127.0.0.1";
 
 	public static String user_Name = "";
 	public Intent user_data;
 	// 是否已经登录的标志
 	public static boolean ifLogin = false;
-
-	public static SqlHandler sqlHelper;
-
-	// 广播地址和端口号
-	public static final String ADDR = "172.18.13.128";
-	public static final int PORT = 3000;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -75,11 +76,10 @@ public class Suan24dianMain extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 		setContentView(R.layout.activity_suan24dian_main);
+
 		findView();
 		registerListeners();
 		set_Default_User();
-		// sqlHelper.delete("哈哈");
-		 //sqlHelper.upgradeByUser();
 		
 		// 添加背景音乐
 		play_music();
@@ -94,8 +94,7 @@ public class Suan24dianMain extends Activity {
 		btn_exit = (Button) findViewById(R.id.btn_exit);
 		btn_login = (Button) findViewById(R.id.btn_login);
 		image_user = (ImageView) findViewById(R.id.image_user);
-		sqlHelper = new SqlHandler(Suan24dianMain.this,
-				SqlHandler.DATABASE_NAME, null, SqlHandler.DATABASE_VERSION);
+		sp=this.getSharedPreferences("user_msg",Context.MODE_PRIVATE);
 	}
 
 	public void registerListeners() {
@@ -106,32 +105,27 @@ public class Suan24dianMain extends Activity {
 		btn_login.setOnClickListener(btn_OnClick);
 		btn_initiate_game.setOnClickListener(btn_OnClick);
 		btn_join_game.setOnClickListener(btn_OnClick);
-		
+
 	}
+
 	public void set_Default_User() {
-		Cursor c = sqlHelper.select();
+		/*Cursor c = sqlHelper.query_from_table(TABLE_NAME, USER_LOCAL_ADDR);
 		try {
-			c.moveToFirst();
-			user_Name = c.getString(c.getColumnIndex(SqlHandler.USER_NAME));
-			tx_username.setText(user_Name);
+			if (c != null) {
+				c.moveToFirst();
+				user_Name = c.getString(c.getColumnIndex(SqlHandler.USER_NAME));
+				tx_username.setText(user_Name);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
+
 	private void play_music() {
 		Intent mIntent = new Intent(this, Background_music.class);
 		startService(mIntent);
 	}
-	/*
-	 * private List<String> getData() {
-	 * 
-	 * List<String> data = new ArrayList<String>(); Cursor c =
-	 * sqlHelper.select(); for (c.moveToFirst(); !c.isAfterLast();
-	 * c.moveToNext()) { user_Name =
-	 * c.getString(c.getColumnIndex(SqlHandler.USER_NAME)); user_highest =
-	 * c.getInt(c.getColumnIndex(SqlHandler.USER_HIGHEST)); data.add("  " +
-	 * user_Name + ":" + user_highest); } return data; }
-	 */
+
 	public class btnOnClickListener implements OnClickListener {
 		@Override
 		public void onClick(View v) {
@@ -156,10 +150,8 @@ public class Suan24dianMain extends Activity {
 					// new Send_Broadcast_Thread().start();
 					Intent create_game = new Intent(Suan24dianMain.this,
 							Initiate_game.class);
-					create_game
-							.putExtra("image", user_data);
-					create_game.putExtra("user_name",user_Name
-							);
+					create_game.putExtra("image", user_data);
+					create_game.putExtra("user_name", user_Name);
 					Suan24dianMain.this.startActivity(create_game);
 				}
 
@@ -175,13 +167,12 @@ public class Suan24dianMain extends Activity {
 							JOIN_GAME_CODE);
 				} else {
 					// 点击加入游戏按钮时候，搜索UDP数据包，把当前所有发起游戏人用列表列举出来，用户可以点击其中的一个游戏发起人，加入游戏组
-				Intent join_game = new Intent(Suan24dianMain.this,
+					Intent join_game = new Intent(Suan24dianMain.this,
 							Join_game.class);
 					join_game.putExtra("image", user_data);
-					join_game.putExtra("user_name",
-							user_Name);
+					join_game.putExtra("user_name", user_Name);
 					Suan24dianMain.this.startActivity(join_game);
-					
+
 				}
 
 				break;
@@ -234,8 +225,8 @@ public class Suan24dianMain extends Activity {
 				Bitmap photo = extras.getParcelable("data");
 				Drawable drawable = new BitmapDrawable(photo);
 				image_user.setImageDrawable(drawable);
-				user_Name=data.getStringExtra("user_name");
-				user_data=data;
+				user_Name = data.getStringExtra("user_name");
+				user_data = data;
 				tx_username.setText(data.getStringExtra("user_name") + "在线");
 				ifLogin = true;
 			}
@@ -324,11 +315,8 @@ public class Suan24dianMain extends Activity {
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		//界面销毁之前保存数据
-		
-		
-		
-		
+		// 界面销毁之前保存数据
+
 	}
 
 	@Override
@@ -340,25 +328,10 @@ public class Suan24dianMain extends Activity {
 	protected void onResume() {
 		super.onResume();
 		if (ifLogin) {
-			Cursor c = sqlHelper.select();
-			try {
-				c.moveToFirst();
-				user_Name = c.getString(c.getColumnIndex(SqlHandler.USER_NAME));
-				tx_username.setText(user_Name+"在线");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			}else{
-				Cursor c = sqlHelper.select();
-				try {
-					c.moveToFirst();
-					user_Name = c.getString(c.getColumnIndex(SqlHandler.USER_NAME));
-					tx_username.setText(user_Name+"未登录");
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-			
-		
+			tx_username.setText(sp.getString("user_name", "")+" 在线");
+		} else {
+			tx_username.setText(sp.getString("user_name", "")+" 未登录");
+		}
+
 	}
 }

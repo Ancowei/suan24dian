@@ -16,8 +16,6 @@
     <string name="title_bar_txt">个人信息</string>
     <string name="set_image">设置头像</string>
     <string name="waiting">等待游戏开始。。。</string>
+    <string name="ranking">本次游戏排名</string>
     
-    
-    
-
 </resources>
