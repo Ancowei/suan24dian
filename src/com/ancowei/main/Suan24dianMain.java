@@ -74,13 +74,10 @@ public class Suan24dianMain extends Activity {
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		// 无标题
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-
 		setContentView(R.layout.activity_suan24dian_main);
-
 		findView();
 		registerListeners();
 		set_Default_User();
-		
 		// 添加背景音乐
 		play_music();
 	}

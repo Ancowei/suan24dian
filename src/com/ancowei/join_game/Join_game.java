@@ -1,8 +1,6 @@
 package com.ancowei.join_game;
 
-
 import java.io.ByteArrayInputStream;
-
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -56,16 +54,19 @@ public class Join_game extends Activity {
 	static final int GAME_BEGIN = 3;
 
 	// 假设发起游戏的玩家最多就20个
-	static InetAddress ADDR[] = new InetAddress[20];
+	static String ADDR[] = new String[20];
 	static String NAME[] = new String[20];
 	static InetAddress TCP_ADDR;
 	static final int PORT = 3000;
 	static int i = 0;
 	static int p = 0;
+	//选择的创建游戏玩家的ADDR、NAME
+	private static String initiate_player_addr="172.18.13.128";
+	private static String initiate_player_name="Ancowei";
+	
 	static SimpleAdapter join_game_listAdapter;
 
 	UDP_SerchThread UDP_serchThread = new UDP_SerchThread();
-	// join_gameThread join_game_thread=new join_gameThread();
 	UDP_link_Thread UDP_link = new UDP_link_Thread();
 
 	@Override
@@ -130,10 +131,14 @@ public class Join_game extends Activity {
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
 				p = arg2 - 1;
+				initiate_player_addr=ADDR[p];
+				initiate_player_name=NAME[p];
 				UDP_link.start();
 				// 进入游戏开始等待界面
 				Intent game_wait_Intent = new Intent(Join_game.this,
 						Game_begin_wait.class);
+				game_wait_Intent.putExtra("addr", initiate_player_addr);
+				game_wait_Intent.putExtra("name", initiate_player_name);
 				Join_game.this.finish();
 				Join_game.this.startActivity(game_wait_Intent);
 			}
@@ -203,7 +208,7 @@ public class Join_game extends Activity {
 					addr = UDPPacket.getAddress();
 					if ("suan24dian_initiate".equals(s)) {
 						// 加入发起玩家队列
-						ADDR[i] = addr;
+						ADDR[i] = addr.toString();
 						NAME[i] = name;
 						i++;
 					}
@@ -222,7 +227,7 @@ public class Join_game extends Activity {
 		public void run() {
 			try {
 				InetAddress addr = InetAddress.getByName("255.255.255.255");
-				addr = ADDR[p];
+				addr = InetAddress.getByName(ADDR[p]);
 				ByteArrayOutputStream bout = new ByteArrayOutputStream();
 				DataOutputStream dout = new DataOutputStream(bout);
 				dout.writeUTF("suan24dian_join_game");
@@ -252,5 +257,14 @@ public class Join_game extends Activity {
 		}
 		return false;
 	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		i=0;
+		p=0;
+		listItem.clear();
+	}
+	
 	
 }

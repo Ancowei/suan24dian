@@ -59,8 +59,8 @@ public class Initiate_game extends Activity {
 	DataInputStream din;
 	DataOutputStream dout;
 
-	//public static String ADDR[] = new String[10];
-	//public static String NAME[] = new String[10];
+	public static String ADDR[] = new String[10];
+	public static String NAME[] = new String[10];
 	public static int i = 0;
 	public static int playerNum = 0;
 	public static String Name;
@@ -164,12 +164,11 @@ public class Initiate_game extends Activity {
 	private void handleList() {
 		listItem.clear();
 		HashMap<String, Object> map = new HashMap<String, Object>();
-		/*Cursor c=DB_handler.query_from_table(TABLE_NAME);
-		for(c.moveToFirst();!c.isAfterLast();c.moveToNext()){
+		for(int j=0;j<i;j++){
 			map.put("ItemImage", R.drawable.ic_launcher);
-			map.put("ItemTitle", c.getString(c.getColumnIndex(USER_ADDR)));
+			map.put("ItemTitle", NAME[j]);
 			listItem.add(map);
-		}*/
+		}
 	}
 
 	// 生成适配器的Item和动态数组对应的元素
@@ -182,38 +181,35 @@ public class Initiate_game extends Activity {
 	// getData();
 	public ArrayList<HashMap<String, Object>> getData() {
 		HashMap<String, Object> map = new HashMap<String, Object>();
-		/*Cursor c=DB_handler.query_from_table(TABLE_NAME);
-		if(c!=null){
-			c.moveToFirst();
-			c.moveToNext();
-		for(;!c.isAfterLast();c.moveToNext()){
+		for(int j=0;j<i;j++){
 			map.put("ItemImage", R.drawable.ic_launcher);
-			map.put("ItemTitle", c.getString(c.getColumnIndex(USER_ADDR)));
+			map.put("ItemTitle", NAME[j]);
 			listItem.add(map);
-		}}*/
-		
+		}
 		return listItem;
 	}
 
 	// UDP brocast UDP广播：我发起游戏了,局域网的广播地址是 255.255.255.255
 	public class UDP_Brocast_initiate_Thread extends Thread {
 		private String msg;
-
 		public UDP_Brocast_initiate_Thread(String s) {
 			this.msg = s;
 		}
-
 		public void run() {
 			try {
 				InetAddress addr = InetAddress.getByName("255.255.255.255");
 				addr = InetAddress.getByName("172.18.13.128");
 				ByteArrayOutputStream bout = new ByteArrayOutputStream();
 				DataOutputStream dout = new DataOutputStream(bout);
-				// dout.writeUTF("suan24dian_initiate");
 				dout.writeUTF(msg);
 				if ("suan24dian_initiate".equals(msg)) {
 					dout.writeUTF(Suan24dianMain.user_Name);
 				} else if ("suan24dian_game_begin".equals(msg)) {
+					/*dout.writeInt(i);
+					for(int j=0;j<i;j++){
+						dout.writeUTF(ADDR[j]);
+						dout.writeUTF(NAME[j]);
+					}*/
 					String num1 = "1";
 					String num2 = "4";
 					String num3 = "7";
@@ -226,12 +222,11 @@ public class Initiate_game extends Activity {
 				byte buf[] = bout.toByteArray();
 				DatagramSocket socket = new DatagramSocket();
 				DatagramPacket packet = new DatagramPacket(buf, buf.length,
-						addr, 4243);
+						addr, 4545);
 				socket.send(packet);
 				socket.close();
 				bout.close();
 				dout.close();
-
 			} catch (Exception e) {
 				System.out.println("\n广播发送失败：" + e.toString());
 			}
@@ -256,6 +251,8 @@ public class Initiate_game extends Activity {
 					addr = UDPPacket.getAddress();
 					if ("suan24dian_join_game".equals(s)) {
 						// 加入发起玩家队列
+						if (playerNum >= 4)
+							break;
 						Message msg=myH.obtainMessage();
 						msg.what=PLAYER_ADD;
 						Bundle b=new Bundle();
@@ -263,18 +260,14 @@ public class Initiate_game extends Activity {
 						b.putString("addr", addr.toString());
 						msg.setData(b);
 						myH.sendMessage(msg);
-						i++;
-						if (playerNum >= 4)
-							break;
+						
 					}
 					dis.close();
 					bais.close();
 					UDPSocket.close();
 				} catch (Exception e) {
-
 				}
 			}
-			
 		}
 	}
 
@@ -332,6 +325,7 @@ public class Initiate_game extends Activity {
 		//重新进入该页面时候，应该清空之前玩家的数据
 		playerNum=0;
 		i=0;
+		listItem.clear();
 	}
 	
 	public class myHandler extends Handler {
@@ -342,6 +336,9 @@ public class Initiate_game extends Activity {
 			case PLAYER_ADD:
 				//有玩家加进来了，更新相应的数据
 				Bundle b=msg.getData();
+				ADDR[i]=b.getString("addr");
+				NAME[i]=b.getString("name");
+				i++;
 				playerNum++;
 				break;
 			}

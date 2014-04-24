@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import com.ancowei.calculate.Calculate;
 import com.ancowei.gameover.Suan24dian_game_over;
 import com.ancowei.initiate_game.Game_begin;
+import com.ancowei.initiate_game.Initiate_game_over;
 import com.ancowei.initiate_game.Game_begin.NumThread;
 import com.ancowei.initiate_game.Game_begin.game_over_Thread;
 import com.ancowei.initiate_game.Game_begin.send_card_Thread;
@@ -89,9 +90,10 @@ public class Join_game_begin extends Activity {
 	static final int NEXT = 1;
 	public static int questionNum = 10;
 
-	// 玩家计算正确的题数
-	public int correctNum = 0;
-
+	//创建游戏玩家的ADDR、NAME
+	private static String initiate_player_addr="172.18.13.128";
+	private static String initiate_player_name="Ancowei";
+	
 	static Handler myH;
 
 	static UDPLink_Thread UDP_listener;
@@ -163,6 +165,8 @@ public class Join_game_begin extends Activity {
 
 	public void getFirstNum() {
 		Intent fNum = this.getIntent();
+		initiate_player_addr=fNum.getStringExtra("addr");
+		initiate_player_name=fNum.getStringExtra("name");
 		num1 = fNum.getStringExtra("num1");
 		num2 = fNum.getStringExtra("num2");
 		num3 = fNum.getStringExtra("num3");
@@ -497,6 +501,8 @@ public class Join_game_begin extends Activity {
 	public void initData() {
 		questionNum = 10;
 		text_countdown_show.setText("" + questionNum);
+		text_countdown_show.setTextSize(20);
+		text_countdown_show.setTextColor(Color.RED);
 	}
 
 	// 回退时候，如果是数字，恢复按钮数字
@@ -534,7 +540,7 @@ public class Join_game_begin extends Activity {
 			res = "恭喜你,算对了！";
 			new Collect_Thread().start();
 			// 正确题数加1
-			correctNum++;
+			//correctNum++;
 
 		} else {
 			res = "对不起,算错了,请重新计算.";
@@ -561,8 +567,11 @@ public class Join_game_begin extends Activity {
 				edit_calculate.setText(calculate);
 				break;
 			case GAME_OVER:
-				//当游戏结束的时候，显示玩家的排名
-				Intent gameoverIntent=new Intent(Join_game_begin.this,Suan24dian_game_over.class);
+				// 当游戏结束的时候，显示玩家的排名
+				Toast.makeText(Join_game_begin.this, "本次游戏结束",
+						Toast.LENGTH_LONG).show();
+				Intent gameoverIntent = new Intent(Join_game_begin.this,
+						Initiate_game_over.class);
 				Join_game_begin.this.finish();
 				Join_game_begin.this.startActivity(gameoverIntent);
 			}
@@ -574,6 +583,7 @@ public class Join_game_begin extends Activity {
 		public void run() {
 			try {
 				InetAddress addr = InetAddress.getByName("172.18.13.128");
+				addr=InetAddress.getByName(initiate_player_addr);
 				ByteArrayOutputStream bout = new ByteArrayOutputStream();
 				DataOutputStream dout = new DataOutputStream(bout);
 				dout.writeUTF("collect");
