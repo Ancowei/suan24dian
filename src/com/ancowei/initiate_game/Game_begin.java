@@ -2,6 +2,7 @@ package com.ancowei.initiate_game;
 
 import java.io.ByteArrayInputStream;
 
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -21,7 +22,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -101,13 +101,12 @@ public class Game_begin extends Activity {
 	public static TimeThread timeThread;
 	public static NumThread numThread;
 	public static boolean STOP = false;
-
-	private final static String TABLE_NAME = "suan24dian_table";
-	private final static String USER_NAME = "user_name";
-	private final static String USER_COLLECT = "user_collect";
-	private final static String USER_ADDR = "user_addr";
-	private final static String USER_LOCAL_ADDR="127.0.0.1";
 	private String user_Name;
+	private static String ADDR[] = new String[10];
+	private static String NAME[] = new String[10];
+	private static int  ADDR_COLLECT[];
+	private static int playerNum;
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -124,12 +123,12 @@ public class Game_begin extends Activity {
 
 		findView();
 		registerListeners();
+		getFirstNum();
 		myH = new myHandler();
 		// new NumThread().start();
 		timeThread = new TimeThread();
 		numThread = new NumThread();
 		new collect_UDP_listenning().start();
-		getFirstNum();
 		setQuestionNum();
 
 	}
@@ -160,6 +159,7 @@ public class Game_begin extends Activity {
 		text_time = (TextView) findViewById(R.id.text_time);
 		
 		
+
 	}
 
 	public void registerListeners() {
@@ -188,14 +188,23 @@ public class Game_begin extends Activity {
 		btn_clear.setOnClickListener(btnOnclick);
 		btn_commit.setOnClickListener(btnOnclick);
 	}
+
 	public void getFirstNum() {
 		Intent fNum = this.getIntent();
-	user_Name=fNum.getStringExtra("name");
+		playerNum = fNum.getIntExtra("playerNum", 0);
+		int j;
+		for (j = 0; j < playerNum; ++j) {
+			ADDR[j] = fNum.getStringExtra("addr" + j);
+			NAME[j] = fNum.getStringExtra("name" + j);
+		}
+		user_Name = fNum.getStringExtra("Name");
+		ADDR[j]="127.0.0.1";
+		NAME[j]=user_Name;
+		playerNum++;
 		num1 = fNum.getStringExtra("num1");
 		num2 = fNum.getStringExtra("num2");
 		num3 = fNum.getStringExtra("num3");
 		num4 = fNum.getStringExtra("num4");
-		//DB_handler.insert_into_table("127.0.0.1", name, TABLE_NAME);
 		setNum();
 	}
 
@@ -312,6 +321,7 @@ public class Game_begin extends Activity {
 		btn_2.setBackgroundResource(btn_2_background);
 		btn_3.setBackgroundResource(btn_3_background);
 		btn_4.setBackgroundResource(btn_4_background);
+		text_result.setText("");
 
 	}
 
@@ -508,9 +518,9 @@ public class Game_begin extends Activity {
 					// 调用处理表达式是否正确，运算结果是否为24的函数
 					try {
 						String res = ifResult(calculate);
-						text_result.setText(res);
+						//text_result.setText(res);
 					} catch (Exception e) {
-						e.printStackTrace();
+						System.out.println(e.toString());
 						text_result.setText("请输入正确的表达式！");
 					}
 				} else {
@@ -518,17 +528,13 @@ public class Game_begin extends Activity {
 				}
 				break;
 			case R.id.btn_next:
-
 				questionNum = questionNum - 1;
 				if (questionNum < 0) {
 					// 游戏结束时候，应该发送广播给所有玩家，告诉大家游戏已经结束，并且公布游戏结果
 					new game_over_Thread().start();
 					STOP = true;
-					Intent game_over = new Intent(Game_begin.this,
-							Initiate_game_over.class);
-					Game_begin.this.finish();
-					Game_begin.this.startActivity(game_over);
-					
+					game_over();
+
 				} else {
 					text_countdown_show.setText("" + questionNum);
 					i = 0;
@@ -631,9 +637,42 @@ public class Game_begin extends Activity {
 		boolean resB = cal.calculate(postfix);
 		if (resB) {
 			res = "结果正确";
+			int k=0;
+			for(int j=0;j<playerNum;++j){
+				if(ADDR[j].equals("127.0.0.1")){
+					k=j;
+					break;
+				}
+			}
+			//ADDR_COLLECT[k]++;
+			//进入下一题
+			questionNum = questionNum - 1;
+			if (questionNum < 0) {
+				// 游戏结束时候，应该发送广播给所有玩家，告诉大家游戏已经结束，并且公布游戏结果
+				new game_over_Thread().start();
+				STOP = true;
+				game_over();
+
+			} else {
+				// 通知其他玩家有玩家做出了这一题，请进入下一题，并发牌给其他玩家
+				//new send_card_Thread().start();
+				text_countdown_show.setText("" + questionNum);
+				i = 0;
+				count = 0;
+				preNum = "";
+				preIfnum = false;
+				calculate = "";
+				edit_calculate.setText(calculate);
+				//产生随机数之后，发牌给其他玩家，然后显示
+				new NumThread().start();
+				time = 11;
+				STOP = true;
+				STOP = false;
+			}
 		} else {
 			res = "结果错误，请重新计算";
 		}
+		text_result.setText(res);
 		return res;
 	}
 
@@ -675,7 +714,7 @@ public class Game_begin extends Activity {
 				ByteArrayInputStream bin = new ByteArrayInputStream(collect_buf);
 				DataInputStream din = new DataInputStream(bin);
 				String s = din.readUTF();
-				String name=din.readUTF();
+				String name = din.readUTF();
 				if ("collect".equals(s)) {
 					// 有人做出来了,更新数据库，然后进入下一题
 					Message msg = myH.obtainMessage();
@@ -697,18 +736,20 @@ public class Game_begin extends Activity {
 	public class game_over_Thread extends Thread {
 		public void run() {
 			try {
-				
 				ByteArrayOutputStream bout = new ByteArrayOutputStream();
 				DataOutputStream dout = new DataOutputStream(bout);
-				dout.writeUTF("suan24dian_game_over");
-				String name;
-				int collect;
-				
-				InetAddress addr = InetAddress.getByName("");
-				byte buf[] = bout.toByteArray();
 				DatagramSocket socket = new DatagramSocket();
+				dout.writeUTF("suan24dian_game_over");
+				dout.writeInt(playerNum);
+				for(int j=0;j<playerNum;++j){
+					dout.writeUTF(ADDR[j]);
+					dout.writeUTF(NAME[j]);
+					//dout.writeInt(ADDR_COLLECT[j]);
+				}
+				byte buf[] = bout.toByteArray();
+				InetAddress addr = InetAddress.getByName("172.18.13.128");
 				DatagramPacket packet = new DatagramPacket(buf, buf.length,
-						addr, 4345);
+						addr, 4346);
 				socket.send(packet);
 				bout.close();
 				dout.close();
@@ -718,7 +759,9 @@ public class Game_begin extends Activity {
 			}
 		}
 	}
+
 	public class myHandler extends Handler {
+
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
@@ -728,23 +771,25 @@ public class Game_begin extends Activity {
 				new send_card_Thread().start();
 				setNum();
 				break;
-			// 有玩家做出来了，跟新数据库，然后进入下一题
+			// 有玩家做出来了，更新数据，然后进入下一题
 			case COLLECT:
 				Bundle b = msg.getData();
-				try {
-				} catch (Exception e) {
-					System.out.print(e.toString());
+				String addr = b.getString("addr");
+				int k=0;
+				for(int j=0;j<playerNum;++j){
+					if(addr.equals(ADDR[j])){
+						k=j;
+						break;
+					}
 				}
+				ADDR_COLLECT[k]++;		
 				questionNum = questionNum - 1;
 				if (questionNum < 0) {
 					// 游戏结束时候，应该发送广播给所有玩家，告诉大家游戏已经结束，并且公布游戏结果
 					new game_over_Thread().start();
 					STOP = true;
-					Intent game_over = new Intent(Game_begin.this,
-							Initiate_game_over.class);
-					Game_begin.this.finish();
-					Game_begin.this.startActivity(game_over);
-					
+					game_over();
+
 				} else {
 					// 通知其他玩家有玩家做出了这一题，请进入下一题，并发牌给其他玩家
 					new send_card_Thread().start();
@@ -782,22 +827,8 @@ public class Game_begin extends Activity {
 												// 游戏结束时候，应该发送广播给所有玩家，告诉大家游戏已经结束，并且公布游戏结果
 												new game_over_Thread().start();
 												STOP = true;
-												new AlertDialog.Builder(
-														Game_begin.this)
-														.setTitle("游戏结束")
-														.setPositiveButton(
-																"确定",
-																new DialogInterface.OnClickListener() {
-																	@Override
-																	public void onClick(
-																			DialogInterface dialog,
-																			int which) {
+												game_over();
 
-																		Game_begin.this
-																				.finish();
-
-																	}
-																}).show();
 											} else {
 												text_countdown_show.setText(""
 														+ questionNum);
@@ -848,4 +879,17 @@ public class Game_begin extends Activity {
 		}
 	}
 
+	public void game_over() {
+		Intent game_over = new Intent(Game_begin.this, Initiate_game_over.class);
+		game_over.putExtra("user_Name", user_Name);
+		game_over.putExtra("playerNum", playerNum);
+		for(int j=0;j<playerNum;++j){
+			game_over.putExtra("addr"+j, ADDR[j]);
+			game_over.putExtra("name"+j, NAME[j]);
+		}
+		Game_begin.this.finish();
+		Game_begin.this.startActivity(game_over);
+	}
+	
+	
 }

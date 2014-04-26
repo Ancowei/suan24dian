@@ -162,8 +162,9 @@ public class Join_game extends Activity {
 
 	private void handleList() {
 		listItem.clear();
+		HashMap<String, Object> map = new HashMap<String, Object>();
 		for (int j = 0; j < i; j++) {
-			HashMap<String, Object> map = new HashMap<String, Object>();
+			map = new HashMap<String, Object>();
 			map.put("ItemImage", R.drawable.ic_launcher);
 			map.put("ItemAddress", NAME[j].toString());
 			listItem.add(map);
@@ -171,8 +172,9 @@ public class Join_game extends Activity {
 	}
 
 	public ArrayList<HashMap<String, Object>> getData() {
+		HashMap<String, Object> map = new HashMap<String, Object>();
 		for (int j = 0; j < i; j++) {
-			HashMap<String, Object> map = new HashMap<String, Object>();
+			map = new HashMap<String, Object>();
 			map.put("ItemImage", R.drawable.ic_launcher);// 图像资源的ID
 			map.put("ItemAddress", NAME[j]);
 			listItem.add(map);
@@ -265,6 +267,5 @@ public class Join_game extends Activity {
 		p=0;
 		listItem.clear();
 	}
-	
 	
 }

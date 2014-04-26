@@ -70,13 +70,6 @@ public class Initiate_game extends Activity {
 	SimpleAdapter listItemAdapter;
 	myOnClickListener myOnclick;
 	ArrayList<HashMap<String, Object>> listItem;
-	
-	private final static String TABLE_NAME = "suan24dian_table";
-	private final static String USER_ID = "user_id";
-	private final static String USER_NAME = "user_name";
-	private final static String USER_COLLECT="user_collect";
-	private final static String USER_ADDR="user_addr";
-	private final static String USER_LOCAL="127.0.0.1";
 	private final static int PLAYER_ADD=0;
 	private Handler myH;
 	
@@ -165,6 +158,7 @@ public class Initiate_game extends Activity {
 		listItem.clear();
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		for(int j=0;j<i;j++){
+			map = new HashMap<String, Object>();
 			map.put("ItemImage", R.drawable.ic_launcher);
 			map.put("ItemTitle", NAME[j]);
 			listItem.add(map);
@@ -182,6 +176,7 @@ public class Initiate_game extends Activity {
 	public ArrayList<HashMap<String, Object>> getData() {
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		for(int j=0;j<i;j++){
+			map = new HashMap<String, Object>();
 			map.put("ItemImage", R.drawable.ic_launcher);
 			map.put("ItemTitle", NAME[j]);
 			listItem.add(map);
@@ -287,6 +282,11 @@ public class Initiate_game extends Activity {
 							.start();
 					Intent intent = new Intent(Initiate_game.this,
 							Suan24dian_game_begin_wait.class);
+					intent.putExtra("i", i);
+					for(int j=0;j<i;++j){
+						intent.putExtra("addr"+j, ADDR[j]);
+						intent.putExtra("name"+j, NAME[j]);
+					}
 					intent.putExtra("name", Name);
 					intent.putExtra("num1", "1");
 					intent.putExtra("num2", "4");
@@ -340,10 +340,21 @@ public class Initiate_game extends Activity {
 				NAME[i]=b.getString("name");
 				i++;
 				playerNum++;
+				update();
 				break;
 			}
 		}
 		
 		}
-		
+	public void update(){
+		listItem.clear();
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		for(int j=0;j<i;j++){
+			map.put("ItemImage", R.drawable.ic_launcher);
+			map.put("ItemTitle", NAME[j]);
+			listItem.add(map);
+		}
+		listItemAdapter.notifyDataSetChanged();
+		list_player.onRefreshComplete();
+	}
 }

@@ -89,7 +89,10 @@ public class Join_game_begin extends Activity {
 	static final int GAME_OVER = 0;
 	static final int NEXT = 1;
 	public static int questionNum = 10;
-
+	private static String ADDR[]=new String[10];
+	private static String NAME[]=new String[10];
+	private static int playerNum;
+	
 	//创建游戏玩家的ADDR、NAME
 	private static String initiate_player_addr="172.18.13.128";
 	private static String initiate_player_name="Ancowei";
@@ -572,6 +575,11 @@ public class Join_game_begin extends Activity {
 						Toast.LENGTH_LONG).show();
 				Intent gameoverIntent = new Intent(Join_game_begin.this,
 						Initiate_game_over.class);
+				gameoverIntent.putExtra("playerNum", playerNum);
+				for(int j=0;j<playerNum;++j){
+					gameoverIntent.putExtra("addr"+j, ADDR[j]);
+					gameoverIntent.putExtra("name"+j, NAME[j]);
+				}
 				Join_game_begin.this.finish();
 				Join_game_begin.this.startActivity(gameoverIntent);
 			}
@@ -622,7 +630,12 @@ public class Join_game_begin extends Activity {
 						Message msg = myH.obtainMessage();
 						msg.what = NEXT;
 						myH.sendMessage(msg);
-					} else if ("game_over".equals(s)) {
+					} else if("suan24dian_game_over".equals(s)){
+						playerNum=din.readInt();
+						for(int j=0;j<playerNum;j++){
+							ADDR[j]=din.readUTF();
+							NAME[j]=din.readUTF();
+						}
 						Message msg = myH.obtainMessage();
 						msg.what = GAME_OVER;
 						myH.sendMessage(msg);
