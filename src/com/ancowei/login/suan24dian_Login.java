@@ -21,6 +21,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Parcel;
 import android.provider.MediaStore;
 import android.view.View;
 import android.view.Window;
@@ -75,7 +76,6 @@ public class suan24dian_Login extends Activity {
 		setContentView(R.layout.suan24dian_login);
 		findView();
 		registerListeners();
-
 		set_Default_User();
 	}
 
@@ -100,7 +100,6 @@ public class suan24dian_Login extends Activity {
 	}
 
 	private View.OnClickListener listener = new View.OnClickListener() {
-
 		@Override
 		public void onClick(View v) {
 			showDialog();
@@ -128,12 +127,10 @@ public class suan24dian_Login extends Activity {
 									IMAGE_REQUEST_CODE);
 							break;
 						case 1:
-
 							Intent intentFromCapture = new Intent(
 									MediaStore.ACTION_IMAGE_CAPTURE);
 							// 判断存储卡是否可以用，可用进行存储
 							if (Tools.hasSdcard()) {
-
 								intentFromCapture.putExtra(
 										MediaStore.EXTRA_OUTPUT,
 										Uri.fromFile(new File(Environment
@@ -173,7 +170,6 @@ public class suan24dian_Login extends Activity {
 				Toast.makeText(suan24dian_Login.this, "未找到存储卡，无法存储照片！",
 						Toast.LENGTH_LONG).show();
 			}
-
 			break;
 		case RESULT_REQUEST_CODE:
 			if (data != null) {
@@ -191,7 +187,6 @@ public class suan24dian_Login extends Activity {
 	 * @param uri
 	 */
 	public void startPhotoZoom(Uri uri) {
-
 		Intent intent = new Intent("com.android.camera.action.CROP");
 		intent.setDataAndType(uri, "image/*");
 		// 设置裁剪
@@ -203,7 +198,7 @@ public class suan24dian_Login extends Activity {
 		intent.putExtra("outputX", 320);
 		intent.putExtra("outputY", 320);
 		intent.putExtra("return-data", true);
-		startActivityForResult(intent, 2);
+		startActivityForResult(intent, RESULT_REQUEST_CODE);
 	}
 
 	/**

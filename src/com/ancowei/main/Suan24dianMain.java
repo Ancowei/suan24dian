@@ -1,8 +1,6 @@
 package com.ancowei.main;
 
-
 import com.ancowei.db.Player_msg;
-
 
 import com.ancowei.initiate_game.Initiate_game;
 import com.ancowei.join_game.Join_game;
@@ -49,16 +47,15 @@ public class Suan24dianMain extends Activity {
 	private ImageView image_user;
 	private SharedPreferences sp;
 	// 全局变量，整个应用程序公用一份
-	public static Player_msg[] play_msg =new Player_msg[10];
-	
+	public static Player_msg[] play_msg = new Player_msg[10];
+
 	private btnOnClickListener btn_OnClick;
 	private static int LOGIN_REQUEST_CODE = 0;
 	private static int INITIATE_REQUEST_CODE = 1;
 	private static int JOIN_GAME_CODE = 2;
-	private final static String TABLE_NAME = "suan24dian_table";
-	private final static String USER_LOCAL_ADDR = "127.0.0.1";
 
 	public static String user_Name = "";
+	public static Intent image = new Intent();
 	public Intent user_data;
 	// 是否已经登录的标志
 	public static boolean ifLogin = false;
@@ -77,9 +74,9 @@ public class Suan24dianMain extends Activity {
 		setContentView(R.layout.activity_suan24dian_main);
 		findView();
 		registerListeners();
-		set_Default_User();
 		// 添加背景音乐
 		play_music();
+		
 	}
 
 	public void findView() {
@@ -91,7 +88,7 @@ public class Suan24dianMain extends Activity {
 		btn_exit = (Button) findViewById(R.id.btn_exit);
 		btn_login = (Button) findViewById(R.id.btn_login);
 		image_user = (ImageView) findViewById(R.id.image_user);
-		sp=this.getSharedPreferences("user_msg",Context.MODE_PRIVATE);
+		sp = this.getSharedPreferences("user_msg", Context.MODE_PRIVATE);
 	}
 
 	public void registerListeners() {
@@ -103,19 +100,6 @@ public class Suan24dianMain extends Activity {
 		btn_initiate_game.setOnClickListener(btn_OnClick);
 		btn_join_game.setOnClickListener(btn_OnClick);
 
-	}
-
-	public void set_Default_User() {
-		/*Cursor c = sqlHelper.query_from_table(TABLE_NAME, USER_LOCAL_ADDR);
-		try {
-			if (c != null) {
-				c.moveToFirst();
-				user_Name = c.getString(c.getColumnIndex(SqlHandler.USER_NAME));
-				tx_username.setText(user_Name);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}*/
 	}
 
 	private void play_music() {
@@ -144,7 +128,6 @@ public class Suan24dianMain extends Activity {
 
 				} else {
 					// 点击发起游戏按钮时候，发送UDP广播，告知其他用户我发起了游戏，你们可以加进来
-					// new Send_Broadcast_Thread().start();
 					Intent create_game = new Intent(Suan24dianMain.this,
 							Initiate_game.class);
 					create_game.putExtra("image", user_data);
@@ -181,14 +164,17 @@ public class Suan24dianMain extends Activity {
 
 				break;
 			case R.id.btn_login:
-				Intent loginIntent = new Intent(Suan24dianMain.this,
-						suan24dian_Login.class);
-				Suan24dianMain.this.startActivityForResult(loginIntent,
-						LOGIN_REQUEST_CODE);
-
+				if (!ifLogin) {
+					Intent loginIntent = new Intent(Suan24dianMain.this,
+							suan24dian_Login.class);
+					Suan24dianMain.this.startActivityForResult(loginIntent,
+							LOGIN_REQUEST_CODE);
+				} else {
+					Toast.makeText(Suan24dianMain.this, "您已经登录了,不需要再进行登录操作了",
+							Toast.LENGTH_SHORT).show();
+				}
 				break;
 			case R.id.btn_exit: {
-
 				new AlertDialog.Builder(Suan24dianMain.this)
 						.setTitle("确定要退出算24点游戏吗?")
 						.setNegativeButton("取消", null)
@@ -216,6 +202,7 @@ public class Suan24dianMain extends Activity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
+		image = data;
 		if (resultCode == suan24dian_Login.LOGIN_RESULT_CODE) {
 			Bundle extras = data.getExtras();
 			if (extras != null) {
@@ -325,9 +312,18 @@ public class Suan24dianMain extends Activity {
 	protected void onResume() {
 		super.onResume();
 		if (ifLogin) {
-			tx_username.setText(sp.getString("user_name", "")+" 在线");
+			tx_username.setText(sp.getString("user_name", "") + " 在线");
+			if (image != null) {
+				Bundle extras = image.getExtras();
+				if (extras != null) {
+					Bitmap photo = extras.getParcelable("data");
+					Drawable drawable = new BitmapDrawable(photo);
+					image_user.setImageDrawable(drawable);
+				}
+			}
 		} else {
-			tx_username.setText(sp.getString("user_name", "")+" 未登录");
+			//tx_username.setText(""+this.getFilesDir().getAbsolutePath());
+			tx_username.setText(sp.getString("user_name", "") + " 未登录");
 		}
 
 	}

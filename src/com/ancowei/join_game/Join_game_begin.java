@@ -91,11 +91,13 @@ public class Join_game_begin extends Activity {
 	public static int questionNum = 10;
 	private static String ADDR[]=new String[10];
 	private static String NAME[]=new String[10];
+	private static int NAME_COLLECT[]=new int[10];
 	private static int playerNum;
 	
 	//创建游戏玩家的ADDR、NAME
 	private static String initiate_player_addr="172.18.13.128";
 	private static String initiate_player_name="Ancowei";
+	private static String user_Name="";
 	
 	static Handler myH;
 
@@ -168,8 +170,9 @@ public class Join_game_begin extends Activity {
 
 	public void getFirstNum() {
 		Intent fNum = this.getIntent();
-		initiate_player_addr=fNum.getStringExtra("addr");
-		initiate_player_name=fNum.getStringExtra("name");
+		initiate_player_addr=fNum.getStringExtra("initiator_addr");
+		initiate_player_name=fNum.getStringExtra("initiator_name");
+		user_Name=fNum.getStringExtra("user_Name");
 		num1 = fNum.getStringExtra("num1");
 		num2 = fNum.getStringExtra("num2");
 		num3 = fNum.getStringExtra("num3");
@@ -568,6 +571,7 @@ public class Join_game_begin extends Activity {
 				preIfnum = false;
 				calculate = "";
 				edit_calculate.setText(calculate);
+				text_result.setText("");
 				break;
 			case GAME_OVER:
 				// 当游戏结束的时候，显示玩家的排名
@@ -575,10 +579,12 @@ public class Join_game_begin extends Activity {
 						Toast.LENGTH_LONG).show();
 				Intent gameoverIntent = new Intent(Join_game_begin.this,
 						Initiate_game_over.class);
+				gameoverIntent.putExtra("user_Name", user_Name);
 				gameoverIntent.putExtra("playerNum", playerNum);
 				for(int j=0;j<playerNum;++j){
 					gameoverIntent.putExtra("addr"+j, ADDR[j]);
 					gameoverIntent.putExtra("name"+j, NAME[j]);
+					gameoverIntent.putExtra("collect"+j, NAME_COLLECT[j]);
 				}
 				Join_game_begin.this.finish();
 				Join_game_begin.this.startActivity(gameoverIntent);
@@ -635,6 +641,7 @@ public class Join_game_begin extends Activity {
 						for(int j=0;j<playerNum;j++){
 							ADDR[j]=din.readUTF();
 							NAME[j]=din.readUTF();
+							NAME_COLLECT[j]=din.readInt();
 						}
 						Message msg = myH.obtainMessage();
 						msg.what = GAME_OVER;

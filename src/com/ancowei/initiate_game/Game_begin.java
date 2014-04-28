@@ -61,10 +61,10 @@ public class Game_begin extends Activity {
 	TextView text_time;
 	EditText edit_calculate;
 
-	public String num1;
-	public String num2;
-	public String num3;
-	public String num4;
+	public static String num1;
+	public static String num2;
+	public static String num3;
+	public static String num4;
 	public int btn_1_background;
 	public int btn_2_background;
 	public int btn_3_background;
@@ -104,7 +104,7 @@ public class Game_begin extends Activity {
 	private String user_Name;
 	private static String ADDR[] = new String[10];
 	private static String NAME[] = new String[10];
-	private static int  ADDR_COLLECT[];
+	private static int[] NAME_COLLECT=new int[10];
 	private static int playerNum;
 	
 
@@ -158,8 +158,9 @@ public class Game_begin extends Activity {
 		text_result = (TextView) findViewById(R.id.text_result);
 		text_time = (TextView) findViewById(R.id.text_time);
 		
-		
-
+		for(int j=0;j<10;++j){
+			NAME_COLLECT[j]=0;
+		}
 	}
 
 	public void registerListeners() {
@@ -545,11 +546,9 @@ public class Game_begin extends Activity {
 					edit_calculate.setText(calculate);
 					new NumThread().start();
 					// 点击下一题的时候，通知其他玩家进入下一题，并发牌给其他玩家
-					new send_card_Thread().start();
 					time = 11;
 					STOP = true;
 					STOP = false;
-
 				}
 				break;
 			case R.id.btn_exit:
@@ -644,7 +643,7 @@ public class Game_begin extends Activity {
 					break;
 				}
 			}
-			//ADDR_COLLECT[k]++;
+			NAME_COLLECT[k]++;
 			//进入下一题
 			questionNum = questionNum - 1;
 			if (questionNum < 0) {
@@ -682,6 +681,7 @@ public class Game_begin extends Activity {
 			try {
 				ByteArrayOutputStream bout = new ByteArrayOutputStream();
 				DataOutputStream dout = new DataOutputStream(bout);
+				dout.writeUTF("fapai");
 				dout.writeUTF(num1);
 				dout.writeUTF(num2);
 				dout.writeUTF(num3);
@@ -690,12 +690,11 @@ public class Game_begin extends Activity {
 				byte buf[] = bout.toByteArray();
 				DatagramSocket socket = new DatagramSocket();
 				DatagramPacket packet = new DatagramPacket(buf, buf.length,
-						addr, 4345);
+						addr, 4346);
 				socket.send(packet);
 				bout.close();
 				dout.close();
 				socket.close();
-
 			} catch (Exception e) {
 				System.out.println("\n广播发送失败：" + e.toString());
 			}
@@ -705,6 +704,7 @@ public class Game_begin extends Activity {
 	// 开始游戏之后，UDP侦听其它玩家是否正确算出来了
 	public class collect_UDP_listenning extends Thread {
 		public void run() {
+			while(true){
 			try {
 				byte[] collect_buf = new byte[256];
 				DatagramPacket packet = new DatagramPacket(collect_buf,
@@ -724,11 +724,13 @@ public class Game_begin extends Activity {
 					msg.what = COLLECT;
 					msg.setData(b);
 					myH.sendMessage(msg);
-
 				}
 			} catch (Exception e) {
+				System.out.println("接受出错"+e.toString());
 
 			}
+			}
+			
 		}
 	}
 
@@ -744,7 +746,7 @@ public class Game_begin extends Activity {
 				for(int j=0;j<playerNum;++j){
 					dout.writeUTF(ADDR[j]);
 					dout.writeUTF(NAME[j]);
-					//dout.writeInt(ADDR_COLLECT[j]);
+					dout.writeInt(NAME_COLLECT[j]);
 				}
 				byte buf[] = bout.toByteArray();
 				InetAddress addr = InetAddress.getByName("172.18.13.128");
@@ -782,7 +784,7 @@ public class Game_begin extends Activity {
 						break;
 					}
 				}
-				ADDR_COLLECT[k]++;		
+				NAME_COLLECT[k]++;		
 				questionNum = questionNum - 1;
 				if (questionNum < 0) {
 					// 游戏结束时候，应该发送广播给所有玩家，告诉大家游戏已经结束，并且公布游戏结果
@@ -792,7 +794,6 @@ public class Game_begin extends Activity {
 
 				} else {
 					// 通知其他玩家有玩家做出了这一题，请进入下一题，并发牌给其他玩家
-					new send_card_Thread().start();
 					text_countdown_show.setText("" + questionNum);
 					i = 0;
 					count = 0;
@@ -886,6 +887,7 @@ public class Game_begin extends Activity {
 		for(int j=0;j<playerNum;++j){
 			game_over.putExtra("addr"+j, ADDR[j]);
 			game_over.putExtra("name"+j, NAME[j]);
+			game_over.putExtra("collect"+j, NAME_COLLECT[j]);
 		}
 		Game_begin.this.finish();
 		Game_begin.this.startActivity(game_over);

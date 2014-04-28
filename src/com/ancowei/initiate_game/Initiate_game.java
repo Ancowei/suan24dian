@@ -5,6 +5,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -13,19 +16,15 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import com.ancowei.initiate_game.Game_begin.send_card_Thread;
 import com.ancowei.internet.Inet_initiate_control;
 import com.ancowei.listview.MyListView;
 import com.ancowei.listview.MyListView.OnRefreshListener;
-import com.ancowei.login.suan24dian_Login;
 import com.ancowei.main.Suan24dianMain;
 import com.example.suan24dian.R;
 import ExitApp.ExitApp;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -48,8 +47,6 @@ public class Initiate_game extends Activity {
 	Button btn_back;
 	ImageView image_user;
 	TextView tx_username;
-	
-
 	ServerSocket serverSocket;
 	Socket socket;
 	UDP_listenning UDP_link;
@@ -70,10 +67,9 @@ public class Initiate_game extends Activity {
 	SimpleAdapter listItemAdapter;
 	myOnClickListener myOnclick;
 	ArrayList<HashMap<String, Object>> listItem;
-	private final static int PLAYER_ADD=0;
+	private final static int PLAYER_ADD = 0;
 	private Handler myH;
-	
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -87,7 +83,7 @@ public class Initiate_game extends Activity {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		listItem = new ArrayList<HashMap<String, Object>>();
-		//create_player_db();
+		// create_player_db();
 		findView();
 		buildAdapter();
 		registerListeners();
@@ -102,7 +98,7 @@ public class Initiate_game extends Activity {
 		list_player = (MyListView) findViewById(R.id.list_player);
 		image_user = (ImageView) findViewById(R.id.image_user);
 		tx_username = (TextView) findViewById(R.id.tx_username);
-		myH=new myHandler();
+		myH = new myHandler();
 	}
 
 	public void registerListeners() {
@@ -150,14 +146,13 @@ public class Initiate_game extends Activity {
 				image_user.setImageDrawable(drawable);
 			}
 		}
-		tx_username.setText(Name+" 在线");
+		tx_username.setText(Name + " 在线");
 	}
-
 
 	private void handleList() {
 		listItem.clear();
 		HashMap<String, Object> map = new HashMap<String, Object>();
-		for(int j=0;j<i;j++){
+		for (int j = 0; j < i; j++) {
 			map = new HashMap<String, Object>();
 			map.put("ItemImage", R.drawable.ic_launcher);
 			map.put("ItemTitle", NAME[j]);
@@ -175,7 +170,7 @@ public class Initiate_game extends Activity {
 	// getData();
 	public ArrayList<HashMap<String, Object>> getData() {
 		HashMap<String, Object> map = new HashMap<String, Object>();
-		for(int j=0;j<i;j++){
+		for (int j = 0; j < i; j++) {
 			map = new HashMap<String, Object>();
 			map.put("ItemImage", R.drawable.ic_launcher);
 			map.put("ItemTitle", NAME[j]);
@@ -187,9 +182,11 @@ public class Initiate_game extends Activity {
 	// UDP brocast UDP广播：我发起游戏了,局域网的广播地址是 255.255.255.255
 	public class UDP_Brocast_initiate_Thread extends Thread {
 		private String msg;
+
 		public UDP_Brocast_initiate_Thread(String s) {
 			this.msg = s;
 		}
+
 		public void run() {
 			try {
 				InetAddress addr = InetAddress.getByName("255.255.255.255");
@@ -200,11 +197,6 @@ public class Initiate_game extends Activity {
 				if ("suan24dian_initiate".equals(msg)) {
 					dout.writeUTF(Suan24dianMain.user_Name);
 				} else if ("suan24dian_game_begin".equals(msg)) {
-					/*dout.writeInt(i);
-					for(int j=0;j<i;j++){
-						dout.writeUTF(ADDR[j]);
-						dout.writeUTF(NAME[j]);
-					}*/
 					String num1 = "1";
 					String num2 = "4";
 					String num3 = "7";
@@ -248,24 +240,24 @@ public class Initiate_game extends Activity {
 						// 加入发起玩家队列
 						if (playerNum >= 4)
 							break;
-						Message msg=myH.obtainMessage();
-						msg.what=PLAYER_ADD;
-						Bundle b=new Bundle();
+						Message msg = myH.obtainMessage();
+						msg.what = PLAYER_ADD;
+						Bundle b = new Bundle();
 						b.putString("name", name);
 						b.putString("addr", addr.toString());
 						msg.setData(b);
 						myH.sendMessage(msg);
-						
 					}
 					dis.close();
 					bais.close();
 					UDPSocket.close();
-				} catch (Exception e) {
-				}
+				} catch (IOException e1) {
+					e1.printStackTrace();
+					break;
 			}
 		}
 	}
-
+	}
 	public class myOnClickListener implements OnClickListener {
 		@Override
 		public void onClick(View v) {
@@ -283,9 +275,9 @@ public class Initiate_game extends Activity {
 					Intent intent = new Intent(Initiate_game.this,
 							Suan24dian_game_begin_wait.class);
 					intent.putExtra("i", i);
-					for(int j=0;j<i;++j){
-						intent.putExtra("addr"+j, ADDR[j]);
-						intent.putExtra("name"+j, NAME[j]);
+					for (int j = 0; j < i; ++j) {
+						intent.putExtra("addr" + j, ADDR[j]);
+						intent.putExtra("name" + j, NAME[j]);
 					}
 					intent.putExtra("name", Name);
 					intent.putExtra("num1", "1");
@@ -322,34 +314,36 @@ public class Initiate_game extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		//重新进入该页面时候，应该清空之前玩家的数据
-		playerNum=0;
-		i=0;
+		// 重新进入该页面时候，应该清空之前玩家的数据
+		playerNum = 0;
+		i = 0;
 		listItem.clear();
 	}
-	
+
 	public class myHandler extends Handler {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			switch (msg.what) {
 			case PLAYER_ADD:
-				//有玩家加进来了，更新相应的数据
-				Bundle b=msg.getData();
-				ADDR[i]=b.getString("addr");
-				NAME[i]=b.getString("name");
+				// 有玩家加进来了，更新相应的数据
+				Bundle b = msg.getData();
+				ADDR[i] = b.getString("addr");
+				NAME[i] = b.getString("name");
 				i++;
 				playerNum++;
 				update();
 				break;
 			}
 		}
-		
-		}
-	public void update(){
+
+	}
+
+	public void update() {
 		listItem.clear();
 		HashMap<String, Object> map = new HashMap<String, Object>();
-		for(int j=0;j<i;j++){
+		for (int j = 0; j < i; j++) {
+			map = new HashMap<String, Object>();
 			map.put("ItemImage", R.drawable.ic_launcher);
 			map.put("ItemTitle", NAME[j]);
 			listItem.add(map);

@@ -24,6 +24,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
@@ -35,6 +37,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class Join_game extends Activity {
 	Button btn_joingame_exit;
@@ -43,7 +46,6 @@ public class Join_game extends Activity {
 
 	MyListView join_game_listview;
 	ArrayList<HashMap<String, Object>> listItem;
-
 	btnOnClickListener btn_onclick;
 
 	public static String s = "";
@@ -54,20 +56,25 @@ public class Join_game extends Activity {
 	static final int GAME_BEGIN = 3;
 
 	// 假设发起游戏的玩家最多就20个
-	static String ADDR[] = new String[20];
-	static String NAME[] = new String[20];
-	static InetAddress TCP_ADDR;
-	static final int PORT = 3000;
-	static int i = 0;
-	static int p = 0;
+	private static String ADDR[] = new String[20];
+	private static String NAME[] = new String[20];
+	private static InetAddress TCP_ADDR;
+	private static final int PORT = 3000;
+	private static int initiateNum = 0;
+	private static int p = 0;
 	//选择的创建游戏玩家的ADDR、NAME
 	private static String initiate_player_addr="172.18.13.128";
 	private static String initiate_player_name="Ancowei";
+	private static String user_Name="";
+	public static Intent image=new Intent();
 	
-	static SimpleAdapter join_game_listAdapter;
+	
+	public static SimpleAdapter join_game_listAdapter;
 
 	UDP_SerchThread UDP_serchThread = new UDP_SerchThread();
 	UDP_link_Thread UDP_link = new UDP_link_Thread();
+	
+	private Handler myH;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +94,7 @@ public class Join_game extends Activity {
 	}
 
 	public void findView() {
+		myH=new myHandler();
 		btn_joingame_exit = (Button) findViewById(R.id.btn_joingame_exit);
 		image_user = (ImageView) findViewById(R.id.image_user);
 		tx_username = (TextView) findViewById(R.id.tx_username);
@@ -96,9 +104,7 @@ public class Join_game extends Activity {
 				R.layout.list_item,
 				new String[] { "ItemImage", "ItemAddress" }, new int[] {
 						R.id.ItemImage, R.id.ItemAddress });
-
 	}
-
 	public void registerListeners() {
 		btn_onclick = new btnOnClickListener();
 		btn_joingame_exit.setOnClickListener(btn_onclick);
@@ -116,13 +122,11 @@ public class Join_game extends Activity {
 						handleList();
 						return null;
 					}
-
 					@Override
 					protected void onPostExecute(Void result) {
 						join_game_listAdapter.notifyDataSetChanged();
 						join_game_listview.onRefreshComplete();
 					}
-
 				}.execute();
 			}
 		});
@@ -137,18 +141,18 @@ public class Join_game extends Activity {
 				// 进入游戏开始等待界面
 				Intent game_wait_Intent = new Intent(Join_game.this,
 						Game_begin_wait.class);
-				game_wait_Intent.putExtra("addr", initiate_player_addr);
-				game_wait_Intent.putExtra("name", initiate_player_name);
+				game_wait_Intent.putExtra("initiator_addr", initiate_player_addr);
+				game_wait_Intent.putExtra("initiator_name", initiate_player_name);
+				game_wait_Intent.putExtra("user_Name", user_Name);
 				Join_game.this.finish();
 				Join_game.this.startActivity(game_wait_Intent);
 			}
 		});
 	}
-
 	public void set_image_and_name() {
 		Intent image_and_name = this.getIntent();
-		String name = image_and_name.getStringExtra("user_name");
-		Intent image = image_and_name.getParcelableExtra("image");
+		user_Name = image_and_name.getStringExtra("user_name");
+		image = image_and_name.getParcelableExtra("image");
 		if (image != null) {
 			Bundle extras = image.getExtras();
 			if (extras != null) {
@@ -157,13 +161,13 @@ public class Join_game extends Activity {
 				image_user.setImageDrawable(drawable);
 			}
 		}
-		tx_username.setText(name);
+		tx_username.setText(user_Name);
 	}
 
 	private void handleList() {
 		listItem.clear();
 		HashMap<String, Object> map = new HashMap<String, Object>();
-		for (int j = 0; j < i; j++) {
+		for (int j = 0; j < initiateNum; j++) {
 			map = new HashMap<String, Object>();
 			map.put("ItemImage", R.drawable.ic_launcher);
 			map.put("ItemAddress", NAME[j].toString());
@@ -173,7 +177,7 @@ public class Join_game extends Activity {
 
 	public ArrayList<HashMap<String, Object>> getData() {
 		HashMap<String, Object> map = new HashMap<String, Object>();
-		for (int j = 0; j < i; j++) {
+		for (int j = 0; j < initiateNum; j++) {
 			map = new HashMap<String, Object>();
 			map.put("ItemImage", R.drawable.ic_launcher);// 图像资源的ID
 			map.put("ItemAddress", NAME[j]);
@@ -210,9 +214,13 @@ public class Join_game extends Activity {
 					addr = UDPPacket.getAddress();
 					if ("suan24dian_initiate".equals(s)) {
 						// 加入发起玩家队列
-						ADDR[i] = addr.toString();
-						NAME[i] = name;
-						i++;
+						Message msg=myH.obtainMessage();
+						msg.what=INITIATOR_ADD;
+						Bundle b=new Bundle();
+						b.putString("name", name);
+						b.putString("addr",addr.toString());
+						msg.setData(b);
+						myH.sendMessage(msg);
 					}
 					dis.close();
 					bais.close();
@@ -234,7 +242,6 @@ public class Join_game extends Activity {
 				DataOutputStream dout = new DataOutputStream(bout);
 				dout.writeUTF("suan24dian_join_game");
 				dout.writeUTF(Suan24dianMain.user_Name);
-
 				byte buf[] = bout.toByteArray();
 				DatagramSocket socket = new DatagramSocket();
 				DatagramPacket packet = new DatagramPacket(buf, buf.length,
@@ -259,11 +266,40 @@ public class Join_game extends Activity {
 		}
 		return false;
 	}
-
+	public class myHandler extends Handler {
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			switch (msg.what) {
+			case INITIATOR_ADD:
+				//有玩家加进来了，更新相应的数据
+				Bundle b= msg.getData();
+				ADDR[initiateNum] = b.getString("addr");
+				NAME[initiateNum] = b.getString("name");
+				Toast.makeText(Join_game.this, ""+NAME[initiateNum], Toast.LENGTH_SHORT).show();
+				initiateNum++;
+				update();
+				break;
+			}
+		}
+		
+		}
+	public void update(){
+		listItem.clear();
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		for(int j=0;j<initiateNum;++j){
+			map = new HashMap<String, Object>();
+			map.put("ItemImage", R.drawable.ic_launcher);
+			map.put("ItemAddress", NAME[j]);
+			listItem.add(map);
+		}
+		join_game_listAdapter.notifyDataSetChanged();
+		join_game_listview.onRefreshComplete();
+	}
 	@Override
 	protected void onResume() {
 		super.onResume();
-		i=0;
+		initiateNum=0;
 		p=0;
 		listItem.clear();
 	}
