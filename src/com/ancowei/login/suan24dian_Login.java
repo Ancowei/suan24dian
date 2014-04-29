@@ -53,7 +53,8 @@ public class suan24dian_Login extends Activity {
 	/* 组件 */
 	private RelativeLayout switchAvatar;
 	private ImageView faceImage;
-	private String[] items = new String[] { "选择本地图片", "拍照" };
+	//private String[] items = new String[] { "选择本地图片", "拍照" };
+	private String[] items = new String[] { "选择本地图片" };
 	/* 头像名称 */
 	private static final String IMAGE_FILE_NAME = "faceImage.jpg";
 
@@ -126,7 +127,7 @@ public class suan24dian_Login extends Activity {
 							startActivityForResult(intentFromGallery,
 									IMAGE_REQUEST_CODE);
 							break;
-						case 1:
+						/*case 1:
 							Intent intentFromCapture = new Intent(
 									MediaStore.ACTION_IMAGE_CAPTURE);
 							// 判断存储卡是否可以用，可用进行存储
@@ -140,7 +141,9 @@ public class suan24dian_Login extends Activity {
 
 							startActivityForResult(intentFromCapture,
 									CAMERA_REQUEST_CODE);
-							break;
+							break;*/
+							default:
+								break;
 						}
 					}
 				})
@@ -254,10 +257,6 @@ public class suan24dian_Login extends Activity {
 					//SharedPreferences
 					sp.edit().putString("user_name", user_Name)
 					.putString("user_password", user_Password).commit();
-					
-					Toast.makeText(suan24dian_Login.this,
-							"登录信息\n" + "昵称：" + user_Name + "\n密码：*** ",
-							Toast.LENGTH_LONG).show();
 					suan24dian_Login.this.finish();
 				}
 				break;

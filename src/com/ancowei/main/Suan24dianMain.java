@@ -76,7 +76,7 @@ public class Suan24dianMain extends Activity {
 		registerListeners();
 		// 添加背景音乐
 		play_music();
-		
+
 	}
 
 	public void findView() {
@@ -120,7 +120,7 @@ public class Suan24dianMain extends Activity {
 				if (!ifLogin) {
 					// 创建游戏的时候，如果还没有登录，像登录再创建游戏
 					Toast.makeText(Suan24dianMain.this, "请先登录",
-							Toast.LENGTH_LONG).show();
+							Toast.LENGTH_SHORT).show();
 					Intent LIntent = new Intent(Suan24dianMain.this,
 							suan24dian_Login.class);
 					Suan24dianMain.this.startActivityForResult(LIntent,
@@ -140,7 +140,7 @@ public class Suan24dianMain extends Activity {
 				if (!ifLogin) {
 					// 创建游戏的时候，如果还没有登录，像登录再创建游戏
 					Toast.makeText(Suan24dianMain.this, "请先登录",
-							Toast.LENGTH_LONG).show();
+							Toast.LENGTH_SHORT).show();
 					Intent LIntent = new Intent(Suan24dianMain.this,
 							suan24dian_Login.class);
 					Suan24dianMain.this.startActivityForResult(LIntent,
@@ -207,8 +207,10 @@ public class Suan24dianMain extends Activity {
 			Bundle extras = data.getExtras();
 			if (extras != null) {
 				Bitmap photo = extras.getParcelable("data");
-				Drawable drawable = new BitmapDrawable(photo);
-				image_user.setImageDrawable(drawable);
+				if (photo != null) {
+					Drawable drawable = new BitmapDrawable(photo);
+					image_user.setImageDrawable(drawable);
+				} 
 				user_Name = data.getStringExtra("user_name");
 				user_data = data;
 				tx_username.setText(data.getStringExtra("user_name") + "在线");
@@ -322,7 +324,7 @@ public class Suan24dianMain extends Activity {
 				}
 			}
 		} else {
-			//tx_username.setText(""+this.getFilesDir().getAbsolutePath());
+			// tx_username.setText(""+this.getFilesDir().getAbsolutePath());
 			tx_username.setText(sp.getString("user_name", "") + " 未登录");
 		}
 

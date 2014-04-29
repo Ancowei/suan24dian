@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -26,6 +27,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -40,7 +42,9 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SimpleAdapter;
+import android.widget.SimpleAdapter.ViewBinder;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class Initiate_game extends Activity {
 	Button btn_start_game;
@@ -52,12 +56,12 @@ public class Initiate_game extends Activity {
 	UDP_listenning UDP_link;
 	UDP_Brocast_initiate_Thread udp_brocast;
 	Inet_initiate_control inet_initiate_control;
-
 	DataInputStream din;
 	DataOutputStream dout;
 
 	public static String ADDR[] = new String[10];
 	public static String NAME[] = new String[10];
+	private static FileOutputStream fos[] = new FileOutputStream[10];
 	public static int i = 0;
 	public static int playerNum = 0;
 	public static String Name;
@@ -68,6 +72,10 @@ public class Initiate_game extends Activity {
 	myOnClickListener myOnclick;
 	ArrayList<HashMap<String, Object>> listItem;
 	private final static int PLAYER_ADD = 0;
+	private final static int IMAGE_RECEIVE_OK = 1;
+	private final static int IMAGE_RECEIVE_FAIL = 2;
+	private final static int TEST=3;
+	private final static int ERROR=4;
 	private Handler myH;
 
 	@Override
@@ -88,8 +96,10 @@ public class Initiate_game extends Activity {
 		buildAdapter();
 		registerListeners();
 		set_image_and_name();
+		// deleteImageFile();
 		udp_brocast.start();
 		UDP_link.start();
+
 	}
 
 	public void findView() {
@@ -149,12 +159,36 @@ public class Initiate_game extends Activity {
 		tx_username.setText(Name + " 在线");
 	}
 
+	// 删除测试图片文件
+	public void deleteImageFile() {
+		try {
+			File file = new File(this.getFilesDir() + "/one.png");
+			if (file.exists()) {
+				Toast.makeText(Initiate_game.this, "" + file.getPath(),
+						Toast.LENGTH_LONG).show();
+				file.delete();
+			} else {
+				Toast.makeText(Initiate_game.this, "file not found",
+						Toast.LENGTH_LONG).show();
+			}
+		} catch (Exception e) {
+
+		}
+	}
+
 	private void handleList() {
 		listItem.clear();
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		for (int j = 0; j < i; j++) {
 			map = new HashMap<String, Object>();
-			map.put("ItemImage", R.drawable.ic_launcher);
+			try {
+				FileInputStream fis = openFileInput(NAME[j]);
+				Bitmap bm = BitmapFactory.decodeStream(fis);
+				map.put("ItemImage", bm);
+			} catch (Exception e) {
+				map.put("ItemImage", R.drawable.ic_launcher);
+			}
+			//map.put("ItemImage", R.drawable.ic_launcher);
 			map.put("ItemTitle", NAME[j]);
 			listItem.add(map);
 		}
@@ -165,6 +199,21 @@ public class Initiate_game extends Activity {
 		listItemAdapter = new SimpleAdapter(this, getData(),
 				R.layout.list_item, new String[] { "ItemImage", "ItemTitle" },
 				new int[] { R.id.ItemImage, R.id.ItemAddress });
+		listItemAdapter.setViewBinder(new ListViewBinder());
+	}
+
+	private class ListViewBinder implements ViewBinder {
+		@Override
+		public boolean setViewValue(View view, Object data,
+				String textRepresentation) {
+			if ((view instanceof ImageView) && (data instanceof Bitmap)) {
+				ImageView imageView = (ImageView) view;
+				Bitmap bmp = (Bitmap) data;
+				imageView.setImageBitmap(bmp);
+				return true;
+			}
+			return false;
+		}
 	}
 
 	// getData();
@@ -172,7 +221,14 @@ public class Initiate_game extends Activity {
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		for (int j = 0; j < i; j++) {
 			map = new HashMap<String, Object>();
-			map.put("ItemImage", R.drawable.ic_launcher);
+			try {
+				FileInputStream fis = openFileInput(NAME[j]);
+				Bitmap bm = BitmapFactory.decodeStream(fis);
+				map.put("ItemImage", bm);
+			} catch (Exception e) {
+				map.put("ItemImage", R.drawable.ic_launcher);
+			}
+			//map.put("ItemImage", R.drawable.ic_launcher);
 			map.put("ItemTitle", NAME[j]);
 			listItem.add(map);
 		}
@@ -224,9 +280,13 @@ public class Initiate_game extends Activity {
 	public class UDP_listenning extends Thread {
 		public void run() {
 			while (true) {
+				Message msg1=myH.obtainMessage();
+				msg1.what=TEST;
+				myH.sendMessage(msg1);
+				
 				try {
 					InetAddress addr;
-					byte buf[] = new byte[1024];
+					byte buf[] = new byte[12398];
 					DatagramSocket UDPSocket = new DatagramSocket(4244);
 					DatagramPacket UDPPacket = new DatagramPacket(buf,
 							buf.length);
@@ -235,11 +295,24 @@ public class Initiate_game extends Activity {
 					DataInputStream dis = new DataInputStream(bais);
 					String s = dis.readUTF();
 					String name = dis.readUTF();
+					FileOutputStream fos = openFileOutput(name,
+							MODE_PRIVATE);
+					long l = dis.readLong();
 					addr = UDPPacket.getAddress();
 					if ("suan24dian_join_game".equals(s)) {
 						// 加入发起玩家队列
-						if (playerNum >= 4)
+						byte data[] = new byte[(int) l];
+						for (int i = 0; i < l; i++) {// 读取图片数据
+							data[i] = dis.readByte();
+						}
+						fos.write(data, 0, data.length);
+						if (playerNum >= 4){
+							dis.close();
+							bais.close();
+							UDPSocket.close();
+							fos.close();
 							break;
+						}
 						Message msg = myH.obtainMessage();
 						msg.what = PLAYER_ADD;
 						Bundle b = new Bundle();
@@ -251,13 +324,21 @@ public class Initiate_game extends Activity {
 					dis.close();
 					bais.close();
 					UDPSocket.close();
+					fos.close();
 				} catch (IOException e1) {
+					Message msg2=myH.obtainMessage();
+					msg2.what=ERROR;
+					Bundle b= new Bundle();
+					b.putString("error", e1.toString());
+					msg2.setData(b);
+					myH.sendMessage(msg2);
 					e1.printStackTrace();
 					break;
+				}
 			}
 		}
 	}
-	}
+
 	public class myOnClickListener implements OnClickListener {
 		@Override
 		public void onClick(View v) {
@@ -318,6 +399,8 @@ public class Initiate_game extends Activity {
 		playerNum = 0;
 		i = 0;
 		listItem.clear();
+		new UDP_listenning().start();
+		//Toast.makeText(Initiate_game.this, "resume", Toast.LENGTH_LONG).show();
 	}
 
 	public class myHandler extends Handler {
@@ -325,6 +408,13 @@ public class Initiate_game extends Activity {
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			switch (msg.what) {
+			case TEST:
+				Toast.makeText(Initiate_game.this, "UDP_listenning_begin", Toast.LENGTH_LONG).show();
+				break;
+			case ERROR:
+				Toast.makeText(Initiate_game.this, ""+msg.getData().getString("error"), Toast.LENGTH_LONG).show();
+				break;
+				
 			case PLAYER_ADD:
 				// 有玩家加进来了，更新相应的数据
 				Bundle b = msg.getData();
@@ -334,6 +424,18 @@ public class Initiate_game extends Activity {
 				playerNum++;
 				update();
 				break;
+
+			case IMAGE_RECEIVE_OK:
+				Toast.makeText(Initiate_game.this, "image_ok",
+						Toast.LENGTH_LONG).show();
+				update();
+				break;
+			case IMAGE_RECEIVE_FAIL:
+				Toast.makeText(Initiate_game.this,
+						"image_fail:" + msg.getData().getString("message"),
+						Toast.LENGTH_LONG).show();
+				break;
+
 			}
 		}
 
@@ -344,7 +446,14 @@ public class Initiate_game extends Activity {
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		for (int j = 0; j < i; j++) {
 			map = new HashMap<String, Object>();
-			map.put("ItemImage", R.drawable.ic_launcher);
+			try {
+				FileInputStream fis = openFileInput(NAME[j]);
+				Bitmap bm = BitmapFactory.decodeStream(fis);
+				map.put("ItemImage", bm);
+			} catch (Exception e) {
+				map.put("ItemImage", R.drawable.ic_launcher);
+			}
+			//map.put("ItemImage", R.drawable.ic_launcher);
 			map.put("ItemTitle", NAME[j]);
 			listItem.add(map);
 		}
