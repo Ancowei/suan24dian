@@ -2,9 +2,9 @@ package com.ancowei.main;
 
 import com.ancowei.db.Player_msg;
 
+import com.ancowei.game_rules.Suan24dian_Game_Rules;
 import com.ancowei.initiate_game.Initiate_game;
 import com.ancowei.join_game.Join_game;
-import com.ancowei.join_game.Join_game_begin;
 import com.ancowei.local.Suan24dian_local;
 import com.ancowei.login.suan24dian_Login;
 import com.ancowei.main.Suan24dianMain;
@@ -12,17 +12,22 @@ import com.ancowei.services.Background_music;
 import com.example.suan24dian.R;
 import ExitApp.ExitApp;
 import android.os.Bundle;
+import android.os.Environment;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.Bitmap.Config;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -55,8 +60,6 @@ public class Suan24dianMain extends Activity {
 	private static int JOIN_GAME_CODE = 2;
 
 	public static String user_Name = "";
-	public static Intent image = new Intent();
-	public Intent user_data;
 	// 是否已经登录的标志
 	public static boolean ifLogin = false;
 
@@ -74,6 +77,7 @@ public class Suan24dianMain extends Activity {
 		setContentView(R.layout.activity_suan24dian_main);
 		findView();
 		registerListeners();
+		//setDefaultImage();
 		// 添加背景音乐
 		play_music();
 
@@ -101,7 +105,29 @@ public class Suan24dianMain extends Activity {
 		btn_join_game.setOnClickListener(btn_OnClick);
 
 	}
-
+	public static Bitmap getRoundedCornerBitmap(Bitmap bitmap) {
+		Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
+				bitmap.getHeight(), Config.ARGB_8888);
+		Canvas canvas = new Canvas(output);
+		final int color = 0xff424242;
+		final Paint paint = new Paint();
+		// 根据原来图片大小画一个矩形
+		final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+		final RectF rectF = new RectF(rect);
+		// 圆角弧度参数,数值越大圆角越大,甚至可以画圆形
+		final float roundPx = 15;
+		paint.setAntiAlias(true);
+		canvas.drawARGB(0, 0, 0, 0);
+		paint.setColor(color);
+		// 画出一个圆角的矩形
+		canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
+		// 取两层绘制交集,显示上层
+		paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+		// 显示图片
+		canvas.drawBitmap(bitmap, rect, rect, paint);
+		// 返回Bitmap对象
+		return output;
+	}
 	private void play_music() {
 		Intent mIntent = new Intent(this, Background_music.class);
 		startService(mIntent);
@@ -130,8 +156,7 @@ public class Suan24dianMain extends Activity {
 					// 点击发起游戏按钮时候，发送UDP广播，告知其他用户我发起了游戏，你们可以加进来
 					Intent create_game = new Intent(Suan24dianMain.this,
 							Initiate_game.class);
-					create_game.putExtra("image", user_data);
-					create_game.putExtra("user_name", user_Name);
+					//create_game.putExtra("user_name", user_Name);
 					Suan24dianMain.this.startActivity(create_game);
 				}
 
@@ -149,8 +174,7 @@ public class Suan24dianMain extends Activity {
 					// 点击加入游戏按钮时候，搜索UDP数据包，把当前所有发起游戏人用列表列举出来，用户可以点击其中的一个游戏发起人，加入游戏组
 					Intent join_game = new Intent(Suan24dianMain.this,
 							Join_game.class);
-					join_game.putExtra("image", user_data);
-					join_game.putExtra("user_name", user_Name);
+					//join_game.putExtra("user_name", user_Name);
 					Suan24dianMain.this.startActivity(join_game);
 
 				}
@@ -199,26 +223,24 @@ public class Suan24dianMain extends Activity {
 		}
 	}
 
-	@Override
+	/*@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		image = data;
+		// image = data;
 		if (resultCode == suan24dian_Login.LOGIN_RESULT_CODE) {
-			Bundle extras = data.getExtras();
+			
+			//Bundle extras = data.getExtras();
+			
 			if (extras != null) {
-				Bitmap photo = extras.getParcelable("data");
-				if (photo != null) {
-					Drawable drawable = new BitmapDrawable(photo);
-					image_user.setImageDrawable(drawable);
-				} 
+				Bitmap bm = BitmapFactory.decodeFile(Environment
+						.getExternalStorageDirectory() + "/user_image.jpg");
+				image_user.setImageBitmap(bm);
 				user_Name = data.getStringExtra("user_name");
-				user_data = data;
 				tx_username.setText(data.getStringExtra("user_name") + "在线");
 				ifLogin = true;
 			}
 		}
-
-	}
+	}*/
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -234,7 +256,7 @@ public class Suan24dianMain extends Activity {
 
 			.setTitle("算24点")
 
-			.setMessage("开发者：Ancowei\n版本：1.0")
+			.setMessage("开发者：韦美清\n导师：熊智\n版本：1.0")
 
 			.setPositiveButton("确定", null).show();
 			return true;
@@ -257,19 +279,12 @@ public class Suan24dianMain extends Activity {
 								}
 							}).show();
 			return true;
-		case R.id.menu_setting:
-			new AlertDialog.Builder(Suan24dianMain.this)
-
-			.setTitle("算24点")
-
-			.setMessage("设置部分有待开发")
-
-			.setPositiveButton("确定", null).show();
+		case R.id.menu_rules:
+			Intent rules_intent=new Intent(Suan24dianMain.this,Suan24dian_Game_Rules.class);
+			Suan24dianMain.this.startActivity(rules_intent);
 			return true;
-
 		}
 		return false;
-
 	}
 
 	// 重写返回手机返回按钮
@@ -295,19 +310,6 @@ public class Suan24dianMain extends Activity {
 			return true;
 		}
 		return false;
-
-	}
-
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		// 界面销毁之前保存数据
-
-	}
-
-	@Override
-	protected void onRestoreInstanceState(Bundle savedInstanceState) {
-		super.onRestoreInstanceState(savedInstanceState);
 	}
 
 	@Override
@@ -315,17 +317,17 @@ public class Suan24dianMain extends Activity {
 		super.onResume();
 		if (ifLogin) {
 			tx_username.setText(sp.getString("user_name", "") + " 在线");
-			if (image != null) {
-				Bundle extras = image.getExtras();
-				if (extras != null) {
-					Bitmap photo = extras.getParcelable("data");
-					Drawable drawable = new BitmapDrawable(photo);
-					image_user.setImageDrawable(drawable);
-				}
-			}
+			Bitmap bm = BitmapFactory.decodeFile(Environment
+					.getExternalStorageDirectory() + "/user_image.jpg");
+			Bitmap image=getRoundedCornerBitmap(bm);
+			image_user.setImageBitmap(image);
+
 		} else {
-			// tx_username.setText(""+this.getFilesDir().getAbsolutePath());
+			Bitmap bm = BitmapFactory.decodeResource(getResources(),
+					R.drawable.mini_avatar);
+			image_user.setImageBitmap(bm);
 			tx_username.setText(sp.getString("user_name", "") + " 未登录");
+
 		}
 
 	}

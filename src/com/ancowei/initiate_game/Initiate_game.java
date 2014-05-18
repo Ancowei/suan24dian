@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -25,15 +26,17 @@ import com.example.suan24dian.R;
 import ExitApp.ExitApp;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
@@ -61,7 +64,6 @@ public class Initiate_game extends Activity {
 
 	public static String ADDR[] = new String[10];
 	public static String NAME[] = new String[10];
-	private static FileOutputStream fos[] = new FileOutputStream[10];
 	public static int i = 0;
 	public static int playerNum = 0;
 	public static String Name;
@@ -74,8 +76,8 @@ public class Initiate_game extends Activity {
 	private final static int PLAYER_ADD = 0;
 	private final static int IMAGE_RECEIVE_OK = 1;
 	private final static int IMAGE_RECEIVE_FAIL = 2;
-	private final static int TEST=3;
-	private final static int ERROR=4;
+	private final static int TEST = 3;
+	private final static int ERROR = 4;
 	private Handler myH;
 
 	@Override
@@ -91,11 +93,9 @@ public class Initiate_game extends Activity {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		listItem = new ArrayList<HashMap<String, Object>>();
-		// create_player_db();
 		findView();
 		buildAdapter();
 		registerListeners();
-		set_image_and_name();
 		// deleteImageFile();
 		udp_brocast.start();
 		UDP_link.start();
@@ -144,21 +144,6 @@ public class Initiate_game extends Activity {
 		udp_brocast = new UDP_Brocast_initiate_Thread("suan24dian_initiate");
 	}
 
-	public void set_image_and_name() {
-		Intent image_and_name = this.getIntent();
-		Name = image_and_name.getStringExtra("user_name");
-		Intent image = image_and_name.getParcelableExtra("image");
-		if (image != null) {
-			Bundle extras = image.getExtras();
-			if (extras != null) {
-				Bitmap photo = extras.getParcelable("data");
-				Drawable drawable = new BitmapDrawable(photo);
-				image_user.setImageDrawable(drawable);
-			}
-		}
-		tx_username.setText(Name + " 在线");
-	}
-
 	// 删除测试图片文件
 	public void deleteImageFile() {
 		try {
@@ -188,7 +173,6 @@ public class Initiate_game extends Activity {
 			} catch (Exception e) {
 				map.put("ItemImage", R.drawable.ic_launcher);
 			}
-			//map.put("ItemImage", R.drawable.ic_launcher);
 			map.put("ItemTitle", NAME[j]);
 			listItem.add(map);
 		}
@@ -228,7 +212,6 @@ public class Initiate_game extends Activity {
 			} catch (Exception e) {
 				map.put("ItemImage", R.drawable.ic_launcher);
 			}
-			//map.put("ItemImage", R.drawable.ic_launcher);
 			map.put("ItemTitle", NAME[j]);
 			listItem.add(map);
 		}
@@ -238,11 +221,9 @@ public class Initiate_game extends Activity {
 	// UDP brocast UDP广播：我发起游戏了,局域网的广播地址是 255.255.255.255
 	public class UDP_Brocast_initiate_Thread extends Thread {
 		private String msg;
-
 		public UDP_Brocast_initiate_Thread(String s) {
 			this.msg = s;
 		}
-
 		public void run() {
 			try {
 				InetAddress addr = InetAddress.getByName("255.255.255.255");
@@ -252,6 +233,17 @@ public class Initiate_game extends Activity {
 				dout.writeUTF(msg);
 				if ("suan24dian_initiate".equals(msg)) {
 					dout.writeUTF(Suan24dianMain.user_Name);
+					InputStream is = new FileInputStream(new File(
+							Environment.getExternalStorageDirectory()
+									+ "/user_image.jpg"));
+					dout.writeLong(is.available());
+					byte[] data = new byte[is.available()];
+					int len = 0;
+					while ((len = is.read(data)) > 0) {
+						dout.write(data, 0, len);
+						//Log.e("fila_size", "" + len);
+					}
+					
 				} else if ("suan24dian_game_begin".equals(msg)) {
 					String num1 = "1";
 					String num2 = "4";
@@ -263,6 +255,7 @@ public class Initiate_game extends Activity {
 					dout.writeUTF(num4);
 				}
 				byte buf[] = bout.toByteArray();
+				Log.e("fila_size", "" + buf.length);
 				DatagramSocket socket = new DatagramSocket();
 				DatagramPacket packet = new DatagramPacket(buf, buf.length,
 						addr, 4545);
@@ -280,14 +273,10 @@ public class Initiate_game extends Activity {
 	public class UDP_listenning extends Thread {
 		public void run() {
 			while (true) {
-				Message msg1=myH.obtainMessage();
-				msg1.what=TEST;
-				myH.sendMessage(msg1);
-				
 				try {
 					InetAddress addr;
-					byte buf[] = new byte[12398];
-					DatagramSocket UDPSocket = new DatagramSocket(4244);
+					byte buf[] = new byte[30000];
+					DatagramSocket UDPSocket = new DatagramSocket(4546);
 					DatagramPacket UDPPacket = new DatagramPacket(buf,
 							buf.length);
 					UDPSocket.receive(UDPPacket);
@@ -295,8 +284,7 @@ public class Initiate_game extends Activity {
 					DataInputStream dis = new DataInputStream(bais);
 					String s = dis.readUTF();
 					String name = dis.readUTF();
-					FileOutputStream fos = openFileOutput(name,
-							MODE_PRIVATE);
+					FileOutputStream fos = openFileOutput(name, MODE_PRIVATE);
 					long l = dis.readLong();
 					addr = UDPPacket.getAddress();
 					if ("suan24dian_join_game".equals(s)) {
@@ -306,7 +294,7 @@ public class Initiate_game extends Activity {
 							data[i] = dis.readByte();
 						}
 						fos.write(data, 0, data.length);
-						if (playerNum >= 4){
+						if (playerNum >= 4) {
 							dis.close();
 							bais.close();
 							UDPSocket.close();
@@ -326,9 +314,9 @@ public class Initiate_game extends Activity {
 					UDPSocket.close();
 					fos.close();
 				} catch (IOException e1) {
-					Message msg2=myH.obtainMessage();
-					msg2.what=ERROR;
-					Bundle b= new Bundle();
+					Message msg2 = myH.obtainMessage();
+					msg2.what = ERROR;
+					Bundle b = new Bundle();
 					b.putString("error", e1.toString());
 					msg2.setData(b);
 					myH.sendMessage(msg2);
@@ -392,29 +380,21 @@ public class Initiate_game extends Activity {
 		super.onDestroy();
 	}
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		// 重新进入该页面时候，应该清空之前玩家的数据
-		playerNum = 0;
-		i = 0;
-		listItem.clear();
-		new UDP_listenning().start();
-		//Toast.makeText(Initiate_game.this, "resume", Toast.LENGTH_LONG).show();
-	}
-
 	public class myHandler extends Handler {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			switch (msg.what) {
-			case TEST:
-				Toast.makeText(Initiate_game.this, "UDP_listenning_begin", Toast.LENGTH_LONG).show();
-				break;
-			case ERROR:
-				Toast.makeText(Initiate_game.this, ""+msg.getData().getString("error"), Toast.LENGTH_LONG).show();
-				break;
-				
+			/*case TEST:
+				Toast.makeText(Initiate_game.this, "UDP_listenning_begin",
+						Toast.LENGTH_LONG).show();
+				break;*/
+			/*case ERROR:
+				Toast.makeText(Initiate_game.this,
+						"" + msg.getData().getString("error"),
+						Toast.LENGTH_LONG).show();
+				break;*/
+
 			case PLAYER_ADD:
 				// 有玩家加进来了，更新相应的数据
 				Bundle b = msg.getData();
@@ -453,11 +433,40 @@ public class Initiate_game extends Activity {
 			} catch (Exception e) {
 				map.put("ItemImage", R.drawable.ic_launcher);
 			}
-			//map.put("ItemImage", R.drawable.ic_launcher);
+			// map.put("ItemImage", R.drawable.ic_launcher);
 			map.put("ItemTitle", NAME[j]);
 			listItem.add(map);
 		}
 		listItemAdapter.notifyDataSetChanged();
 		list_player.onRefreshComplete();
 	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		// 重新进入该页面时候，应该清空之前玩家的数据
+		playerNum = 0;
+		i = 0;
+		listItem.clear();
+		new UDP_listenning().start();
+
+		SharedPreferences sp = this.getSharedPreferences("user_msg",
+				Context.MODE_PRIVATE);
+		tx_username.setText(sp.getString("user_name", "") + " 在线");
+		try {
+			FileInputStream fis = new FileInputStream(
+					Environment.getExternalStorageDirectory()
+							+ "/user_image.jpg");
+			Log.e("get_file_size", ""+fis.available());
+		} catch (Exception e) {
+			Log.e("get_file_size_error", e.toString());
+		}
+
+		Bitmap bm = BitmapFactory.decodeFile(Environment
+				.getExternalStorageDirectory() + "/user_image.jpg");
+		Bitmap image = Suan24dianMain.getRoundedCornerBitmap(bm);
+		image_user.setImageBitmap(image);
+
+	}
+
 }

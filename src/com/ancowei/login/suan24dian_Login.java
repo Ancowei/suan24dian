@@ -2,12 +2,9 @@ package com.ancowei.login;
 
 import java.io.File;
 
-
 import com.ancowei.main.Suan24dianMain;
 import com.ancowei.setting.Tools;
-
 import com.example.suan24dian.R;
-
 import ExitApp.ExitApp;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -16,12 +13,17 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Parcel;
 import android.provider.MediaStore;
 import android.view.View;
 import android.view.Window;
@@ -36,24 +38,22 @@ import android.widget.Toast;
 public class suan24dian_Login extends Activity {
 	private Button btn_cancle;
 	private Button btn_ok;
+	private RelativeLayout switchAvatar;
+	private ImageView faceImage;
 
 	private EditText edit_name;
 	private EditText edit_password;
-	
+
 	private SharedPreferences sp;
 
 	private static String user_Name;
 	private static String user_Password;
-	private static Intent user_image;
-	
+	private static Intent user_image_intent;
 
 	private btn_OnClickListener btn_onclick;
 	public static int LOGIN_RESULT_CODE = 3;
 
-	/* 组件 */
-	private RelativeLayout switchAvatar;
-	private ImageView faceImage;
-	//private String[] items = new String[] { "选择本地图片", "拍照" };
+	// private String[] items = new String[] { "选择本地图片", "拍照" };
 	private String[] items = new String[] { "选择本地图片" };
 	/* 头像名称 */
 	private static final String IMAGE_FILE_NAME = "faceImage.jpg";
@@ -62,7 +62,6 @@ public class suan24dian_Login extends Activity {
 	private static final int IMAGE_REQUEST_CODE = 0;
 	private static final int CAMERA_REQUEST_CODE = 1;
 	private static final int RESULT_REQUEST_CODE = 2;
-	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -86,10 +85,10 @@ public class suan24dian_Login extends Activity {
 		edit_password = (EditText) findViewById(R.id.edit_password);
 		edit_name = (EditText) findViewById(R.id.edit_name);
 		switchAvatar = (RelativeLayout) findViewById(R.id.switch_face_rl);
-		faceImage = (ImageView) findViewById(R.id.face);
-		user_image = new Intent();
+		faceImage = (ImageView) findViewById(R.id.faceImage);
+		user_image_intent = new Intent();
 		btn_onclick = new btn_OnClickListener();
-		sp=this.getSharedPreferences("user_msg", Context.MODE_PRIVATE);
+		sp = this.getSharedPreferences("user_msg", Context.MODE_PRIVATE);
 	}
 
 	public void registerListeners() {
@@ -111,7 +110,6 @@ public class suan24dian_Login extends Activity {
 	 * 显示选择对话框
 	 */
 	private void showDialog() {
-
 		new AlertDialog.Builder(this)
 				.setTitle("设置头像")
 				.setItems(items, new DialogInterface.OnClickListener() {
@@ -127,23 +125,19 @@ public class suan24dian_Login extends Activity {
 							startActivityForResult(intentFromGallery,
 									IMAGE_REQUEST_CODE);
 							break;
-						/*case 1:
-							Intent intentFromCapture = new Intent(
-									MediaStore.ACTION_IMAGE_CAPTURE);
-							// 判断存储卡是否可以用，可用进行存储
-							if (Tools.hasSdcard()) {
-								intentFromCapture.putExtra(
-										MediaStore.EXTRA_OUTPUT,
-										Uri.fromFile(new File(Environment
-												.getExternalStorageDirectory(),
-												IMAGE_FILE_NAME)));
-							}
-
-							startActivityForResult(intentFromCapture,
-									CAMERA_REQUEST_CODE);
-							break;*/
-							default:
-								break;
+						/*
+						 * case 1: Intent intentFromCapture = new Intent(
+						 * MediaStore.ACTION_IMAGE_CAPTURE); //
+						 * 判断存储卡是否可以用，可用进行存储 if (Tools.hasSdcard()) {
+						 * intentFromCapture.putExtra( MediaStore.EXTRA_OUTPUT,
+						 * Uri.fromFile(new File(Environment
+						 * .getExternalStorageDirectory(), IMAGE_FILE_NAME))); }
+						 * 
+						 * startActivityForResult(intentFromCapture,
+						 * CAMERA_REQUEST_CODE); break;
+						 */
+						default:
+							break;
 						}
 					}
 				})
@@ -176,8 +170,8 @@ public class suan24dian_Login extends Activity {
 			break;
 		case RESULT_REQUEST_CODE:
 			if (data != null) {
-				user_image = data;
-				getImageToView(data);
+				user_image_intent = data;
+				//getImageToView(data);
 			}
 			break;
 		}
@@ -198,9 +192,16 @@ public class suan24dian_Login extends Activity {
 		intent.putExtra("aspectX", 1);
 		intent.putExtra("aspectY", 1);
 		// outputX outputY 是裁剪图片宽高
-		intent.putExtra("outputX", 320);
-		intent.putExtra("outputY", 320);
+		intent.putExtra("outputX", 100);
+		intent.putExtra("outputY", 100);
 		intent.putExtra("return-data", true);
+		try {
+			Uri user_image = Uri.fromFile(new File(Environment
+					.getExternalStorageDirectory(), "user_image.jpg"));
+			intent.putExtra(MediaStore.EXTRA_OUTPUT, user_image);
+		} catch (Exception e) {
+
+		}
 		startActivityForResult(intent, RESULT_REQUEST_CODE);
 	}
 
@@ -209,28 +210,18 @@ public class suan24dian_Login extends Activity {
 	 * 
 	 * @param picdata
 	 */
-	private void getImageToView(Intent data) {
+	/*private void getImageToView(Intent data) {
 		Bundle extras = data.getExtras();
-		/*Uri u=data.getData();
-		if(u!=null){
-			Parcel  p=Parcel.obtain();
-			u.writeToParcel(p, 0);
-			Bundle b= p.readBundle();
-			Bitmap photo = b.getParcelable("data");
-			Drawable drawable = new BitmapDrawable(photo);
-			faceImage.setImageDrawable(drawable);
-		}*/
 		if (extras != null) {
 			Bitmap photo = extras.getParcelable("data");
 			Drawable drawable = new BitmapDrawable(photo);
 			faceImage.setImageDrawable(drawable);
 		}
-	}
+	}*/
 
 	public void set_Default_User() {
 		edit_name.setText(sp.getString("user_name", ""));
 		edit_password.setText(sp.getString("user_password", ""));
-		
 	}
 
 	public class btn_OnClickListener implements OnClickListener {
@@ -240,7 +231,6 @@ public class suan24dian_Login extends Activity {
 			case R.id.btn_cancle:
 				suan24dian_Login.this.finish();
 				break;
-			// 点击确定按钮之后，把用户数据送往本地数据库，如果是第一次登录，则同时把登录数据发送往服务器进行注册
 			case R.id.btn_ok:
 				user_Name = edit_name.getText().toString();
 				user_Password = edit_password.getText().toString();
@@ -251,19 +241,48 @@ public class suan24dian_Login extends Activity {
 							.setPositiveButton("确定", null).show();
 				} else {
 					Suan24dianMain.ifLogin = true;
-					user_image.putExtra("user_name", user_Name);
-					user_image.putExtra("user_password", user_Password);
-					setResult(LOGIN_RESULT_CODE, user_image);
-					//SharedPreferences
+					setResult(LOGIN_RESULT_CODE, user_image_intent);
+					// SharedPreferences
 					sp.edit().putString("user_name", user_Name)
-					.putString("user_password", user_Password).commit();
+							.putString("user_password", user_Password).commit();
 					suan24dian_Login.this.finish();
 				}
 				break;
-
 			}
-
 		}
+	}
+
+	public Bitmap getRoundedCornerBitmap(Bitmap bitmap) {
+		Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
+				bitmap.getHeight(), Config.ARGB_8888);
+		Canvas canvas = new Canvas(output);
+		final int color = 0xff424242;
+		final Paint paint = new Paint();
+		// 根据原来图片大小画一个矩形
+		final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+		final RectF rectF = new RectF(rect);
+		// 圆角弧度参数,数值越大圆角越大,甚至可以画圆形
+		final float roundPx = 15;
+		paint.setAntiAlias(true);
+		canvas.drawARGB(0, 0, 0, 0);
+		paint.setColor(color);
+		// 画出一个圆角的矩形
+		canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
+		// 取两层绘制交集,显示上层
+		paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+		// 显示图片
+		canvas.drawBitmap(bitmap, rect, rect, paint);
+		// 返回Bitmap对象
+		return output;
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Bitmap bm = BitmapFactory.decodeFile(Environment
+				.getExternalStorageDirectory() + "/user_image.jpg");
+		Bitmap b = getRoundedCornerBitmap(bm);
+		faceImage.setImageBitmap(b);
 
 	}
 }

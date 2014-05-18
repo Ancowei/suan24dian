@@ -15,6 +15,8 @@ public final class R {
     public static final class attr {
     }
     public static final class color {
+        public static final int bohongmei=0x7f060003;
+        public static final int fuse=0x7f060004;
         public static final int gold=0x7f060002;
         public static final int transparent=0x7f060001;
         public static final int white=0x7f060000;
@@ -31,7 +33,7 @@ public final class R {
     }
     public static final class drawable {
         public static final int arrow=0x7f020000;
-        public static final int bailv=0x7f020033;
+        public static final int bailv=0x7f020032;
         public static final int card_cattle_2=0x7f020001;
         public static final int card_chiken_10=0x7f020002;
         public static final int card_dog_11=0x7f020003;
@@ -45,7 +47,7 @@ public final class R {
         public static final int card_snake_6=0x7f02000b;
         public static final int card_tiger_3=0x7f02000c;
         public static final int clock=0x7f02000d;
-        public static final int hufense=0x7f020034;
+        public static final int hufense=0x7f020033;
         public static final int ic_launcher=0x7f02000e;
         public static final int mini_avatar=0x7f02000f;
         public static final int no1=0x7f020010;
@@ -54,8 +56,8 @@ public final class R {
         public static final int no4=0x7f020013;
         public static final int one=0x7f020014;
         public static final int plus=0x7f020015;
-        public static final int ruocaose=0x7f020031;
-        public static final int shuise=0x7f020030;
+        public static final int ruocaose=0x7f020030;
+        public static final int shuise=0x7f02002f;
         public static final int suan24dian=0x7f020016;
         public static final int suan24dian_24=0x7f020017;
         public static final int suan24dian_241=0x7f020018;
@@ -79,10 +81,9 @@ public final class R {
         public static final int suan24dian_login=0x7f02002a;
         public static final int suan24dian_next=0x7f02002b;
         public static final int suan24dian_wel=0x7f02002c;
-        public static final int suan24dian_welcome=0x7f02002d;
-        public static final int tengse=0x7f020032;
-        public static final int title_bg=0x7f02002e;
-        public static final int xingqiao=0x7f02002f;
+        public static final int tengse=0x7f020031;
+        public static final int title_bg=0x7f02002d;
+        public static final int xingqiao=0x7f02002e;
     }
     public static final class id {
         public static final int ItemAddress=0x7f0b0023;
@@ -95,48 +96,54 @@ public final class R {
         public static final int btn_4=0x7f0b0005;
         public static final int btn_back=0x7f0b000b;
         public static final int btn_cal=0x7f0b0009;
-        public static final int btn_cancle=0x7f0b0034;
+        public static final int btn_cancle=0x7f0b003a;
         public static final int btn_clear=0x7f0b000e;
         public static final int btn_commit=0x7f0b000f;
         public static final int btn_devide=0x7f0b000a;
         public static final int btn_exit=0x7f0b0012;
         public static final int btn_initiate_game=0x7f0b0016;
         public static final int btn_join_game=0x7f0b0017;
-        public static final int btn_joingame_exit=0x7f0b002d;
+        public static final int btn_joingame_exit=0x7f0b0033;
         public static final int btn_left=0x7f0b000c;
         public static final int btn_local=0x7f0b0015;
         public static final int btn_login=0x7f0b0019;
         public static final int btn_minus=0x7f0b0008;
         public static final int btn_next=0x7f0b0011;
-        public static final int btn_ok=0x7f0b0035;
+        public static final int btn_ok=0x7f0b003b;
         public static final int btn_plus=0x7f0b0007;
         public static final int btn_rank_back=0x7f0b0029;
         public static final int btn_right=0x7f0b000d;
         public static final int btn_setting=0x7f0b0018;
-        public static final int btn_start_game=0x7f0b002b;
+        public static final int btn_start_game=0x7f0b0031;
         public static final int edit_calculate=0x7f0b0006;
-        public static final int edit_name=0x7f0b0031;
-        public static final int edit_password=0x7f0b0033;
-        public static final int face=0x7f0b002f;
+        public static final int edit_name=0x7f0b0037;
+        public static final int edit_password=0x7f0b0039;
+        public static final int faceImage=0x7f0b0035;
         public static final int head_arrowImageView=0x7f0b001d;
         public static final int head_contentLayout=0x7f0b001c;
         public static final int head_lastUpdatedTextView=0x7f0b0020;
         public static final int head_progressBar=0x7f0b001e;
         public static final int head_tipsTextView=0x7f0b001f;
         public static final int image_user=0x7f0b0013;
-        public static final int join_game_listview=0x7f0b002c;
+        public static final int join_game_listview=0x7f0b0032;
+        public static final int layout_tab1=0x7f0b002a;
+        public static final int layout_tab2=0x7f0b002c;
+        public static final int layout_tab3=0x7f0b002e;
         public static final int listView=0x7f0b0025;
-        public static final int list_player=0x7f0b002a;
+        public static final int list_player=0x7f0b0030;
         public static final int list_ranking=0x7f0b0028;
-        public static final int menu_about=0x7f0b0037;
-        public static final int menu_exit=0x7f0b0038;
-        public static final int menu_setting=0x7f0b0036;
-        public static final int switch_face_rl=0x7f0b002e;
+        public static final int menu_about=0x7f0b003d;
+        public static final int menu_exit=0x7f0b003e;
+        public static final int menu_rules=0x7f0b003c;
+        public static final int switch_face_rl=0x7f0b0034;
         public static final int text_countdown_show=0x7f0b0001;
-        public static final int text_name=0x7f0b0030;
-        public static final int text_password=0x7f0b0032;
+        public static final int text_name=0x7f0b0036;
+        public static final int text_password=0x7f0b0038;
         public static final int text_result=0x7f0b0010;
         public static final int text_time=0x7f0b0000;
+        public static final int tx_tab1=0x7f0b002b;
+        public static final int tx_tab2=0x7f0b002d;
+        public static final int tx_tab3=0x7f0b002f;
         public static final int tx_username=0x7f0b0014;
         public static final int wait_image=0x7f0b0026;
         public static final int wait_text=0x7f0b0027;
@@ -154,9 +161,10 @@ public final class R {
         public static final int main=0x7f030007;
         public static final int suan24dian_game_begin_wait=0x7f030008;
         public static final int suan24dian_game_over=0x7f030009;
-        public static final int suan24dian_initiate_game=0x7f03000a;
-        public static final int suan24dian_join_game=0x7f03000b;
-        public static final int suan24dian_login=0x7f03000c;
+        public static final int suan24dian_game_rules=0x7f03000a;
+        public static final int suan24dian_initiate_game=0x7f03000b;
+        public static final int suan24dian_join_game=0x7f03000c;
+        public static final int suan24dian_login=0x7f03000d;
     }
     public static final class menu {
         public static final int suan24dian_welcome=0x7f0a0000;
@@ -172,10 +180,15 @@ public final class R {
         public static final int exit=0x7f080003;
         public static final int hello_world=0x7f080002;
         public static final int image=0x7f080009;
+        public static final int initiate_rules=0x7f080013;
+        public static final int joingame_rules=0x7f080014;
+        public static final int local_rules=0x7f080012;
         public static final int login=0x7f08000a;
+        public static final int menu_rules=0x7f080011;
         public static final int name=0x7f080005;
         public static final int password=0x7f080006;
         public static final int ranking=0x7f08000f;
+        public static final int rules=0x7f080010;
         public static final int set_image=0x7f08000d;
         public static final int title_bar_txt=0x7f08000c;
         public static final int unLogin=0x7f08000b;

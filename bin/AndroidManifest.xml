@@ -11,6 +11,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" >
     </uses-permission>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"
@@ -54,6 +56,7 @@
         <activity android:name="com.ancowei.initiate_game.Suan24dian_game_begin_wait"></activity>
         <activity android:name="com.ancowei.gameover.Suan24dian_game_over"></activity>
         <activity android:name="com.ancowei.initiate_game.Initiate_game_over"></activity>
+        <activity android:name="com.ancowei.game_rules.Suan24dian_Game_Rules"></activity>
     </application>
 
 </manifest>

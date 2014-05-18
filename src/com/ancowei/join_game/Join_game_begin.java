@@ -1,32 +1,21 @@
 package com.ancowei.join_game;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
 
 import com.ancowei.calculate.Calculate;
-import com.ancowei.gameover.Suan24dian_game_over;
-import com.ancowei.initiate_game.Game_begin;
 import com.ancowei.initiate_game.Initiate_game_over;
-import com.ancowei.initiate_game.Game_begin.NumThread;
-import com.ancowei.initiate_game.Game_begin.game_over_Thread;
-import com.ancowei.initiate_game.Game_begin.send_card_Thread;
-import com.ancowei.main.Suan24dianMain;
-import com.ancowei.welcome.Suan24dian_welcome;
 import com.example.suan24dian.R;
 
 import ExitApp.ExitApp;
 import android.R.color;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -89,19 +78,19 @@ public class Join_game_begin extends Activity {
 	static final int GAME_OVER = 0;
 	static final int NEXT = 1;
 	public static int questionNum = 10;
-	private static String ADDR[]=new String[10];
-	private static String NAME[]=new String[10];
-	private static int NAME_COLLECT[]=new int[10];
+	private static String ADDR[] = new String[10];
+	private static String NAME[] = new String[10];
+	private static int NAME_COLLECT[] = new int[10];
 	private static int playerNum;
-	
-	//创建游戏玩家的ADDR、NAME
-	private static String initiate_player_addr="172.18.13.128";
-	private static String initiate_player_name="Ancowei";
-	private static String user_Name="";
-	
+
+	// 创建游戏玩家的ADDR、NAME
+	private static String initiate_player_addr = "172.18.13.128";
+	private static String initiate_player_name = "Ancowei";
+	// private static String user_Name="";
+
 	static Handler myH;
 
-	static UDPLink_Thread UDP_listener;
+	static UDP_NEXT_OR_OVER_Thread UDP_listener;
 
 	private btnOnClickListener btnOnclick;
 
@@ -120,7 +109,7 @@ public class Join_game_begin extends Activity {
 		registerListeners();
 		getFirstNum();
 		myH = new myHandler();
-		UDP_listener = new UDPLink_Thread();
+		UDP_listener = new UDP_NEXT_OR_OVER_Thread();
 		UDP_listener.start();
 		initData();
 
@@ -170,9 +159,9 @@ public class Join_game_begin extends Activity {
 
 	public void getFirstNum() {
 		Intent fNum = this.getIntent();
-		initiate_player_addr=fNum.getStringExtra("initiator_addr");
-		initiate_player_name=fNum.getStringExtra("initiator_name");
-		user_Name=fNum.getStringExtra("user_Name");
+		initiate_player_addr = fNum.getStringExtra("initiator_addr");
+		initiate_player_name = fNum.getStringExtra("initiator_name");
+		// user_Name=fNum.getStringExtra("user_Name");
 		num1 = fNum.getStringExtra("num1");
 		num2 = fNum.getStringExtra("num2");
 		num3 = fNum.getStringExtra("num3");
@@ -546,7 +535,7 @@ public class Join_game_begin extends Activity {
 			res = "恭喜你,算对了！";
 			new Collect_Thread().start();
 			// 正确题数加1
-			//correctNum++;
+			// correctNum++;
 
 		} else {
 			res = "对不起,算错了,请重新计算.";
@@ -560,18 +549,23 @@ public class Join_game_begin extends Activity {
 			super.handleMessage(msg);
 			switch (msg.what) {
 			case NEXT:
-				Toast.makeText(Join_game_begin.this, "请做下一题", Toast.LENGTH_LONG)
-						.show();
 				setNum();
 				questionNum = questionNum - 1;
-				text_countdown_show.setText("" + questionNum);
-				i = 0;
-				count = 0;
-				preNum = "";
-				preIfnum = false;
-				calculate = "";
-				edit_calculate.setText(calculate);
-				text_result.setText("");
+				if (questionNum < 0) {
+					Toast.makeText(Join_game_begin.this, "本次游戏结束了，正在等待游戏结果",
+							Toast.LENGTH_SHORT).show();
+				} else {
+					Toast.makeText(Join_game_begin.this, "有玩家做出来了，请做下一题",
+							Toast.LENGTH_SHORT).show();
+					text_countdown_show.setText("" + questionNum);
+					i = 0;
+					count = 0;
+					preNum = "";
+					preIfnum = false;
+					calculate = "";
+					edit_calculate.setText(calculate);
+					text_result.setText("");
+				}
 				break;
 			case GAME_OVER:
 				// 当游戏结束的时候，显示玩家的排名
@@ -579,12 +573,12 @@ public class Join_game_begin extends Activity {
 						Toast.LENGTH_LONG).show();
 				Intent gameoverIntent = new Intent(Join_game_begin.this,
 						Initiate_game_over.class);
-				gameoverIntent.putExtra("user_Name", user_Name);
+				// gameoverIntent.putExtra("user_Name", user_Name);
 				gameoverIntent.putExtra("playerNum", playerNum);
-				for(int j=0;j<playerNum;++j){
-					gameoverIntent.putExtra("addr"+j, ADDR[j]);
-					gameoverIntent.putExtra("name"+j, NAME[j]);
-					gameoverIntent.putExtra("collect"+j, NAME_COLLECT[j]);
+				for (int j = 0; j < playerNum; ++j) {
+					gameoverIntent.putExtra("addr" + j, ADDR[j]);
+					gameoverIntent.putExtra("name" + j, NAME[j]);
+					gameoverIntent.putExtra("collect" + j, NAME_COLLECT[j]);
 				}
 				Join_game_begin.this.finish();
 				Join_game_begin.this.startActivity(gameoverIntent);
@@ -597,13 +591,13 @@ public class Join_game_begin extends Activity {
 		public void run() {
 			try {
 				InetAddress addr = InetAddress.getByName("172.18.13.128");
-				addr=InetAddress.getByName(initiate_player_addr);
+				addr = InetAddress.getByName(initiate_player_addr);
 				ByteArrayOutputStream bout = new ByteArrayOutputStream();
 				DataOutputStream dout = new DataOutputStream(bout);
 				dout.writeUTF("collect");
 				byte[] collect_buf = bout.toByteArray();
 				DatagramPacket collect_packet = new DatagramPacket(collect_buf,
-						collect_buf.length, addr, 4545);
+						collect_buf.length, addr, 4547);
 				DatagramSocket collect_socket = new DatagramSocket();
 				collect_socket.send(collect_packet);
 				collect_socket.close();
@@ -615,12 +609,12 @@ public class Join_game_begin extends Activity {
 
 	// UDP
 	// 链接之后,进行UDP侦听,接收发牌信息和命令
-	public class UDPLink_Thread extends Thread {
+	public class UDP_NEXT_OR_OVER_Thread extends Thread {
 		public void run() {
 			while (true) {
 				try {
 					byte buf[] = new byte[256];
-					DatagramSocket UDPSocket = new DatagramSocket(4546);
+					DatagramSocket UDPSocket = new DatagramSocket(4548);
 					DatagramPacket UDPPacket = new DatagramPacket(buf,
 							buf.length);
 					UDPSocket.receive(UDPPacket);
@@ -636,12 +630,12 @@ public class Join_game_begin extends Activity {
 						Message msg = myH.obtainMessage();
 						msg.what = NEXT;
 						myH.sendMessage(msg);
-					} else if("suan24dian_game_over".equals(s)){
-						playerNum=din.readInt();
-						for(int j=0;j<playerNum;j++){
-							ADDR[j]=din.readUTF();
-							NAME[j]=din.readUTF();
-							NAME_COLLECT[j]=din.readInt();
+					} else if ("suan24dian_game_over".equals(s)) {
+						playerNum = din.readInt();
+						for (int j = 0; j < playerNum; j++) {
+							ADDR[j] = din.readUTF();
+							NAME[j] = din.readUTF();
+							NAME_COLLECT[j] = din.readInt();
 						}
 						Message msg = myH.obtainMessage();
 						msg.what = GAME_OVER;

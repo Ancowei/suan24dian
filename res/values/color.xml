@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<drawable name="xingqiao">#50b7c1</drawable>
-<drawable name="shuise">#afdfe4</drawable>
-<drawable name="ruocaose">#bed742</drawable>
-<drawable name="tengse">#afb4db</drawable>
-<drawable name="bailv">#cde6c7</drawable>
-<drawable name="hufense">#fffef9</drawable>
- <color name="white">#ffffff</color>
+
+    <drawable name="xingqiao">#50b7c1</drawable>
+    <drawable name="shuise">#afdfe4</drawable>
+    <drawable name="ruocaose">#bed742</drawable>
+    <drawable name="tengse">#afb4db</drawable>
+    <drawable name="bailv">#cde6c7</drawable>
+    <drawable name="hufense">#fffef9</drawable>
+
+    <color name="white">#ffffff</color>
     <color name="transparent">#00000000</color>
     <color name="gold">#b89766</color>
+    <color name="bohongmei">#ef5b9c</color>
+    <color name="fuse">#c77eb5</color>      
+    
+
 </resources>

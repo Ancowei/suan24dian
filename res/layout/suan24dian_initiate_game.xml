@@ -33,9 +33,9 @@
 
                 <ImageView
                     android:id="@+id/image_user"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5sp"
+                    android:layout_width="42dip"
+                    android:layout_height="42dip"
+                    android:layout_marginRight="10dip" />
                     />
 
                 <TextView

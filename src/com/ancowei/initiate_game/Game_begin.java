@@ -101,7 +101,7 @@ public class Game_begin extends Activity {
 	public static TimeThread timeThread;
 	public static NumThread numThread;
 	public static boolean STOP = false;
-	private String user_Name;
+	//private String user_Name;
 	private static String ADDR[] = new String[10];
 	private static String NAME[] = new String[10];
 	private static int[] NAME_COLLECT=new int[10];
@@ -198,9 +198,9 @@ public class Game_begin extends Activity {
 			ADDR[j] = fNum.getStringExtra("addr" + j);
 			NAME[j] = fNum.getStringExtra("name" + j);
 		}
-		user_Name = fNum.getStringExtra("Name");
 		ADDR[j]="127.0.0.1";
-		NAME[j]=user_Name;
+		NAME[j]=this.getSharedPreferences("user_msg", MODE_PRIVATE)
+				.getString("user_name", "");
 		playerNum++;
 		num1 = fNum.getStringExtra("num1");
 		num2 = fNum.getStringExtra("num2");
@@ -690,7 +690,7 @@ public class Game_begin extends Activity {
 				byte buf[] = bout.toByteArray();
 				DatagramSocket socket = new DatagramSocket();
 				DatagramPacket packet = new DatagramPacket(buf, buf.length,
-						addr, 4346);
+						addr, 4548);
 				socket.send(packet);
 				bout.close();
 				dout.close();
@@ -709,7 +709,7 @@ public class Game_begin extends Activity {
 				byte[] collect_buf = new byte[256];
 				DatagramPacket packet = new DatagramPacket(collect_buf,
 						collect_buf.length);
-				DatagramSocket socket = new DatagramSocket(4246);
+				DatagramSocket socket = new DatagramSocket(4547);
 				socket.receive(packet);
 				ByteArrayInputStream bin = new ByteArrayInputStream(collect_buf);
 				DataInputStream din = new DataInputStream(bin);
@@ -751,7 +751,7 @@ public class Game_begin extends Activity {
 				byte buf[] = bout.toByteArray();
 				InetAddress addr = InetAddress.getByName("172.18.13.128");
 				DatagramPacket packet = new DatagramPacket(buf, buf.length,
-						addr, 4346);
+						addr, 4548);
 				socket.send(packet);
 				bout.close();
 				dout.close();
@@ -882,7 +882,6 @@ public class Game_begin extends Activity {
 
 	public void game_over() {
 		Intent game_over = new Intent(Game_begin.this, Initiate_game_over.class);
-		game_over.putExtra("user_Name", user_Name);
 		game_over.putExtra("playerNum", playerNum);
 		for(int j=0;j<playerNum;++j){
 			game_over.putExtra("addr"+j, ADDR[j]);

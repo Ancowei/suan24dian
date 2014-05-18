@@ -1,13 +1,20 @@
 package com.ancowei.welcome;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+
 import com.ancowei.main.Suan24dianMain;
 
 import com.example.suan24dian.R;
 
 import ExitApp.ExitApp;
 import android.os.Bundle;
+import android.os.Environment;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -15,6 +22,7 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class Suan24dian_welcome extends Activity {
 	private ImageView welcomeImage;
@@ -32,7 +40,7 @@ public class Suan24dian_welcome extends Activity {
 		// 无标题
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_suan24dian_welcome);
-		
+		setDefaultImage();
 		// 添加欢迎界面
 		welcomeImage = (ImageView) findViewById(R.id.welcome_image);
 		welcomeTextView = (TextView) findViewById(R.id.welcome_text);
@@ -62,5 +70,22 @@ public class Suan24dian_welcome extends Activity {
 		});
 
 	}
-
+	private void setDefaultImage() {
+		try {
+			Bitmap unLoginImage = BitmapFactory.decodeResource(getResources(),
+					R.drawable.mini_avatar);
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			unLoginImage.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+			File file = new File(Environment.getExternalStorageDirectory()
+					+ "/user_image.jpg");
+			FileOutputStream fos = new FileOutputStream(file);
+			fos.write(baos.toByteArray());
+			fos.flush();
+			fos.close();
+		} catch (Exception e) {
+			Toast.makeText(Suan24dian_welcome.this, "" + e.toString(),
+					Toast.LENGTH_SHORT).show();
+			//tx_username.setText("" + e.toString());
+		}
+	}
 }
