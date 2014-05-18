@@ -69,9 +69,11 @@ public class Join_game extends Activity {
 	private static int initiateNum = 0;
 	private static int p = 0;
 	// 选择的创建游戏玩家的ADDR、NAME
-	private static InetAddress initiate_player_addr;
-	private static String initiate_player_name = "Ancowei";
-	private static String user_Name = "";
+	public static InetAddress initiate_player_addr;
+	public static String initiate_player_name = "Ancowei";
+	private SharedPreferences sp;
+	
+	//private static String user_Name = "";
 	public static Intent image = new Intent();
 
 	public static SimpleAdapter join_game_listAdapter;
@@ -111,6 +113,7 @@ public class Join_game extends Activity {
 				new String[] { "ItemImage", "ItemAddress" }, new int[] {
 						R.id.ItemImage, R.id.ItemAddress });
 		join_game_listAdapter.setViewBinder(new ListViewBinder());
+		sp = this.getSharedPreferences("user_msg", Context.MODE_PRIVATE);
 	}
 
 	private class ListViewBinder implements ViewBinder {
@@ -164,12 +167,12 @@ public class Join_game extends Activity {
 				// 进入游戏开始等待界面
 				Intent game_wait_Intent = new Intent(Join_game.this,
 						Game_begin_wait.class);
-				game_wait_Intent.putExtra("initiator_addr",
+				/*game_wait_Intent.putExtra("initiator_addr",
 						initiate_player_addr);
 				game_wait_Intent.putExtra("initiator_name",
 						initiate_player_name);
-				game_wait_Intent.putExtra("user_Name", user_Name);
-				Join_game.this.finish();
+				//game_wait_Intent.putExtra("user_Name", user_Name);
+*/				Join_game.this.finish();
 				Join_game.this.startActivity(game_wait_Intent);
 			}
 		});
@@ -273,6 +276,37 @@ public class Join_game extends Activity {
 	public class UDP_link_Thread extends Thread {
 		public void run() {
 			try {
+				DatagramSocket socket = new DatagramSocket();
+				InetAddress addr = InetAddress.getByName("");
+				addr=ADDR[p];
+				//InputStream is = this.getClass().getResourceAsStream("one.png");
+				InputStream is = new FileInputStream(new File(
+						Environment.getExternalStorageDirectory()
+								+ "/user_image.jpg"));
+				ByteArrayOutputStream bout = new ByteArrayOutputStream();
+				DataOutputStream dout = new DataOutputStream(bout);
+				dout.writeUTF("suan24dian_join_game");
+				dout.writeUTF(sp.getString("user_name", ""));
+				dout.writeLong(is.available());
+				System.out.println(is.available());
+				byte[] data =new byte[is.available()];
+				int len=0;
+				while((len=is.read(data))>0)
+				{
+					dout.write(data,0,len);
+				}
+				byte[] buf = bout.toByteArray();
+				buf = bout.toByteArray();
+				DatagramPacket packet1 = new DatagramPacket(buf, buf.length, addr,
+						4546);
+				socket.send(packet1);
+				socket.close();
+				dout.close();
+				bout.close();
+			} catch (Exception e) {
+				System.out.print(e.toString());
+			}
+			/*try {
 				InetAddress addr = InetAddress.getByName("255.255.255.255");
 				addr = ADDR[p];
 				Log.e("addr", addr.toString());
@@ -301,7 +335,7 @@ public class Join_game extends Activity {
 				dout.close();
 			} catch (Exception e) {
 				System.out.println("\n广播发送失败：" + e.toString());
-			}
+			}*/
 		}
 	}
 

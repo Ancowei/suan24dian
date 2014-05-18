@@ -681,12 +681,13 @@ public class Game_begin extends Activity {
 			try {
 				ByteArrayOutputStream bout = new ByteArrayOutputStream();
 				DataOutputStream dout = new DataOutputStream(bout);
-				dout.writeUTF("fapai");
+				dout.writeUTF("next");
 				dout.writeUTF(num1);
 				dout.writeUTF(num2);
 				dout.writeUTF(num3);
 				dout.writeUTF(num4);
 				InetAddress addr = InetAddress.getByName("172.18.13.128");
+				addr=InetAddress.getByName("255.255.255.255");
 				byte buf[] = bout.toByteArray();
 				DatagramSocket socket = new DatagramSocket();
 				DatagramPacket packet = new DatagramPacket(buf, buf.length,
@@ -750,6 +751,7 @@ public class Game_begin extends Activity {
 				}
 				byte buf[] = bout.toByteArray();
 				InetAddress addr = InetAddress.getByName("172.18.13.128");
+				addr=InetAddress.getByName("255.255.255.255");
 				DatagramPacket packet = new DatagramPacket(buf, buf.length,
 						addr, 4548);
 				socket.send(packet);

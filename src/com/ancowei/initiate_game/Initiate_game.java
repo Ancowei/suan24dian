@@ -67,6 +67,7 @@ public class Initiate_game extends Activity {
 	public static int i = 0;
 	public static int playerNum = 0;
 	public static String Name;
+	private SharedPreferences sp;
 
 	MyListView list_player;
 	List<String> list_player_show;
@@ -76,7 +77,6 @@ public class Initiate_game extends Activity {
 	private final static int PLAYER_ADD = 0;
 	private final static int IMAGE_RECEIVE_OK = 1;
 	private final static int IMAGE_RECEIVE_FAIL = 2;
-	private final static int TEST = 3;
 	private final static int ERROR = 4;
 	private Handler myH;
 
@@ -109,6 +109,7 @@ public class Initiate_game extends Activity {
 		image_user = (ImageView) findViewById(R.id.image_user);
 		tx_username = (TextView) findViewById(R.id.tx_username);
 		myH = new myHandler();
+		sp = this.getSharedPreferences("user_msg", Context.MODE_PRIVATE);
 	}
 
 	public void registerListeners() {
@@ -141,7 +142,8 @@ public class Initiate_game extends Activity {
 		});
 		inet_initiate_control = new Inet_initiate_control();
 		UDP_link = new UDP_listenning();
-		udp_brocast = new UDP_Brocast_initiate_Thread("suan24dian_initiate");
+		//udp_brocast = new UDP_Brocast_initiate_Thread("suan24dian_initiate");
+		udp_brocast = new UDP_Brocast_initiate_Thread();
 	}
 
 	// 删除测试图片文件
@@ -217,17 +219,81 @@ public class Initiate_game extends Activity {
 		}
 		return listItem;
 	}
-
+	
+	public void brocast_test() {
+		try {
+			DatagramSocket socket = new DatagramSocket();
+			InetAddress addr = InetAddress.getByName("192.168.173.27");
+			InputStream is = this.getClass().getResourceAsStream("one.png");
+			ByteArrayOutputStream bout = new ByteArrayOutputStream();
+			DataOutputStream dout = new DataOutputStream(bout);
+			dout.writeUTF("suan24dian_initiate");
+			dout.writeUTF("link");
+			dout.writeLong(is.available());
+			System.out.println(is.available());
+			byte[] data =new byte[is.available()];
+			int len=0;
+			while((len=is.read(data))>0)
+			{
+				dout.write(data,0,len);
+			}
+			byte[] buf = bout.toByteArray();
+			buf = bout.toByteArray();
+			DatagramPacket packet1 = new DatagramPacket(buf, buf.length, addr,
+					4545);
+			socket.send(packet1);
+			socket.close();
+			dout.close();
+			bout.close();
+		} catch (Exception e) {
+			System.out.print(e.toString());
+		}
+	}
+	
 	// UDP brocast UDP广播：我发起游戏了,局域网的广播地址是 255.255.255.255
 	public class UDP_Brocast_initiate_Thread extends Thread {
-		private String msg;
+		public void run(){
+			try {
+				DatagramSocket socket = new DatagramSocket();
+				InetAddress addr = InetAddress.getByName("192.168.173.27");
+				addr=InetAddress.getByName("255.255.255.255");
+				//InputStream is = this.getClass().getResourceAsStream("one.png");
+				InputStream is = new FileInputStream(new File(
+						Environment.getExternalStorageDirectory()
+								+ "/user_image.jpg"));
+				ByteArrayOutputStream bout = new ByteArrayOutputStream();
+				DataOutputStream dout = new DataOutputStream(bout);
+				dout.writeUTF("suan24dian_initiate");
+				dout.writeUTF(sp.getString("user_name", ""));
+				dout.writeLong(is.available());
+				System.out.println(is.available());
+				byte[] data =new byte[is.available()];
+				int len=0;
+				while((len=is.read(data))>0)
+				{
+					dout.write(data,0,len);
+				}
+				byte[] buf = bout.toByteArray();
+				buf = bout.toByteArray();
+				DatagramPacket packet1 = new DatagramPacket(buf, buf.length, addr,
+						4545);
+				socket.send(packet1);
+				socket.close();
+				dout.close();
+				bout.close();
+			} catch (Exception e) {
+				System.out.print(e.toString());
+			}
+		}
+		/*private String msg;
 		public UDP_Brocast_initiate_Thread(String s) {
 			this.msg = s;
 		}
 		public void run() {
 			try {
 				InetAddress addr = InetAddress.getByName("255.255.255.255");
-				addr = InetAddress.getByName("172.18.13.128");
+				//addr = InetAddress.getByName("172.18.13.128");
+				addr=InetAddress.getByName("192.168.173.27");
 				ByteArrayOutputStream bout = new ByteArrayOutputStream();
 				DataOutputStream dout = new DataOutputStream(bout);
 				dout.writeUTF(msg);
@@ -243,7 +309,6 @@ public class Initiate_game extends Activity {
 						dout.write(data, 0, len);
 						//Log.e("fila_size", "" + len);
 					}
-					
 				} else if ("suan24dian_game_begin".equals(msg)) {
 					String num1 = "1";
 					String num2 = "4";
@@ -266,9 +331,34 @@ public class Initiate_game extends Activity {
 			} catch (Exception e) {
 				System.out.println("\n广播发送失败：" + e.toString());
 			}
+		}*/
+	}
+//game_begin brocast
+	public class UDP_game_begin_Brocast extends Thread{
+		public void run(){
+			try {
+				ByteArrayOutputStream bout = new ByteArrayOutputStream();
+				DataOutputStream dout = new DataOutputStream(bout);
+				dout.writeUTF("suan24dian_game_begin");
+				dout.writeUTF("2");
+				dout.writeUTF("4");
+				dout.writeUTF("1");
+				dout.writeUTF("3");
+				InetAddress addr = InetAddress.getByName("255.255.255.255");
+				byte buf[] = bout.toByteArray();
+				DatagramSocket socket = new DatagramSocket();
+				DatagramPacket packet = new DatagramPacket(buf, buf.length, addr,
+						4549);
+				socket.send(packet);
+				bout.close();
+				dout.close();
+				socket.close();
+
+			} catch (Exception e) {
+				System.out.println("\n广播发送失败：" + e.toString());
+			}
 		}
 	}
-
 	// UDP link
 	public class UDP_listenning extends Thread {
 		public void run() {
@@ -334,13 +424,13 @@ public class Initiate_game extends Activity {
 			// 刚开始，开始游戏按钮是不可点击状态，只有有人加入游戏之后才可以开始游戏
 			case R.id.btn_start_game:
 				if (playerNum == 0) {
+					//new UDP_game_begin_Brocast().start();
 					new AlertDialog.Builder(Initiate_game.this)
 							.setMessage("玩家个数为0\n还不可以开始游戏哦")
 							.setPositiveButton("确定", null).show();
 				} else {
 					// 向所有玩家发送游戏开始的广播
-					new UDP_Brocast_initiate_Thread("suan24dian_game_begin")
-							.start();
+					new UDP_game_begin_Brocast().start();
 					Intent intent = new Intent(Initiate_game.this,
 							Suan24dian_game_begin_wait.class);
 					intent.putExtra("i", i);
@@ -349,10 +439,10 @@ public class Initiate_game extends Activity {
 						intent.putExtra("name" + j, NAME[j]);
 					}
 					intent.putExtra("name", Name);
-					intent.putExtra("num1", "1");
+					intent.putExtra("num1", "2");
 					intent.putExtra("num2", "4");
-					intent.putExtra("num3", "7");
-					intent.putExtra("num4", "9");
+					intent.putExtra("num3", "1");
+					intent.putExtra("num4", "3");
 					Initiate_game.this.finish();
 					Initiate_game.this.startActivity(intent);
 				}
@@ -385,16 +475,6 @@ public class Initiate_game extends Activity {
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			switch (msg.what) {
-			/*case TEST:
-				Toast.makeText(Initiate_game.this, "UDP_listenning_begin",
-						Toast.LENGTH_LONG).show();
-				break;*/
-			/*case ERROR:
-				Toast.makeText(Initiate_game.this,
-						"" + msg.getData().getString("error"),
-						Toast.LENGTH_LONG).show();
-				break;*/
-
 			case PLAYER_ADD:
 				// 有玩家加进来了，更新相应的数据
 				Bundle b = msg.getData();

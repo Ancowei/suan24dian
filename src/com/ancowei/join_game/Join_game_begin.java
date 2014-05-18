@@ -21,6 +21,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -84,8 +85,8 @@ public class Join_game_begin extends Activity {
 	private static int playerNum;
 
 	// 创建游戏玩家的ADDR、NAME
-	private static String initiate_player_addr = "172.18.13.128";
-	private static String initiate_player_name = "Ancowei";
+//	private static String initiate_player_addr = "172.18.13.128";
+//	private static String initiate_player_name = "Ancowei";
 	// private static String user_Name="";
 
 	static Handler myH;
@@ -159,8 +160,8 @@ public class Join_game_begin extends Activity {
 
 	public void getFirstNum() {
 		Intent fNum = this.getIntent();
-		initiate_player_addr = fNum.getStringExtra("initiator_addr");
-		initiate_player_name = fNum.getStringExtra("initiator_name");
+//		initiate_player_addr = fNum.getStringExtra("initiator_addr");
+//		initiate_player_name = fNum.getStringExtra("initiator_name");
 		// user_Name=fNum.getStringExtra("user_Name");
 		num1 = fNum.getStringExtra("num1");
 		num2 = fNum.getStringExtra("num2");
@@ -590,7 +591,28 @@ public class Join_game_begin extends Activity {
 	public class Collect_Thread extends Thread {
 		public void run() {
 			try {
+				byte[] data = new byte[1024];
+				InetAddress addr = InetAddress.getByName("192.168.173.27");
+				addr=Join_game.initiate_player_addr;
+				ByteArrayOutputStream bout = new ByteArrayOutputStream();
+				DataOutputStream dout = new DataOutputStream(bout);
+				dout.writeUTF("collect");
+				data = bout.toByteArray();
+				DatagramSocket socket = new DatagramSocket();
+				DatagramPacket packet = new DatagramPacket(data, data.length, addr,
+						4547);
+				socket.send(packet);
+				socket.close();
+			} catch (Exception e) {
+				//Log.e("host ip ",initiate_player_addr );
+				System.out.print("collect_send_error:"+e.toString());
+			}finally{
+				//Log.e("host ip ",initiate_player_addr);
+				System.out.print("host ip "+Join_game.initiate_player_name);
+			}
+			/*try {
 				InetAddress addr = InetAddress.getByName("172.18.13.128");
+				addr=InetAddress.getByName(initiate_player_addr);
 				addr = InetAddress.getByName(initiate_player_addr);
 				ByteArrayOutputStream bout = new ByteArrayOutputStream();
 				DataOutputStream dout = new DataOutputStream(bout);
@@ -603,7 +625,7 @@ public class Join_game_begin extends Activity {
 				collect_socket.close();
 			} catch (Exception e) {
 				e.toString();
-			}
+			}*/
 		}
 	}
 
